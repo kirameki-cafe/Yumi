@@ -14,4 +14,8 @@ model Guild {
   id                String          @id
   prefix            String          @default(">")
   isEnabled         Boolean         @default(true)
+
+  MembershipScreening_Enabled Boolean @default(false)
+  MembershipScreening_ApprovalChannel String?
+  MembershipScreening_GivenRole String?
 }
