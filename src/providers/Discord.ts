@@ -85,7 +85,7 @@ class Discord {
 
             // TODO: Handle DMs commands soon
             if(!(message.channel instanceof TextChannel)) return;
-            //if(message.author.bot) return;
+            if(message.author.bot) return;
 
             if(typeof message.guild?.id === 'undefined') return;
 
