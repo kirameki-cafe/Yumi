@@ -25,6 +25,8 @@ export function makeEmbed(icon: string | undefined, title: string, description: 
 
     if(typeof user !== 'undefined')
         embed.setFooter(`${user.username}  |  v${App.version}`, (user.avatarURL() || ''));
+    else
+        embed.setFooter(`v${App.version}`, '');
     
     if (typeof fields !== 'undefined')
         embed.addFields(fields);
@@ -42,7 +44,11 @@ export function makeErrorEmbed(options: any) {
 }
 
 export function makeProcessingEmbed(options: any) {
-    return makeEmbed(options.icon || getEmotes().yumiloading, options.title, options.description, '#C7CEEA', options.fields, options.user, options.setTimestamp || true);
+    return makeEmbed(options.icon || getEmotes().yumiloading, options.title, options.description, '#E2F0CB', options.fields, options.user, options.setTimestamp || true);
+}
+
+export function makeInfoEmbed(options: any) {
+    return makeEmbed(options.icon || "🔮", options.title, options.description, '#C7CEEA', options.fields, options.user, options.setTimestamp || true);
 }
 
 export async function sendMessage(channel: TextChannel | DMChannel | BaseGuildTextChannel | TextBasedChannels, user: User | undefined, options: string | MessagePayload | MessageOptions) {
@@ -62,7 +68,6 @@ export async function sendMessage(channel: TextChannel | DMChannel | BaseGuildTe
     }
     
 }
-
 
 export async function sendReply(rMessage: Message, options: string | MessagePayload | MessageOptions) {
     
