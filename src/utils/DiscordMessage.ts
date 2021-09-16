@@ -1,7 +1,6 @@
 import { MessageEmbed, User, MessagePayload, MessageOptions, TextBasedChannels, TextChannel, DMChannel, BaseGuildTextChannel, Message, ColorResolvable } from "discord.js";
 import App from "..";
-import DiscordProvider from "../providers/Discord";
-import Logger from "./Logger";
+import Logger from "../libs/Logger";
 
 const emotes = {
     "yumiloading": "<a:yumiloading:887350424938627173>"
