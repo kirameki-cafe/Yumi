@@ -1,7 +1,7 @@
 import { channel } from "diagnostics_channel";
 import { GuildChannel, GuildMember, Message, Permissions, TextChannel, MessageActionRow, MessageButton, Interaction } from "discord.js";
 import App from "..";
-import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, makeInfoEmbed, makeErrorEmbed, sendMessage, sendReply } from "../libs/DiscordMessage";
+import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, makeInfoEmbed, makeErrorEmbed, sendMessage, sendReply } from "../utils/DiscordMessage";
 import Logger from "../libs/Logger";
 import DiscordProvider from "../providers/Discord";
 import Prisma from "../providers/Prisma";

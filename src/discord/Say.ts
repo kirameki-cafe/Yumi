@@ -1,5 +1,5 @@
 import { Message, Permissions } from "discord.js";
-import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, sendMessage, sendReply, makeErrorEmbed } from "../libs/DiscordMessage";
+import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, sendMessage, sendReply, makeErrorEmbed } from "../utils/DiscordMessage";
 import DiscordProvider from "../providers/Discord";
 
 export default class Say {
