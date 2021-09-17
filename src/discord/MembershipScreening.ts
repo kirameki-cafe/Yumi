@@ -173,7 +173,7 @@ export default class MembershipScreening {
         const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
         const isMessage = data instanceof Message;
 
-        if(!isSlashCommand && isMessage) return;
+        if(!isSlashCommand && !isMessage) return;
 
         if(data.guild === null || data.guildId === null) return;
         
