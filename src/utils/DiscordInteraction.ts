@@ -1,41 +1,63 @@
 import Logger from "../libs/Logger";
 import DiscordProvider from "../providers/Discord";
-import { ApplicationCommand } from "discord.js"
+import { ApplicationCommand, Collection } from "discord.js"
+import { SlashCommandBuilder } from "@discordjs/builders";
 
-export const GLOBAL_COMMANDS = [
+export const GLOBAL_COMMANDS: Object[] = [];
 
-];
+export const GUILD_COMMANDS: Object[] = [];
 
-export const GUILD_COMMANDS = [
-    {
-        name: 'help',
-        description: 'Show help menu'
-    },
-    {
-        name: 'ping',
-        description: 'Measure network latency'
-    },
-    {
-        name: 'invite',
-        description: 'Invite me to your server!'
-    },
-    {
-        name: 'say',
-        description: 'Make me say something',
-        options: [
-            {
-                name: 'message',
-                type: 3,
-                description: 'Message you want me to say',
-                required: true
-            }
-        ]
-    }
-];
+GUILD_COMMANDS.push(new SlashCommandBuilder().setName('help').setDescription('Show help menu').toJSON());
+GUILD_COMMANDS.push(new SlashCommandBuilder().setName('ping').setDescription('Measure network latency').toJSON());
+GUILD_COMMANDS.push(new SlashCommandBuilder().setName('invite').setDescription('Invite me to your server!').toJSON());
+GUILD_COMMANDS.push(new SlashCommandBuilder()
+    .setName('say')
+    .setDescription('Make me say something')
+    .addStringOption(option => option
+        .setName('message')
+        .setDescription('Message you want me to say')
+        .setRequired(true)
+    )
+);
+
+GUILD_COMMANDS.push(new SlashCommandBuilder()
+    .setName('membershipscreening')
+    .setDescription('Membership screening')
+    .addSubcommand(enable => enable
+        .setName('enable')
+        .setDescription('Enable Membership screening')
+    )
+    .addSubcommand(enable => enable
+        .setName('disable')
+        .setDescription('Disable Membership screening')
+    )
+    .addSubcommand(setrole => setrole
+        .setName('setrole')
+        .setDescription('Configure role of Membership screening')
+        .addRoleOption(option => option
+            .setName('role')
+            .setDescription('Role to give to user')
+            .setRequired(true)
+        )
+    )
+    .addSubcommand(setchannel => setchannel
+        .setName('setchannel')
+        .setDescription('Configure channel of Membership screening')
+        .addChannelOption(option => option
+            .setName('channel')
+            .setDescription('Channel to send request to')
+            .setRequired(true)
+        )
+    )
+    .addSubcommand(createmessage => createmessage
+        .setName('createmessage')
+        .setDescription('Create message for Membership screening')
+    )
+);
 
 export const registerAllGlobalCommands = async () => {
     Logger.log('info', `Registering all global interaction commands`);
-    await DiscordProvider.client.application?.commands.set(GLOBAL_COMMANDS);
+    await DiscordProvider.client.application?.commands.set(JSON.parse(JSON.stringify(GLOBAL_COMMANDS)));
 }
 
 export const unregisterAllGlobalCommands = async () => {
@@ -60,7 +82,7 @@ export const registerAllGuildsCommands = async () => {
         if(!guildObject) continue;
         
         Logger.log('info', `Registering all interaction commands on guild ${guildObject.name} (${guildObject.id})`);
-        await DiscordProvider.client.guilds.cache.get(guildObject.id)?.commands.set(GUILD_COMMANDS);
+        await DiscordProvider.client.guilds.cache.get(guildObject.id)?.commands.set(JSON.parse(JSON.stringify(GUILD_COMMANDS)));
     }
 }
 
