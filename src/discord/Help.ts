@@ -1,4 +1,4 @@
-import { Interaction, Message } from "discord.js";
+import { CommandInteraction, Interaction, Message } from "discord.js";
 import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, sendMessage, sendReply, makeInfoEmbed } from "../utils/DiscordMessage";
 import DiscordProvider from "../providers/Discord";
 
@@ -9,8 +9,10 @@ export default class Help {
         this.sendHelpMessage(false, message);
     }
 
-    async interactionCreate(interaction: Interaction) {
-        this.sendHelpMessage(true, interaction);
+    async interactionCreate(interaction: CommandInteraction) { 
+        if(typeof interaction.commandName === 'undefined')  return;
+        if((interaction.commandName).toLowerCase() !== 'help') return;
+        await this.sendHelpMessage(true, interaction);
     }
 
     async sendHelpMessage(isSlashCommand: boolean, data: any) {
@@ -32,11 +34,11 @@ export default class Help {
                     value: '``help``\n``ping``\n``invite``\n``membershipscreening (ms)``\n``...14 commands has been hidden (FLAGS.BETA)``'
                 }
             ],
-            user: data.author
+            user:  isSlashCommand ? data.user : data.author
         });
 
         if(isSlashCommand) {
-            data.replay({ ephemeral: true, embeds: [embed] });
+            data.reply({ ephemeral: false, embeds: [embed] });
         }
 
         else {
