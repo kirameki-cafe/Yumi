@@ -113,7 +113,7 @@ const EMBEDS = {
     INVALID_CHANNEL_THREAD: (data: Message | Interaction, channel: GuildChannel | ThreadChannel) => {
         return makeErrorEmbed ({
             title: 'Thread channel is not supported',
-            description: '``' + channel.name +'``' + ' a thread channel. Please use regular channel',
+            description: '``' + channel.name +'``' + ' is a thread channel. Please use a regular text channel',
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
