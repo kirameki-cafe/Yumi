@@ -38,6 +38,8 @@ export default class Invite {
         const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
         const isMessage = data instanceof Message;
 
+        if(!isSlashCommand && !isMessage) return;
+        
         return await sendMessageOrInteractionResponse(data, { embeds:[EMBEDS.INVITE_INFO(data)] });
     }
 }
