@@ -1,7 +1,7 @@
 import { Channel, channel } from "diagnostics_channel";
 import { GuildChannel, GuildMember, Message, Permissions, TextChannel, MessageActionRow, MessageButton, Interaction, CommandInteraction, Role, ThreadChannel } from "discord.js";
 import App from "..";
-import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, makeInfoEmbed, makeErrorEmbed, sendMessage, sendReply } from "../utils/DiscordMessage";
+import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, makeInfoEmbed, makeErrorEmbed, sendMessage, sendReply, sendMessageOrInteractionResponse } from "../utils/DiscordMessage";
 import Logger from "../libs/Logger";
 import DiscordProvider from "../providers/Discord";
 import Prisma from "../providers/Prisma";
@@ -186,15 +186,15 @@ export default class MembershipScreening {
                 if(!Guild.MembershipScreening_Enabled) {
 
                     if(Guild.MembershipScreening_GivenRole === null || Guild.MembershipScreening_ApprovalChannel == null)
-                        return await this.sendResponse(data, { embeds: [EMBEDS.NO_PARAMETER(data)] });
+                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PARAMETER(data)] });
     
                     await Prisma.client.guild.update({ where: { id: data.guildId! }, data: { MembershipScreening_Enabled: true }});
     
-                    return await this.sendResponse(data, { embeds: [EMBEDS.ENABLED(data)] });
+                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ENABLED(data)] });
                 }
     
                 else
-                    return await this.sendResponse(data, { embeds: [EMBEDS.ALREADY_ENABLED(data)] });
+                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ALREADY_ENABLED(data)] });
             },
             disable: async(data: Message | Interaction) => {
                 if(Guild.MembershipScreening_Enabled) {
@@ -203,10 +203,10 @@ export default class MembershipScreening {
                         data: {MembershipScreening_Enabled: false}
                     });
     
-                    return await this.sendResponse(data, { embeds: [EMBEDS.DISABLED(data)] });
+                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.DISABLED(data)] });
                 }
                 else
-                    return await this.sendResponse(data, { embeds: [EMBEDS.ALREADY_DISABLED(data)] });
+                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ALREADY_DISABLED(data)] });
             },
             setRole: async(data: Message | Interaction) => {
                 
@@ -215,7 +215,7 @@ export default class MembershipScreening {
                 if(data instanceof Message) {
                     let _name: string;
                     if(typeof args[1] === 'undefined')
-                        return await this.sendResponse(data, { embeds: [EMBEDS.NO_ROLE_MENTIONED(data)] });
+                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_ROLE_MENTIONED(data)] });
 
                     let __name = args;
                     __name.shift();
@@ -227,46 +227,46 @@ export default class MembershipScreening {
 
                 
                 if(typeof role === 'undefined' || !role)
-                    return await this.sendResponse(data, { embeds: [EMBEDS.NO_ROLE_FOUND(data)] });
+                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_ROLE_FOUND(data)] });
 
                 await Prisma.client.guild.update({ where: {id: data.guildId! }, data: {MembershipScreening_GivenRole: role.id}});
 
                 if(role.managed)
-                    return await this.sendResponse(data, { embeds: [EMBEDS.MANAGED_ROLE(data, role)] });
+                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.MANAGED_ROLE(data, role)] });
 
-                return await this.sendResponse(data, { embeds: [EMBEDS.CONFIGURED_ROLE(data, role)] });
+                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.CONFIGURED_ROLE(data, role)] });
             },
             setChannel: async(data: Message | CommandInteraction) => {
             
                 let channel;
                 if(data instanceof Message) {
                     if(typeof args[1] === 'undefined')
-                        return await this.sendResponse(data, { embeds: [EMBEDS.NO_CHANNEL_MENTIONED(data)] });
+                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_CHANNEL_MENTIONED(data)] });
                     channel = data.mentions.channels.first();
                 }
                 else if(data instanceof CommandInteraction)
                     channel = data.options.getChannel('channel');
 
                 if(!channel)
-                    return await this.sendResponse(data, { embeds: [EMBEDS.NO_CHANNEL_FOUND(data)] });
+                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_CHANNEL_FOUND(data)] });
                 
                 let TargetChannel = data.guild!.channels.cache.get(channel.id);
                 if(typeof TargetChannel === 'undefined') return;
 
                 if(TargetChannel instanceof ThreadChannel || TargetChannel.isThread())
-                    return await this.sendResponse(data, { embeds: [EMBEDS.INVALID_CHANNEL_THREAD(data, TargetChannel)] });
+                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.INVALID_CHANNEL_THREAD(data, TargetChannel)] });
 
                 if(!TargetChannel.isText())
-                    return await this.sendResponse(data, { embeds: [EMBEDS.INVALID_CHANNEL(data, TargetChannel)] });
+                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.INVALID_CHANNEL(data, TargetChannel)] });
 
                 if(!(data!.guild!.me?.permissionsIn(TargetChannel).has([Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.VIEW_CHANNEL])))
-                    return await this.sendResponse(data, { embeds: [EMBEDS.BOT_NO_PERMISSION(data, TargetChannel)] });
+                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.BOT_NO_PERMISSION(data, TargetChannel)] });
 
                 await Prisma.client.guild.update({ where: {id: data.guildId! }, data: { MembershipScreening_ApprovalChannel: channel.id }});
-                return await this.sendResponse(data, { embeds: [EMBEDS.CONFIGURED_CHANNEL(data, TargetChannel)] }); 
+                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.CONFIGURED_CHANNEL(data, TargetChannel)] }); 
             },
             createMessage: async(data: Message | CommandInteraction) => {
-                return await this.sendResponse(data, { embeds: [EMBEDS.CREATE_MESSAGE()] });
+                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.CREATE_MESSAGE()] });
             }
         }
 
@@ -275,17 +275,17 @@ export default class MembershipScreening {
         if(isMessage) {
             if(data === null || !data.guildId || data.member === null || data.guild === null) return;
             if (!data.member.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
-                return await this.sendResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data)] });
+                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data)] });
 
             if(args.length === 0) {
-                return await this.sendResponse(data, { embeds: [EMBEDS.MSINFO(data)] });
+                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.MSINFO(data)] });
             }
             query = args[0].toLowerCase();
 
         }
         else if(isSlashCommand) {
             if(!data.guild.members.cache.get(data.user.id)?.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
-                return await this.sendResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data)] });
+                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data)] });
 
             query = args.getSubcommand();
         }
@@ -484,13 +484,5 @@ export default class MembershipScreening {
         catch (e) { }
     
         return false;
-    }
-
-    async sendResponse(data: Message | Interaction, payload: any) {
-        const isSlashCommand = data instanceof Interaction && data.isCommand();
-        const isMessage = data instanceof Message;
-
-        if(isSlashCommand) return await data.reply(payload);
-        else if(isMessage) return await sendReply(data, payload);
     }
 }

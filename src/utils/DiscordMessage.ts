@@ -1,4 +1,4 @@
-import { MessageEmbed, User, MessagePayload, MessageOptions, TextBasedChannels, TextChannel, DMChannel, BaseGuildTextChannel, Message, ColorResolvable } from "discord.js";
+import { MessageEmbed, User, MessagePayload, MessageOptions, TextBasedChannels, TextChannel, DMChannel, BaseGuildTextChannel, Message, ColorResolvable, Interaction, InteractionReplyOptions } from "discord.js";
 import App from "..";
 import Logger from "../libs/Logger";
 
@@ -83,6 +83,36 @@ export async function sendReply(rMessage: Message, options: string | MessagePayl
         return message;
     }
     
+}
+
+
+export async function sendMessageOrInteractionResponse(data: Message | Interaction, payload: MessageOptions | InteractionReplyOptions) {
+    const isSlashCommand = data instanceof Interaction && data.isCommand();
+    const isMessage = data instanceof Message;
+
+    if(isSlashCommand) {
+        if(!data.replied) {
+            let message;
+            try { return await data.reply(payload); }
+            catch(errorDM) {
+                Logger.error(`Cannot find available destinations to send the message CID: ${data.channel!.id} UID: ${data.user.id} DM_ERR: ${errorDM}`);
+                return;
+            } finally {
+                return message;
+            }
+        }
+        else {
+            let message;
+            try { return await data.followUp(payload); }
+            catch(errorDM) {
+                Logger.error(`Cannot find available destinations to send the message CID: ${data.channel!.id} UID: ${data.user.id} DM_ERR: ${errorDM}`);
+                return;
+            } finally {
+                return message;
+            }
+        }
+    }
+    else if(isMessage) return await sendReply(data, payload);
 }
 
 export function getEmotes() {
