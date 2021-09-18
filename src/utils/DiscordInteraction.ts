@@ -41,6 +41,19 @@ GUILD_COMMANDS.push(new SlashCommandBuilder()
     )
 );
 GUILD_COMMANDS.push(new SlashCommandBuilder()
+    .setName('settings')
+    .setDescription('Change settings')
+    .addSubcommand(info => info
+        .setName('setprefix')
+        .setDescription('Change what prefix to use on this guild')
+        .addStringOption(prefix => prefix
+            .setName('prefix')
+            .setDescription('New prefix to use')
+            .setRequired(true)
+        )
+    )
+);
+GUILD_COMMANDS.push(new SlashCommandBuilder()
     .setName('membershipscreening')
     .setDescription('Membership screening')
     .addSubcommand(info => info
