@@ -114,29 +114,3 @@ export default class InteractionManager {
 
     }
 }
-
-
-export class AInteractionManager {
-    async onCommand(command: string, args: any, message: Message) {
-        if(command.toLowerCase() !== 'interaction') return;
-
-        if(!message.guildId) return;
-        if(message.member === null) return;
-        if(message.guild === null) return;
-
-        // TODO: Add dev check
-        
-        if(args.length === 0)
-            return await sendReply(message, {
-                embeds: [makeInfoEmbed ({
- 
-                    user: message.author
-                })]
-            });
-        else {
-            if(args[0].toLowerCase() === "reloadall") {
-                
-            }
-        }
-    }
-}
