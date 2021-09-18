@@ -15,7 +15,8 @@ const EMBEDS = {
             description: message || `${DiscordProvider.client.user?.username}'s invite is currently private. Only the developers can add me to another server`,
             user: (data instanceof Interaction) ? data.user : data.author
         });
-    }}
+    }
+}
 
 export default class Invite {
     
