@@ -25,7 +25,7 @@ const EMBEDS = {
                 },
                 {
                     name: 'Prefix',
-                    value: `You can call me using \`\`${prefix}\`\`, <@${DiscordProvider.client.user?.id}> or \`\`/slash command\`\``
+                    value: `You can call me using \`\`${prefix.replaceAll('`','`​')}\`\`, <@${DiscordProvider.client.user?.id}> or \`\`/slash command\`\``
                 },
                 {
                     name: 'Available commands',
