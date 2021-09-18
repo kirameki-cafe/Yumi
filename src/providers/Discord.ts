@@ -4,6 +4,7 @@ import Logger from "../libs/Logger";
 import Environment from "./Environment";
 
 import Discord_Core from "../discord/Core";
+import Discord_Settings from "../discord/Settings";
 import Discord_Ping from "../discord/Ping";
 import Discord_Help from "../discord/Help";
 import Discord_Invite from "../discord/Invite";
@@ -32,7 +33,8 @@ class Discord {
 
         // TODO: Improve this
         this.loaded_module["Core"] = new Discord_Core();
-        this.loaded_module["Ping"] = new Discord_Ping();
+        this.loaded_module["Discord_Settings"] = new Discord_Settings();
+        this.loaded_module["Discord_Ping"] = new Discord_Ping();
         this.loaded_module["Discord_Help"] = new Discord_Help();
         this.loaded_module["Discord_Invite"] = new Discord_Invite();
         this.loaded_module["Discord_InteractionManager"] = new Discord_InteractionManager();
@@ -110,9 +112,45 @@ class Discord {
 
             if(!message.content.startsWith(GuildCache.prefix)) return;
 
+            let cachedPrefix = GuildCache.prefix;
+
             let args = message.content.split(" ");
-            let command = args[0].replace(GuildCache.prefix, '');
-            args.shift();
+
+            let skipIndex = 0;
+            if((cachedPrefix.split(" ")[0] !== cachedPrefix)) {
+                //skipIndex = (cachedPrefix.split(" ").length) - (args.length - (cachedPrefix.split(" ").length));
+                skipIndex = (cachedPrefix.split(" ").length) - 1;
+
+                //if(/^[A-Za-z0-9_.]+$/.test(cachedPrefix.split(" ")[cachedPrefix.split(" ").length - 1]))
+                skipIndex++;
+            }
+
+            //if(/^[A-Za-z0-9_.]+$/.test(cachedPrefix.charAt(cachedPrefix.length - 1))) {
+            if(![
+                '!','@','#','$','%','^','&','*','(',')','-','=','_','+','\\','/','<','>','[',']','{','}','`','"',"'",',','.','~','|',';',':','?'
+            ].includes(cachedPrefix.charAt(cachedPrefix.length - 1))) {
+                cachedPrefix = cachedPrefix + " ";
+               // if(!/^[A-Za-z0-9_.]+$/)
+                    skipIndex++;
+            } else if (
+                (cachedPrefix.startsWith('<@!') && cachedPrefix.endsWith('>')) ||
+                cachedPrefix.startsWith('<:') && cachedPrefix.endsWith('>') ||
+                cachedPrefix.startsWith('<a:') && cachedPrefix.endsWith('>') ||
+                cachedPrefix.startsWith('<#') && cachedPrefix.endsWith('>')
+                ) {
+                cachedPrefix = cachedPrefix + " ";
+                skipIndex++;
+            }
+
+            if(typeof args[0 + skipIndex] === 'undefined') return;
+
+            let command = args[0 + skipIndex].replace(cachedPrefix, '');
+
+            if(command === '') return;
+
+            for(let i = 0; i < (skipIndex + 1); i++) {
+                args.shift();
+            }        
             args = args.filter(e => e !== '');
 
             if(args.length === 0)
