@@ -1,23 +1,17 @@
 import { CommandInteraction, Interaction, Message } from "discord.js";
-import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, sendMessage, sendReply, makeInfoEmbed } from "../utils/DiscordMessage";
+import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, sendMessageOrInteractionResponse, sendReply, makeInfoEmbed } from "../utils/DiscordMessage";
 import DiscordProvider from "../providers/Discord";
+import Cache from "../providers/Cache";
 
-export default class Help {
+const EMBEDS = {
+    INFO: async (data: Message | Interaction) => {
 
-    async onCommand(command: string, args: any, message: Message) {
-        if(command.toLowerCase() !== 'help') return;
-        this.sendHelpMessage(false, message);
-    }
+        let GuildCache = await Cache.getGuild(data.guildId!);
+        //if(typeof GuildCache === 'undefined' || typeof GuildCache.prefix === 'undefined') return;
 
-    async interactionCreate(interaction: CommandInteraction) { 
-        if(typeof interaction.commandName === 'undefined')  return;
-        if((interaction.commandName).toLowerCase() !== 'help') return;
-        await this.sendHelpMessage(true, interaction);
-    }
+        let prefix = GuildCache.prefix || '>';
 
-    async sendHelpMessage(isSlashCommand: boolean, data: any) {
-
-        const embed = makeInfoEmbed({
+        let _e = makeInfoEmbed({
             icon: "💌",
             title: `Help - ${DiscordProvider.client.user?.username}`,
             fields: [
@@ -30,24 +24,45 @@ export default class Help {
                     value: `Yumi was specifically written for use in a only 1 private server, now it's time to extend the border and globalize it (just kidding lol)`
                 },
                 {
+                    name: 'Prefix',
+                    value: `You can call me using \`\`${prefix}\`\`, <@${DiscordProvider.client.user?.id}> or \`\`/slash command\`\``
+                },
+                {
                     name: 'Available commands',
-                    value: '``help``\n``ping``\n``invite``\n``membershipscreening (ms)``\n``...14 commands has been hidden (FLAGS.BETA)``'
+                    value: '``help``\n``ping``\n``invite``\n``membershipscreening (ms)``'
                 }
             ],
-            user:  isSlashCommand ? data.user : data.author
+            user: (data instanceof Interaction) ? data.user : data.author
         });
+        _e.setThumbnail(DiscordProvider.client.user?.avatarURL() || '');
+        return _e;
+    }
+}
 
-        if(isSlashCommand) {
-            data.reply({ ephemeral: false, embeds: [embed] });
-        }
+export default class Help {
 
-        else {
-            let help = await sendReply(data, {
-                embeds: [embed]
-            });
-    
-            if(help)
-                help.react("♥");
+    async onCommand(command: string, args: any, message: Message) {
+        if(command.toLowerCase() !== 'help') return;
+        await this.process(message, args);
+    }
+
+    async interactionCreate(interaction: CommandInteraction) { 
+        if(interaction.isCommand()) {
+            if(typeof interaction.commandName === 'undefined') return;
+            if((interaction.commandName).toLowerCase() !== 'help') return;
+            await this.process(interaction, interaction.options);
         }
+    }
+
+    async process(data: Interaction | Message, args: any) {
+
+        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
+        const isMessage = data instanceof Message;
+
+        let sent = await sendMessageOrInteractionResponse(data, { embeds: [await EMBEDS.INFO(data)] });
+
+        if(isMessage)
+            return (sent as Message).react("♥");
+        
     }
 }
