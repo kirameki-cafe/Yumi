@@ -7,7 +7,9 @@ import Logger from "../libs/Logger";
 
 const requiredENV = [
     'NODE_ENV',
-    'DISCORD_TOKEN'
+    'DATABASE_URL',
+    'DISCORD_TOKEN',
+    'PRIVATE_BOT'
 ];
 
 class Environment {
@@ -34,11 +36,15 @@ class Environment {
         const NODE_ENV = process.env.NODE_ENV;
 
         const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
+        const DEVELOPER_IDS = process.env.DEVELOPER_IDS;
+        const PRIVATE_BOT = process.env.PRIVATE_BOT;
       
         return {
             NODE_ENV,
 
-            DISCORD_TOKEN
+            DISCORD_TOKEN,
+            DEVELOPER_IDS,
+            PRIVATE_BOT
         };
     }
 
