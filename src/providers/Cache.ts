@@ -1,3 +1,4 @@
+import { Snowflake } from "discord-api-types";
 import Prisma from "./Prisma";
 
 class Cache {
@@ -17,6 +18,13 @@ class Cache {
         for(let Guild of Guilds) {
             this.setGuildData(Guild.id, Guild);
         }
+    }
+
+    public async updateGuildCache(guildID: Snowflake) {
+        const DBGuild = await Prisma.client.guild.findFirst({ where:{id: guildID} });
+        
+        if(DBGuild === null) return;
+        this.setGuildData(guildID, DBGuild);
     }
 
     public setGuildData(id: string, data: Object): void {

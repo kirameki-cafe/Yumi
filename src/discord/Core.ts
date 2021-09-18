@@ -1,3 +1,4 @@
+import { Guild } from ".prisma/client";
 import { Message } from "discord.js";
 import Logger from "../libs/Logger";
 import Cache from "../providers/Cache";
@@ -17,21 +18,27 @@ export default class Core {
             skipDuplicates: true
         });
 
-        // TODO : Make it cache guild on join
-
         await Cache.updateGuildsCache();
-        // TODO: Better timer
         setInterval(() => {
             Cache.updateGuildsCache();
         }, 5 * 60 * 1000)
         
-        if(DiscordProvider.client.user)
-            DiscordProvider.client.user.setActivity("your heartbeat 💗", {
-                type: "LISTENING"
-            });
-          
-
+        DiscordProvider.client.user!.setActivity("your heartbeat 💗", {
+            type: "LISTENING"
+        });
+        
         Logger.info('Core started successfully');
         
+    }
+    async guildCreate(guild: Guild) {
+        if(await Prisma.client.guild.findFirst({ where: {id: guild.id} })) return;
+
+        await Prisma.client.guild.create({
+            data: {
+                id: guild.id
+            }
+        });
+
+        await Cache.updateGuildCache(guild.id);
     }
 }
