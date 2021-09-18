@@ -59,6 +59,8 @@ export default class Help {
         const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
         const isMessage = data instanceof Message;
 
+        if(!isSlashCommand && !isMessage) return;
+
         let sent = await sendMessageOrInteractionResponse(data, { embeds: [await EMBEDS.INFO(data)] });
 
         if(isMessage)
