@@ -1,4 +1,4 @@
-import {Client, GuildMember, Intents, Interaction, Message, TextChannel} from "discord.js";
+import {Client, Guild, GuildMember, Intents, Interaction, Message, TextChannel} from "discord.js";
 
 import Logger from "../libs/Logger";
 import Environment from "./Environment";
@@ -46,6 +46,7 @@ class Discord {
                 thisModule.init();
         }
 
+        // On bot logged in
         this.client.on("ready", () => {
             for(const module in this.loaded_module) {
                 let thisModule = this.loaded_module[module];
@@ -55,6 +56,7 @@ class Discord {
             }
         });
 
+        // Member join guild event to modules
         this.client.on("guildMemberAdd", (member: GuildMember) => {
             for(const module in this.loaded_module) {
                 let thisModule = this.loaded_module[module];
@@ -64,6 +66,7 @@ class Discord {
             }
         });
 
+        // Interaction create event to modules
         this.client.on("interactionCreate", (interaction: Interaction) => {
             for(const module in this.loaded_module) {
                 let thisModule = this.loaded_module[module];
@@ -73,12 +76,23 @@ class Discord {
             }
         });
 
+        // Message create event to modules
         this.client.on("messageCreate", (message: Message) => {
             for(const module in this.loaded_module) {
                 let thisModule = this.loaded_module[module];
                 
                 if (typeof thisModule.messageCreate === "function")
                     thisModule.messageCreate(message);
+            }
+        });
+
+        // Joined guild event to modules
+        this.client.on("guildCreate", (guild : Guild) => {
+            for(const module in this.loaded_module) {
+                let thisModule = this.loaded_module[module];
+                
+                if (typeof thisModule.guildCreate === "function")
+                    thisModule.guildCreate(guild);
             }
         });
 
