@@ -112,6 +112,37 @@ class Discord {
             }
         });
 
+        // Handling mentions
+        this.client.on("messageCreate", async (message: Message) => {
+
+            // TODO: Handle DMs commands soon
+            if(!(message.channel instanceof TextChannel)) return;
+            if(message.author.bot) return;
+
+            if(typeof message.guild?.id === 'undefined') return;
+            if(!message.mentions.users) return;
+
+            if(message.mentions.users.first()?.id !== this.client.user?.id) return;
+            if(!message.content.startsWith(`<@!${this.client.user?.id}>`)) return;
+
+            let args = message.content.split(" ");
+            let command = args[1];
+
+            args.shift();
+            args.shift();
+            args = args.filter(e => e !== '');
+
+            if(args.length === 0)
+                args = [];
+
+            for(const module in this.loaded_module) {
+                let thisModule = this.loaded_module[module];
+                
+                if (typeof thisModule.onCommand === "function")
+                    thisModule.onCommand(command, args, message);
+            }
+        });
+
     }
 
 }
