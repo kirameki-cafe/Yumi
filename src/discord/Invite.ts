@@ -1,37 +1,42 @@
-import { Message, CommandInteraction } from "discord.js";
-import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, sendMessage, sendReply, makeInfoEmbed } from "../utils/DiscordMessage";
+import { Message, CommandInteraction, Interaction } from "discord.js";
+import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, sendMessage, sendMessageOrInteractionResponse, makeInfoEmbed } from "../utils/DiscordMessage";
 import DiscordProvider from "../providers/Discord";
+import Users from "../services/Users"
+import Environment from "../providers/Environment";
+
+const EMBEDS = {
+    INVITE_INFO: (data: Message | Interaction) => {
+        let message;
+        if(Users.isDeveloper(data.member?.user.id!) || !Environment.get().PRIVATE_BOT)
+            message = `[Invite ${DiscordProvider.client.user?.username} to your server!](https://discord.com/api/oauth2/authorize?client_id=${DiscordProvider.client.user?.id}&permissions=0&scope=bot%20applications.commands)`;
+       
+        return makeInfoEmbed({
+            title: `Invite`,
+            description: message || `${DiscordProvider.client.user?.username}'s invite is currently private. Only the developers can add me to another server`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    }}
 
 export default class Invite {
+    
     async onCommand(command: string, args: any, message: Message) {
         if(command.toLowerCase() !== 'invite') return;
-
-        await this.sendInviteMessage(false, message);
-
+        await this.process(message, args);
     }
 
     async interactionCreate(interaction: CommandInteraction) { 
-        if(typeof interaction.commandName === 'undefined')  return;
-        if((interaction.commandName).toLowerCase() !== 'invite') return;
-        await this.sendInviteMessage(true, interaction);
+        if(interaction.isCommand()) {
+            if(typeof interaction.commandName === 'undefined') return;
+            if((interaction.commandName).toLowerCase() !== 'invite') return;
+            await this.process(interaction, interaction.options);
+        }
     }
 
-    async sendInviteMessage(isSlashCommand: boolean, data: any) {
 
-        const embed = makeInfoEmbed({
-            title: `Invite`,
-            description: `${DiscordProvider.client.user?.username}'s invite is currently disabled. Only the developers can add me to another server`,
-            user: isSlashCommand ? data.user : data.author
-        });
+    async process(data: Interaction | Message, args: any) {
+        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
+        const isMessage = data instanceof Message;
 
-        if(isSlashCommand) {
-            data.reply({ ephemeral: false, embeds: [embed] });
-        }
-        else {
-            let help = await sendReply(data, {
-                embeds: [embed]
-            });
-        }
-
+        return await sendMessageOrInteractionResponse(data, { embeds:[EMBEDS.INVITE_INFO(data)] });
     }
 }
