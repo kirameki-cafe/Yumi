@@ -40,6 +40,20 @@ const EMBEDS = {
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
+    PREFIX_TOO_LONG: (data: Message | Interaction) => {
+        return makeErrorEmbed ({
+            title: 'Prefix too long',
+            description: `I bet you can't even remember that`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
+    PREFIX_IS_MENTION: (data: Message | Interaction) => {
+        return makeErrorEmbed ({
+            title: 'Prefix cannot be mention of me',
+            description: `You can already call me by mentioning me. I got you covered, don't worry`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
     PREFIX_UPDATED: (data: Message | Interaction, newPrefix: string) => {
         return makeSuccessEmbed ({
             title: 'Prefix updated',
@@ -94,6 +108,12 @@ export default class Settings {
 
                 if(!newPrefix)
                     return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PREFIX_PROVIDED(data)] });
+
+                if(newPrefix.length > 100)
+                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.PREFIX_TOO_LONG(data)] });
+
+                if(newPrefix.startsWith(`<@!${DiscordProvider.client.user?.id}>`))
+                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.PREFIX_IS_MENTION(data)] });
 
                 let placeholder = await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.PROCESSING(data)] });
                 await Prisma.client.guild.update({ where: { id: data.guildId! }, data: { prefix: newPrefix }});
