@@ -86,7 +86,7 @@ export async function sendReply(rMessage: Message, options: string | MessagePayl
 }
 
 
-export async function sendMessageOrInteractionResponse(data: Message | Interaction, payload: MessageOptions | InteractionReplyOptions) {
+export async function sendMessageOrInteractionResponse(data: Message | Interaction, payload: MessageOptions | InteractionReplyOptions, replace?: boolean) {
     const isSlashCommand = data instanceof Interaction && data.isCommand();
     const isMessage = data instanceof Message;
 
@@ -103,7 +103,12 @@ export async function sendMessageOrInteractionResponse(data: Message | Interacti
         }
         else {
             let message;
-            try { return await data.followUp(payload); }
+            try { 
+                if(replace)
+                    return await data.editReply(payload);
+                else
+                    return await data.followUp(payload); 
+            }
             catch(errorDM) {
                 Logger.error(`Cannot find available destinations to send the message CID: ${data.channel!.id} UID: ${data.user.id} DM_ERR: ${errorDM}`);
                 return;
