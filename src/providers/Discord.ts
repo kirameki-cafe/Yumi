@@ -8,7 +8,7 @@ import Discord_Ping from "../discord/Ping";
 import Discord_Help from "../discord/Help";
 import Discord_Invite from "../discord/Invite";
 import Discord_Say from "../discord/Say";
-import Discord_Interaction from "../discord/Interaction";
+import Discord_InteractionManager from "../discord/InteractionManager";
 import Discord_MembershipScreening from "../discord/MembershipScreening";
 import Cache from "./Cache";
 
@@ -35,7 +35,7 @@ class Discord {
         this.loaded_module["Ping"] = new Discord_Ping();
         this.loaded_module["Discord_Help"] = new Discord_Help();
         this.loaded_module["Discord_Invite"] = new Discord_Invite();
-        this.loaded_module["Discord_Interaction"] = new Discord_Interaction();
+        this.loaded_module["Discord_InteractionManager"] = new Discord_InteractionManager();
         this.loaded_module["Discord_Say"] = new Discord_Say();
         this.loaded_module["MembershipScreening"] = new Discord_MembershipScreening();
 

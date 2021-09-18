@@ -7,9 +7,18 @@ export const GLOBAL_COMMANDS: Object[] = [];
 
 export const GUILD_COMMANDS: Object[] = [];
 
-GUILD_COMMANDS.push(new SlashCommandBuilder().setName('help').setDescription('Show help menu').toJSON());
-GUILD_COMMANDS.push(new SlashCommandBuilder().setName('ping').setDescription('Measure network latency').toJSON());
-GUILD_COMMANDS.push(new SlashCommandBuilder().setName('invite').setDescription('Invite me to your server!').toJSON());
+GUILD_COMMANDS.push(new SlashCommandBuilder()
+    .setName('help')
+    .setDescription('Show help menu')
+);
+GUILD_COMMANDS.push(new SlashCommandBuilder()
+    .setName('ping')
+    .setDescription('Measure network latency')
+);
+GUILD_COMMANDS.push(new SlashCommandBuilder()
+    .setName('invite')
+    .setDescription('Invite me to your server!')
+);
 GUILD_COMMANDS.push(new SlashCommandBuilder()
     .setName('say')
     .setDescription('Make me say something')
@@ -19,39 +28,54 @@ GUILD_COMMANDS.push(new SlashCommandBuilder()
         .setRequired(true)
     )
 );
-
+GUILD_COMMANDS.push(new SlashCommandBuilder()
+    .setName('interaction')
+    .setDescription('[Developer Only] Manage interaction')
+    .addSubcommand(info => info
+        .setName('info')
+        .setDescription('[Developer Only] Interaction modules information')
+    )
+    .addSubcommand(reloadAll => reloadAll
+        .setName('reloadall')
+        .setDescription('[Developer Only] Reload interaction for global and all guilds')
+    )
+);
 GUILD_COMMANDS.push(new SlashCommandBuilder()
     .setName('membershipscreening')
     .setDescription('Membership screening')
+    .addSubcommand(info => info
+        .setName('info')
+        .setDescription('Show more information for membership screening')
+    )
     .addSubcommand(enable => enable
         .setName('enable')
-        .setDescription('Enable Membership screening')
+        .setDescription('Enable membership screening')
     )
     .addSubcommand(enable => enable
         .setName('disable')
-        .setDescription('Disable Membership screening')
+        .setDescription('Disable membership screening')
     )
     .addSubcommand(setrole => setrole
         .setName('setrole')
-        .setDescription('Configure role of Membership screening')
+        .setDescription('Set a role that user will be granted when approved to join')
         .addRoleOption(option => option
             .setName('role')
-            .setDescription('Role to give to user')
+            .setDescription('Select a role that user will be granted when approved to join')
             .setRequired(true)
         )
     )
     .addSubcommand(setchannel => setchannel
         .setName('setchannel')
-        .setDescription('Configure channel of Membership screening')
+        .setDescription('Set channel where membership screening approval request will be sent')
         .addChannelOption(option => option
             .setName('channel')
-            .setDescription('Channel to send request to')
+            .setDescription('Select a channel where approval request will be sent')
             .setRequired(true)
         )
     )
     .addSubcommand(createmessage => createmessage
         .setName('createmessage')
-        .setDescription('Create message for Membership screening')
+        .setDescription('Create greeting message for membership screening into the channel. A message for new commers to read')
     )
 );
 
@@ -61,15 +85,16 @@ export const registerAllGlobalCommands = async () => {
 }
 
 export const unregisterAllGlobalCommands = async () => {
-    const commands = await DiscordProvider.client.application?.commands.fetch();
+    //const commands = await DiscordProvider.client.application?.commands.fetch();
 
-    if(typeof commands === 'undefined') return;
-    if(commands.size === 0) return;
+    //if(typeof commands === 'undefined') return;
+    //if(commands.size === 0) return;
 
     Logger.log('info', `Unregistering all global interaction commands`);
-    for(const command of commands) {
+    await DiscordProvider.client.application?.commands.set([]);
+    /*for(const command of commands) {
         await DiscordProvider.client.application?.commands.delete(command[1]);
-    }
+    }*/
 
 }
 
@@ -95,17 +120,19 @@ export const unregisterAllGuildsCommands = async () => {
 
         if(!guildObject) continue;
 
-        const commands = await guildObject.commands.fetch();
-
-        if(commands.size === 0) continue;
-
         Logger.log('info', `Unregistering all interaction commands on guild ${guildObject.name} (${guildObject.id})`);
-        for(const command of commands) {
+        await DiscordProvider.client.guilds.cache.get(guildObject.id)?.commands.set([]);
+
+        //const commands = await guildObject.commands.fetch();
+
+        //if(commands.size === 0) continue;
+        /*for(const command of commands) {
             try {
                 await DiscordProvider.client.guilds.cache.get(guildObject.id)?.commands.delete(command[1]);
             } catch(err) {
                 Logger.log('error', `Cannot unregister all interaction commands on guild ${guildObject.name} (${guildObject.id})`);
             }
-        }
+        }*/
+        
     }
 }
