@@ -91,6 +91,28 @@ GUILD_COMMANDS.push(new SlashCommandBuilder()
         .setDescription('Create greeting message for membership screening into the channel. A message for new commers to read')
     )
 );
+GUILD_COMMANDS.push(new SlashCommandBuilder()
+    .setName('osu')
+    .setDescription('Interact with the game osu!')
+    .addSubcommand(user => user
+        .setName('user')
+        .setDescription('Get user information on osu!')
+        .addStringOption(user => user
+            .setName('user')
+            .setDescription('Username or User id')
+            .setRequired(true)
+        )
+    )
+    .addSubcommand(beatmap => beatmap
+        .setName('beatmap')
+        .setDescription('Get beatmap information on osu!')
+        .addStringOption(user => user
+            .setName('beatmap')
+            .setDescription('Beatmap id')
+            .setRequired(true)
+        )
+    )
+);
 
 export const registerAllGlobalCommands = async () => {
     Logger.log('info', `Registering all global interaction commands`);
