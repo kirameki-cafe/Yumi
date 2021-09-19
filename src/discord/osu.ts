@@ -7,7 +7,7 @@ import Prisma from "../providers/Prisma";
 import osuAPI from "../providers/osuAPI";
 import { countryCodeEmoji, emojiCountryCode } from "country-code-emoji";
 import countryLookup from "country-code-lookup";
-import { Beatmap } from "node-osu";
+import validator from 'validator';
 
 const EMBEDS = {
     osu_INFO:(data: Message | Interaction) => {
@@ -36,6 +36,18 @@ const EMBEDS = {
     NO_USER_MENTIONED: (data: Message | Interaction) => {
         return makeErrorEmbed ({
             title: `No osu! username or user id provided`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
+    INVALID_USER_MENTIONED: (data: Message | Interaction) => {
+        return makeErrorEmbed ({
+            title: `Not a valid osu username or id`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
+    INVALID_BEATMAP_ID_MENTIONED: (data: Message | Interaction) => {
+        return makeErrorEmbed ({
+            title: `Not a valid osu beatmap id`,
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
@@ -94,6 +106,10 @@ export default class osu {
                 }
                 else if(data instanceof CommandInteraction)
                     user = data.options.getString('user');
+
+
+                if(!validator.isNumeric(user) && !this.validate_osu_username(user))
+                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.INVALID_USER_MENTIONED(data)] });
 
                 let result = await osuAPI.client.getUser({ u: user });
 
@@ -218,6 +234,10 @@ export default class osu {
                 }
                 else if(data instanceof CommandInteraction)
                     beatmap = data.options.getString('beatmap');
+
+                    
+                if(!validator.isNumeric(beatmap))
+                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.INVALID_BEATMAP_ID_MENTIONED(data)] });
 
                 let result = await osuAPI.client.getBeatmaps({ b: beatmap });
 
@@ -404,5 +424,25 @@ export default class osu {
         } catch(err) {
             return x;
         }
+    }
+    // Criteria from https://github.com/ppy/osu-web/blob/9de00a0b874c56893d98261d558d78d76259d81b/app/Libraries/UsernameValidation.php
+    private validate_osu_username(username: string) {
+
+        //username_no_spaces
+        if (username.startsWith(' ') || username.endsWith(' ')) return false;
+
+        //username_too_short
+        if (username.length < 3) return false;
+
+        //username_too_long
+        if (username.length > 15) return false;
+
+        //username_invalid_characters
+        if (username.includes('  ') || !(/^[A-Za-z0-9-\[\]_ ]+$/.test(username))) return false;
+
+        //username_no_space_userscore_mix
+        if (username.includes('_') && username.includes(' ')) return false;
+
+        return true;
     }
 }
