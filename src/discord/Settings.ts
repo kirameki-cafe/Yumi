@@ -1,4 +1,4 @@
-import { Message, Interaction, CommandInteraction } from "discord.js";
+import { Message, Interaction, CommandInteraction, Permissions } from "discord.js";
 import { makeInfoEmbed, makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, sendMessageOrInteractionResponse, sendReply } from "../utils/DiscordMessage";
 import DiscordProvider from "../providers/Discord";
 import {registerAllGuildsCommands, unregisterAllGuildsCommands} from "../utils/DiscordInteraction";
@@ -90,6 +90,18 @@ export default class Settings {
 
         const funct = {
             setPrefix: async(data: Message | Interaction) => {
+
+                if(data === null || !data.guildId || data.member === null || data.guild === null) return;
+
+                if(data instanceof Message) {
+                    if (!data.member.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
+                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data)] });
+                }
+                else if(isSlashCommand) {
+                    if(!data.guild.members.cache.get(data.user.id)?.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
+                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data)] });
+                }
+        
 
                 let newPrefix: string | undefined;
                 if(data instanceof Message) {
