@@ -50,7 +50,7 @@ const EMBEDS = {
     PREFIX_IS_MENTION: (data: Message | Interaction) => {
         return makeErrorEmbed ({
             title: 'Prefix cannot be mention of me',
-            description: `You can already call me by mentioning me. I got you covered, don't worry`,
+            description: `You can already call me by mentioning me. I got that covered, don't worry`,
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
@@ -109,7 +109,7 @@ export default class Settings {
                 if(!newPrefix)
                     return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PREFIX_PROVIDED(data)] });
 
-                if(newPrefix.length > 100)
+                if(newPrefix.length > 200)
                     return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.PREFIX_TOO_LONG(data)] });
 
                 if(newPrefix.startsWith(`<@!${DiscordProvider.client.user?.id}>`))
