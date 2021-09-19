@@ -11,6 +11,8 @@ import Discord_Invite from "../discord/Invite";
 import Discord_Say from "../discord/Say";
 import Discord_InteractionManager from "../discord/InteractionManager";
 import Discord_MembershipScreening from "../discord/MembershipScreening";
+import Discord_osu from "../discord/osu";
+
 import Cache from "./Cache";
 
 class Discord {
@@ -39,6 +41,8 @@ class Discord {
         this.loaded_module["Discord_Invite"] = new Discord_Invite();
         this.loaded_module["Discord_InteractionManager"] = new Discord_InteractionManager();
         this.loaded_module["Discord_Say"] = new Discord_Say();
+        this.loaded_module["Discord_osu"] = new Discord_osu();
+
         this.loaded_module["MembershipScreening"] = new Discord_MembershipScreening();
 
         for(const module in this.loaded_module) {
