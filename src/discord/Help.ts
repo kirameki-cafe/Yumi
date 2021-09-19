@@ -29,7 +29,7 @@ const EMBEDS = {
                 },
                 {
                     name: 'Available commands',
-                    value: '``help``\n``ping``\n``invite``\n``membershipscreening (ms)``'
+                    value: '``help``\n``ping``\n``invite``\n``osu``\n``membershipscreening (ms)``\n``interaction`'
                 }
             ],
             user: (data instanceof Interaction) ? data.user : data.author
