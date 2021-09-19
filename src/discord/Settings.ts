@@ -27,10 +27,9 @@ const EMBEDS = {
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
-    NO_PERMISSION: (data: Message | Interaction, permissions: string) => {
-        return makeErrorEmbed({
-            title: 'Developer only',
-            description: 'You need ``' + permissions + '`` permission on this guild!',
+    NO_PERMISSION: (data: Message | Interaction) => {
+        return makeErrorEmbed ({
+            title: 'You need ``ADMINISTRATOR`` permission on this guild!',
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
