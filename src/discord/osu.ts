@@ -27,12 +27,6 @@ const EMBEDS = {
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
-    NO_PERMISSION: (data: Message | Interaction) => {
-        return makeErrorEmbed ({
-            title: 'You need ``ADMINISTRATOR`` permission on this guild!',
-            user: (data instanceof Interaction) ? data.user : data.author
-        });
-    },
     NO_USER_FOUND: (data: Message | Interaction) => {
         return makeErrorEmbed ({
             title: `That user doesn't exists on osu!`,
