@@ -35,19 +35,19 @@ export function makeEmbed(icon: string | undefined, title: string, description: 
 }
 
 export function makeSuccessEmbed(options: any) {
-    return makeEmbed(options.icon || "✅", options.title, options.description, '#B5EAD7', options.fields, options.user, options.setTimestamp || true);
+    return makeEmbed(typeof options.icon === 'undefined' ? "✅" : options.icon, options.title, options.description, '#B5EAD7', options.fields, options.user, options.setTimestamp || true);
 }
 
 export function makeErrorEmbed(options: any) {
-    return makeEmbed(options.icon || "❌", options.title, options.description, '#FF9AA2', options.fields, options.user, options.setTimestamp || true);
+    return makeEmbed(typeof options.icon === 'undefined' ? "❌" : options.icon, options.title, options.description, '#FF9AA2', options.fields, options.user, options.setTimestamp || true);
 }
 
 export function makeProcessingEmbed(options: any) {
-    return makeEmbed(options.icon || getEmotes().yumiloading, options.title, options.description, '#E2F0CB', options.fields, options.user, options.setTimestamp || true);
+    return makeEmbed(typeof options.icon === 'undefined' ? getEmotes().yumiloading : options.icon, options.title, options.description, '#E2F0CB', options.fields, options.user, options.setTimestamp || true);
 }
 
 export function makeInfoEmbed(options: any) {
-    return makeEmbed(options.icon || "🔮", options.title, options.description, '#C7CEEA', options.fields, options.user, options.setTimestamp || true);
+    return makeEmbed(typeof options.icon === 'undefined' ? "🔮" : options.icon, options.title, options.description, '#C7CEEA', options.fields, options.user, options.setTimestamp || true);
 }
 
 export async function sendMessage(channel: TextChannel | DMChannel | BaseGuildTextChannel | TextBasedChannels, user: User | undefined, options: string | MessagePayload | MessageOptions) {
@@ -93,7 +93,12 @@ export async function sendMessageOrInteractionResponse(data: Message | Interacti
     if(isSlashCommand) {
         if(!data.replied) {
             let message;
-            try { return await data.reply(payload); }
+            try {
+                if(!data.deferred)
+                    return await data.reply(payload);
+                else
+                    return await data.editReply(payload);
+            }
             catch(errorDM) {
                 Logger.error(`Cannot find available destinations to send the message CID: ${data.channel!.id} UID: ${data.user.id} DM_ERR: ${errorDM}`);
                 return;
