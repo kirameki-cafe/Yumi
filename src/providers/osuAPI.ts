@@ -14,7 +14,11 @@ class osuAPI {
     }
 
     public init(): void {
-
+        this.client = new Api(Environment.get().OSU_API_KEY, {
+            notFoundAsError: false,
+            completeScores: true,
+            parseNumeric: true
+        });
     }
 
     public end(): void {
