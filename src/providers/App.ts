@@ -3,11 +3,11 @@ import Logger from '../libs/Logger';
 import Environment from './Environment';
 import Prisma from './Prisma';
 import Discord from './Discord';
-import osu from './osu';
+import osu from './osuAPI';
 
 class App {
 
-    public readonly version = '0.01';
+    public readonly version = '0.02';
 
     public loadENV(): void {
         Logger.log('info', 'Loading environment');
