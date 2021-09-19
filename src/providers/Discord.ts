@@ -104,7 +104,6 @@ class Discord {
             // TODO: Handle DMs commands soon
             if(!(message.channel instanceof TextChannel)) return;
             if(message.author.bot) return;
-
             if(typeof message.guild?.id === 'undefined') return;
 
             let GuildCache = await Cache.getGuild(message.guild.id);
@@ -112,46 +111,39 @@ class Discord {
 
             if(!message.content.startsWith(GuildCache.prefix)) return;
 
-            let cachedPrefix = GuildCache.prefix;
+            let noPrefixMessage = message.content.replace(GuildCache.prefix, '');
+            let symbols = [
+                '!','@','#','$','%','^','&','*','(',')','-','=','_','+','\\','/','<','>','[',']','{','}','`','"',"'",',','.','~','|',';',':','?','、','。'
+            ];
 
-            let args = message.content.split(" ");
-
-            let skipIndex = 0;
-            if((cachedPrefix.split(" ")[0] !== cachedPrefix)) {
-                //skipIndex = (cachedPrefix.split(" ").length) - (args.length - (cachedPrefix.split(" ").length));
-                skipIndex = (cachedPrefix.split(" ").length) - 1;
-
-                //if(/^[A-Za-z0-9_.]+$/.test(cachedPrefix.split(" ")[cachedPrefix.split(" ").length - 1]))
-                skipIndex++;
+            if((GuildCache.prefix.indexOf(' ') >= 0)) {
+                if(noPrefixMessage.charAt(0) !== ' ') return;
+            }
+            else {
+                if(symbols.includes(GuildCache.prefix.charAt(GuildCache.prefix.length - 1))) {
+                    if(noPrefixMessage.charAt(0) === ' ') return;
+                }
+                else {
+                    if(noPrefixMessage.charAt(0) !== ' ') return;
+                }
+                //if(noPrefixMessage.charAt(0) !== ' ' && !symbols.includes(noPrefixMessage.charAt(0))) return;
             }
 
-            //if(/^[A-Za-z0-9_.]+$/.test(cachedPrefix.charAt(cachedPrefix.length - 1))) {
-            if(![
-                '!','@','#','$','%','^','&','*','(',')','-','=','_','+','\\','/','<','>','[',']','{','}','`','"',"'",',','.','~','|',';',':','?'
-            ].includes(cachedPrefix.charAt(cachedPrefix.length - 1))) {
-                cachedPrefix = cachedPrefix + " ";
-               // if(!/^[A-Za-z0-9_.]+$/)
-                    skipIndex++;
-            } else if (
-                (cachedPrefix.startsWith('<@!') && cachedPrefix.endsWith('>')) ||
-                cachedPrefix.startsWith('<:') && cachedPrefix.endsWith('>') ||
-                cachedPrefix.startsWith('<a:') && cachedPrefix.endsWith('>') ||
-                cachedPrefix.startsWith('<#') && cachedPrefix.endsWith('>')
-                ) {
-                cachedPrefix = cachedPrefix + " ";
-                skipIndex++;
+            if(noPrefixMessage === '') return;
+            if(noPrefixMessage.charAt(0) === ' ') {
+                /*if(symbols.includes(GuildCache.prefix.charAt(GuildCache.prefix.length - 1))) {
+                    if((GuildCache.prefix.indexOf(' ') >= 0)) return;
+                }*/
+                        
+                noPrefixMessage = noPrefixMessage.substring(1);
             }
 
-            if(typeof args[0 + skipIndex] === 'undefined') return;
-
-            let command = args[0 + skipIndex].replace(cachedPrefix, '');
-
-            if(command === '') return;
-
-            for(let i = 0; i < (skipIndex + 1); i++) {
-                args.shift();
-            }        
+            let args = noPrefixMessage.split(" ");
             args = args.filter(e => e !== '');
+
+            let command = args[0];
+
+            args.shift();
 
             if(args.length === 0)
                 args = [];
