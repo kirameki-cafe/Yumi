@@ -33,7 +33,6 @@ export default class Invite {
         }
     }
 
-
     async process(data: Interaction | Message, args: any) {
         const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
         const isMessage = data instanceof Message;
