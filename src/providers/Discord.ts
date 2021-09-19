@@ -116,13 +116,31 @@ class Discord {
                 '!','@','#','$','%','^','&','*','(',')','-','=','_','+','\\','/','<','>','[',']','{','}','`','"',"'",',','.','~','|',';',':','?','、','。'
             ];
 
+            const isTag = (prefix: string) => {
+                return prefix.startsWith('<@!') && prefix.endsWith('>') ||
+                prefix.startsWith('<:') && prefix.endsWith('>') ||
+                prefix.startsWith('<a:') && prefix.endsWith('>') ||
+                prefix.startsWith('<#') && prefix.endsWith('>');
+            }
+
             if((GuildCache.prefix.indexOf(' ') >= 0)) {
                 if(noPrefixMessage.charAt(0) !== ' ') return;
             }
             else {
                 if(symbols.includes(GuildCache.prefix.charAt(GuildCache.prefix.length - 1))) {
-                    if(noPrefixMessage.charAt(0) === ' ') return;
+
+                    if(noPrefixMessage.charAt(0) === ' ') {
+                        //Handle for "@Bot <command>"
+                        if(isTag(GuildCache.prefix)) {}
+                        else
+                            return;
+                    }
+                    else {
+                        //Handle for "@Bot<command>"
+                        if(isTag(GuildCache.prefix)) return;
+                    }
                 }
+
                 else {
                     if(noPrefixMessage.charAt(0) !== ' ') return;
                 }
