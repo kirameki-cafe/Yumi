@@ -9,7 +9,8 @@ const requiredENV = [
     'NODE_ENV',
     'DATABASE_URL',
     'DISCORD_TOKEN',
-    'PRIVATE_BOT'
+    'PRIVATE_BOT',
+    'OSU_API_KEY'
 ];
 
 class Environment {
@@ -38,13 +39,17 @@ class Environment {
         const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
         const DEVELOPER_IDS = process.env.DEVELOPER_IDS;
         const PRIVATE_BOT = process.env.PRIVATE_BOT;
+
+        const OSU_API_KEY = process.env.OSU_API_KEY;
       
         return {
             NODE_ENV,
 
             DISCORD_TOKEN,
             DEVELOPER_IDS,
-            PRIVATE_BOT
+            PRIVATE_BOT,
+
+            OSU_API_KEY
         };
     }
 
