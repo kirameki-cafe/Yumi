@@ -3,6 +3,7 @@ import Logger from '../libs/Logger';
 import Environment from './Environment';
 import Prisma from './Prisma';
 import Discord from './Discord';
+import osu from './osu';
 
 class App {
 
@@ -21,6 +22,11 @@ class App {
     public loadDiscord(): void {
         Logger.log('info', 'Loading Discord Client');
         Discord.init();
+    }
+
+    public load_osu(): void {
+        Logger.log('info', 'Loading osu! Client');
+        osu.init();
     }
 }
 
