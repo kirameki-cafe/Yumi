@@ -12,6 +12,7 @@ import Discord_Say from "../discord/Say";
 import Discord_InteractionManager from "../discord/InteractionManager";
 import Discord_MembershipScreening from "../discord/MembershipScreening";
 import Discord_osu from "../discord/osu";
+import Discord_UserInfo from "../discord/UserInfo";
 
 import Cache from "./Cache";
 
@@ -23,7 +24,7 @@ class Discord {
     constructor () {
         this.client = new Client({ 
             partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
-            intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS]
+            intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_PRESENCES]
         });
         this.loaded_module = {};
     }
@@ -42,6 +43,7 @@ class Discord {
         this.loaded_module["Discord_InteractionManager"] = new Discord_InteractionManager();
         this.loaded_module["Discord_Say"] = new Discord_Say();
         this.loaded_module["Discord_osu"] = new Discord_osu();
+        this.loaded_module["Discord_UserInfo"] = new Discord_UserInfo();
 
         this.loaded_module["MembershipScreening"] = new Discord_MembershipScreening();
 
