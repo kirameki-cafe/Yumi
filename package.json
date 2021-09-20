@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "@discordjs/builders": "^0.6.0",
+    "@types/color-thief-node": "^1.0.1",
+    "color-thief-node": "^1.0.4",
     "country-code-emoji": "^2.3.0",
     "country-code-lookup": "^0.0.19",
     "discord.js": "^13.1.0",
