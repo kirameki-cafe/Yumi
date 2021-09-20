@@ -114,6 +114,21 @@ GUILD_COMMANDS.push(new SlashCommandBuilder()
     )
 );
 
+GUILD_COMMANDS.push(new SlashCommandBuilder()
+    .setName('userinfo')
+    .setDescription('Lookup discord user information')
+    .addSubcommand(user => user
+        .setName('user')
+        .setDescription('Lookup discord user information')
+        .addUserOption(user => user
+            .setName('user')
+            .setDescription('Discord user to lookup')
+            .setRequired(true)
+        )
+    )
+);
+
+
 export const registerAllGlobalCommands = async () => {
     Logger.log('info', `Registering all global interaction commands`);
     await DiscordProvider.client.application?.commands.set(JSON.parse(JSON.stringify(GLOBAL_COMMANDS)));
