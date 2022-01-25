@@ -7,7 +7,7 @@ import osu from './osuAPI';
 
 class App {
 
-    public readonly version = '0.02';
+    public readonly version = `0.05${Environment.get().NODE_ENV === "development" ? ' / Development Build' : ''}`;
 
     public loadENV(): void {
         Logger.log('info', 'Loading environment');
