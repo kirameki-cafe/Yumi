@@ -1,4 +1,4 @@
-import { GuildChannel, GuildMember, Message, Permissions, TextChannel, MessageActionRow, MessageButton, Interaction, CommandInteraction, Role, ThreadChannel } from "discord.js";
+import { GuildChannel, GuildMember, Message, Permissions, TextChannel, MessageActionRow, MessageButton, Interaction, CommandInteraction, Role, ThreadChannel, MessageEmbedFooter } from "discord.js";
 import App from "..";
 import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, makeInfoEmbed, makeErrorEmbed, sendMessage, sendReply, sendMessageOrInteractionResponse } from "../utils/DiscordMessage";
 import Logger from "../libs/Logger";
@@ -334,7 +334,10 @@ export default class MembershipScreening {
                 Guild.MembershipScreening_ApprovalChannel === null ||
                 Guild.MembershipScreening_GivenRole === null) return;
 
-            embed[0].setFooter(`${interaction.user.username}  |  v${App.version}`, (interaction.user.avatarURL() || ''));
+            embed[0].footer = {
+                text: `${interaction.user.username}  |  v${App.version}`,
+                iconURL: interaction.user.avatarURL() || ''
+            }
 
             if(['approve', 'deny', 'ban'].includes(payload.action)) {
                 
