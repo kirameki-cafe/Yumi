@@ -10,7 +10,7 @@
     "node-osu": "^2.2.1",
     "ts-custom-error": "^3.2.0",
     "typescript": "^4.4.4",
-    "validator": "^13.6.0",
+    "validator": "^13.7.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {
