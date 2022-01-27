@@ -3,6 +3,7 @@ import NativeException from './exception/NativeException';
 
 NativeException.process();
 
+App.loadConfig();
 App.loadENV();
 App.loadPrisma();
 App.loadDiscord();
