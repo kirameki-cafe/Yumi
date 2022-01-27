@@ -1,4 +1,4 @@
-import { MessageEmbed, User, MessagePayload, MessageOptions, GuildTextBasedChannel, TextChannel, DMChannel, BaseGuildTextChannel, Message, ColorResolvable, Interaction, InteractionReplyOptions } from "discord.js";
+import { MessageEmbed, User, MessagePayload, MessageOptions, GuildTextBasedChannel, TextChannel, DMChannel, PartialDMChannel, BaseGuildTextChannel, Message, ColorResolvable, Interaction, InteractionReplyOptions } from "discord.js";
 import App from "..";
 import Logger from "../libs/Logger";
 
@@ -55,7 +55,7 @@ export function makeInfoEmbed(options: any) {
     return makeEmbed(typeof options.icon === 'undefined' ? "🔮" : options.icon, options.title, options.description, '#C7CEEA', options.fields, options.user, options.setTimestamp || true);
 }
 
-export async function sendMessage(channel: TextChannel | DMChannel | BaseGuildTextChannel | GuildTextBasedChannel, user: User | undefined, options: string | MessagePayload | MessageOptions) {
+export async function sendMessage(channel: TextChannel | DMChannel | BaseGuildTextChannel | GuildTextBasedChannel | PartialDMChannel , user: User | undefined, options: string | MessagePayload | MessageOptions) {
     
     let message;
 
