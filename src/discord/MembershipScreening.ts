@@ -416,7 +416,13 @@ export default class MembershipScreening {
         if(Guild.MembershipScreening_ApprovalChannel === null) return;
         if(Guild.MembershipScreening_GivenRole === null) return;
 
-        const channel = await DiscordProvider.client.channels.fetch(Guild.MembershipScreening_ApprovalChannel) as TextChannel;
+        let channel = undefined;
+        try {
+            channel = await DiscordProvider.client.channels.fetch(Guild.MembershipScreening_ApprovalChannel) as TextChannel;
+        } catch (err) {
+            // TODO: Handle channel not found error
+            return;
+        }
         if(!channel) return;
 
         const embed = makeInfoEmbed ({
