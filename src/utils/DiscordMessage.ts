@@ -43,6 +43,10 @@ export function makeSuccessEmbed(options: any) {
     return makeEmbed(typeof options.icon === 'undefined' ? "✅" : options.icon, options.title, options.description, '#B5EAD7', options.fields, options.user, options.setTimestamp || true);
 }
 
+export function makeWarningEmbed(options: any) {
+    return makeEmbed(typeof options.icon === 'undefined' ? "⚠️" : options.icon, options.title, options.description, '#FFEEAD', options.fields, options.user, options.setTimestamp || true);
+}
+
 export function makeErrorEmbed(options: any) {
     return makeEmbed(typeof options.icon === 'undefined' ? "❌" : options.icon, options.title, options.description, '#FF9AA2', options.fields, options.user, options.setTimestamp || true);
 }
@@ -91,7 +95,7 @@ export async function sendReply(rMessage: Message, options: string | MessagePayl
 }
 
 
-export async function sendMessageOrInteractionResponse(data: Message | Interaction, payload: MessageOptions | InteractionReplyOptions, replace?: boolean) {
+export async function sendMessageOrInteractionResponse(data: Message | Interaction, payload: MessageOptions | InteractionReplyOptions, replace = false) {
     const isSlashCommand = data instanceof Interaction && data.isCommand();
     const isMessage = data instanceof Message;
 
