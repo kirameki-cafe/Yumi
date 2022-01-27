@@ -52,6 +52,24 @@ GUILD_COMMANDS.push(new SlashCommandBuilder()
             .setRequired(true)
         )
     )
+    .addSubcommand(info => info
+        .setName('setenableserviceannouncement')
+        .setDescription('Enable or disable service announcement feature')
+        .addStringOption(prefix => prefix
+            .setName('status')
+            .setDescription('New status')
+            .setRequired(true)
+        )
+    )
+    .addSubcommand(info => info
+        .setName('setserviceannouncementchannel')
+        .setDescription('Set channel where service announcement will be sent')
+        .addChannelOption(prefix => prefix
+            .setName('channel')
+            .setDescription('New status')
+            .setRequired(true)
+        )
+    )
 );
 GUILD_COMMANDS.push(new SlashCommandBuilder()
     .setName('membershipscreening')

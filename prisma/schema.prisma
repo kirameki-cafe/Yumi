@@ -18,4 +18,7 @@ model Guild {
   MembershipScreening_Enabled Boolean @default(false)
   MembershipScreening_ApprovalChannel String?
   MembershipScreening_GivenRole String?
+
+  ServiceAnnouncement_Enabled Boolean @default(false)
+  ServiceAnnouncement_Channel String?
 }
