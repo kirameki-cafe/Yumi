@@ -4,10 +4,16 @@ import Environment from './Environment';
 import Prisma from './Prisma';
 import Discord from './Discord';
 import osu from './osuAPI';
+import Configuration from './Configuration';
 
 class App {
 
     public readonly version = `0.05${Environment.get().NODE_ENV === "development" ? ' / Development Build' : ''}`;
+
+    public loadConfig(): void {
+        Logger.log('info', 'Loading configuration');
+        Configuration.init();
+    }
 
     public loadENV(): void {
         Logger.log('info', 'Loading environment');
