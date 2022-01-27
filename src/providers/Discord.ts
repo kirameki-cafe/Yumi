@@ -13,6 +13,7 @@ import Discord_InteractionManager from "../discord/InteractionManager";
 import Discord_MembershipScreening from "../discord/MembershipScreening";
 import Discord_osu from "../discord/osu";
 import Discord_UserInfo from "../discord/UserInfo";
+import Discord_Developer_ServiceAnnouncement from "../discord/developer/ServiceAnnouncement"
 
 import Cache from "./Cache";
 
@@ -46,6 +47,8 @@ class Discord {
         this.loaded_module["Discord_UserInfo"] = new Discord_UserInfo();
 
         this.loaded_module["MembershipScreening"] = new Discord_MembershipScreening();
+
+        this.loaded_module["Discord_Developer_ServiceAnnouncement"] = new Discord_Developer_ServiceAnnouncement();
 
         for(const module in this.loaded_module) {
             let thisModule = this.loaded_module[module];
