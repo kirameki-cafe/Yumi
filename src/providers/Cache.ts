@@ -1,3 +1,4 @@
+import { Guild } from "@prisma/client";
 import { Snowflake } from "discord-api-types";
 import Prisma from "./Prisma";
 
@@ -31,7 +32,7 @@ class Cache {
         this.cache.Guilds[id] = data;
     }
 
-    public async getGuild(id: string) {
+    public async getGuild(id: string): Promise<(Guild | undefined)> {
         if(typeof this.cache.Guilds[id] !== 'undefined')
             return this.cache.Guilds[id];
 
