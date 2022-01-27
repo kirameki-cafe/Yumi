@@ -98,7 +98,7 @@ const EMBEDS = {
     },
     CONFIGURED_CHANNEL: (data: Message | Interaction, channel: GuildChannel) => {
         return makeSuccessEmbed ({
-            title: 'Configured Membership Screening Role',
+            title: 'Configured Membership Screening Channel',
             description: 'Anyone with ``VIEW_CHANNEL`` permission in ' + '``' + channel.name +'``' + ' can approve or deny request',
             user: (data instanceof Interaction) ? data.user : data.author
         });
@@ -176,7 +176,9 @@ export default class MembershipScreening {
         if(data.guild === null || data.guildId === null) return;
         
         const Guild = await Prisma.client.guild.findFirst({ where: { id: data.guildId }})
-        if(!Guild) throw new Error('TODO: Handle if guild is not found');
+
+        // TODO: Handle if guild is not found
+        if(!Guild) throw new Error('Guild not found');
         
 
         const funct = {
