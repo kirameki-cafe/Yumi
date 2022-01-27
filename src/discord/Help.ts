@@ -7,7 +7,10 @@ const EMBEDS = {
     INFO: async (data: Message | Interaction) => {
 
         let GuildCache = await Cache.getGuild(data.guildId!);
-        //if(typeof GuildCache === 'undefined' || typeof GuildCache.prefix === 'undefined') return;
+
+        // TODO: Better error handling
+        if(typeof GuildCache === 'undefined')
+            throw new Error("Guild not found");
 
         let prefix = GuildCache.prefix || '>';
 
