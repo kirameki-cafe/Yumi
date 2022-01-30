@@ -65,7 +65,9 @@ export async function sendMessage(channel: TextChannel | DMChannel | BaseGuildTe
 
     try { message = await channel.send(options); }
     catch(error) {
-        if(typeof user === 'undefined') return;
+        if(typeof user === 'undefined') {
+            return Logger.error(`Cannot find available destinations to send the message CID: ${channel.id} C_ERR: ${error}`);
+        }
         try { message = await user.send(options); }
         catch(errorDM) {
             Logger.error(`Cannot find available destinations to send the message CID: ${channel.id} UID: ${user.id} C_ERR: ${error} DM_ERR: ${errorDM}`);
@@ -99,7 +101,7 @@ export async function sendMessageOrInteractionResponse(data: Message | Interacti
     const isSlashCommand = data instanceof Interaction && data.isCommand();
     const isMessage = data instanceof Message;
 
-    if(isSlashCommand) {
+    if(isSlashCommand || (data instanceof Interaction && data.isSelectMenu())) {
         if(!data.replied) {
             let message;
             try {
