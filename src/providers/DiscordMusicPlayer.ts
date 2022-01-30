@@ -30,7 +30,7 @@ export class YouTubeLink {
 }
 
 export class PlayerPlayingEvent {
-    public instance: DiscordMusicPlayerInstance; 
+    public instance: DiscordMusicPlayerInstance;
 
     constructor(instance: DiscordMusicPlayerInstance) {
         this.instance = instance;
@@ -60,9 +60,9 @@ export class DiscordMusicPlayerInstance {
         this.player.on(AudioPlayerStatus.Idle, async (oldStage, newStage) => {
             //The player stopped
             if (newStage.status === AudioPlayerStatus.Idle && oldStage.status !== AudioPlayerStatus.Idle) {
-                if(this.queue.track.length !== 0) {
+                if (this.queue.track.length !== 0) {
                     this.queue.track.shift();
-                    if(this.queue.track.length > 0) {
+                    if (this.queue.track.length > 0) {
                         this.playTrack(this.queue.track[0]);
                     }
                 }
@@ -82,8 +82,8 @@ export class DiscordMusicPlayerInstance {
     public isConnected() {
         if (!this.voiceConnection) return false;
 
-        if(this.voiceConnection.state.status === VoiceConnectionStatus.Destroyed) return false;
-        if(this.voiceConnection.state.status === VoiceConnectionStatus.Disconnected) return false;
+        if (this.voiceConnection.state.status === VoiceConnectionStatus.Destroyed) return false;
+        if (this.voiceConnection.state.status === VoiceConnectionStatus.Disconnected) return false;
 
         return true;
     }
@@ -96,7 +96,7 @@ export class DiscordMusicPlayerInstance {
         if (!voiceChannel.joinable || !permissions.has("CONNECT"))
             throw new Error("No permissions");
 
-        if(textChannel)
+        if (textChannel)
             this.textChannel = textChannel;
 
         this.voiceConnection = joinVoiceChannel({
@@ -107,7 +107,7 @@ export class DiscordMusicPlayerInstance {
 
         this.voiceConnection.on(VoiceConnectionStatus.Ready, (oldState: VoiceConnectionState, newState: VoiceConnectionState) => {
             let currentVC = DiscordProvider.client.guilds.cache.get(voiceChannel.guild.id)?.me?.voice.channel;
-            if(currentVC && currentVC.id !== this.voiceChannel.id) {
+            if (currentVC && currentVC.id !== this.voiceChannel.id) {
                 this.voiceChannel = currentVC;
             }
         });
@@ -115,18 +115,18 @@ export class DiscordMusicPlayerInstance {
 
     public async leaveVoiceChannel() {
 
-        if(this.player)
-            this.player.pause();   
+        if (this.player)
+            this.player.pause();
 
-        if(DiscordProvider.client.guilds.cache.get(this.voiceChannel.guild.id)?.me?.voice) {
+        if (DiscordProvider.client.guilds.cache.get(this.voiceChannel.guild.id)?.me?.voice) {
             await DiscordProvider.client.guilds.cache.get(this.voiceChannel.guild.id)?.me?.voice.disconnect();
         }
-        
+
     }
 
     public addTrackToQueue(track: (ValidTracks)) {
 
-        if(this.queue.track.length === 0) {
+        if (this.queue.track.length === 0) {
             this.queue.track.push(track);
             this.playTrack(this.queue.track[0]);
             return;
@@ -137,21 +137,21 @@ export class DiscordMusicPlayerInstance {
 
     public async playTrack(track: ValidTracks) {
 
-        if(!this.voiceConnection) throw new Error("No voice connection");
+        if (!this.voiceConnection) throw new Error("No voice connection");
 
         const stream = await playdl.stream(track.url);
         const resource = createAudioResource(stream.stream, {
             inputType: stream.type
         });
-        
+
         this.player.play(resource)
         this.voiceConnection.subscribe(this.player)
     }
 
     public async skipTrack() {
-        if(!this.voiceConnection) throw new Error("No voice connection");
+        if (!this.voiceConnection) throw new Error("No voice connection");
 
-        if(this.queue.track.length > 1) {
+        if (this.queue.track.length > 1) {
             this.queue.track.shift();
             this.playTrack(this.queue.track[0]);
         }
@@ -160,13 +160,13 @@ export class DiscordMusicPlayerInstance {
     public async destroy() {
         await this.leaveVoiceChannel();
 
-        if(this.voiceConnection) {
+        if (this.voiceConnection) {
             this.voiceConnection.removeAllListeners();
-            if(this.voiceConnection.state.status !== 'destroyed')
+            if (this.voiceConnection.state.status !== 'destroyed')
                 this.voiceConnection.destroy();
         }
-        
-        if(this.player) {
+
+        if (this.player) {
             this.player.removeAllListeners();
             this.player.stop(true);
         }
@@ -183,12 +183,12 @@ class DiscordMusicPlayer {
     public GuildQueue = new Map();
 
     public getGuildInstance(guildId: Snowflake): (DiscordMusicPlayerInstance | null) {
-        if(!this.isGuildInstanceExists(guildId)) return null;
+        if (!this.isGuildInstanceExists(guildId)) return null;
         return this.GuildQueue.get(guildId);
     }
 
     public isGuildInstanceExists(guildId: Snowflake) {
-        return this.GuildQueue.has(guildId);    
+        return this.GuildQueue.has(guildId);
     }
 
     public createGuildInstance(guildId: Snowflake, voiceChannel: (VoiceChannel | StageChannel)) {
@@ -199,7 +199,7 @@ class DiscordMusicPlayer {
 
         let guildId: Snowflake = guild instanceof Guild ? guild.id : guild;
 
-        if(this.isGuildInstanceExists(guildId)) {
+        if (this.isGuildInstanceExists(guildId)) {
             await this.GuildQueue.get(guildId).destroy();
             this.GuildQueue.delete(guildId);
         }
@@ -229,16 +229,39 @@ class DiscordMusicPlayer {
 
         // Last resort, search the title
         const videoInfo = await playdl.video_basic_info("https://www.youtube.com/watch?v=" + youtubeLink.videoId);
-        if(videoInfo?.video_details?.title) {
+        if (videoInfo?.video_details?.title) {
             const searched: YouTubeVideo[] = await playdl.search(videoInfo.video_details.title, { source: { youtube: "video" } });
             for (let video of searched) {
                 if (video.id === youtubeLink.videoId)
                     return video;
             }
         }
-        
-        // TODO: Construct our own YouTubeVideo for unlisted videos or somehow the search failed
-        
+
+        let yt_info = await playdl.video_info("https://www.youtube.com/watch?v=" + youtubeLink.videoId);
+        if(yt_info) {
+            return new YouTubeVideo({
+                id: yt_info.video_details.id,
+                url: yt_info.video_details.url,
+                type: yt_info.video_details.type,
+                title: yt_info.video_details.title,
+                description: yt_info.video_details.description,
+                durationRaw: yt_info.video_details.durationRaw,
+                durationInSec: yt_info.video_details.durationInSec,
+                uploadedAt: yt_info.video_details.uploadedAt,
+                upcoming:  yt_info.video_details.upcoming,
+                views: yt_info.video_details.views,
+                thumbnails: yt_info.video_details.thumbnails,
+                channel: yt_info.video_details.channel,
+                likes: yt_info.video_details.likes,
+                live: yt_info.video_details.live,
+                private: yt_info.video_details.private,
+                tags: yt_info.video_details.tags,
+                discretionAdvised: yt_info.video_details.discretionAdvised,
+                music: yt_info.video_details.music
+            });
+        }
+
+
         return null;
     }
 
