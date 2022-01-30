@@ -4,9 +4,17 @@ import { AudioPlayer, VoiceConnection, createAudioPlayer, joinVoiceChannel, crea
 import { EventEmitter } from "stream";
 
 import DiscordProvider from "./Discord";
+import Environment from "./Environment";
 
 export type ValidTracks = YouTubeVideo;
 
+if (Environment.get().YOUTUBE_COOKIE_BASE64) {
+    playdl.setToken({
+        youtube: {
+            cookie: Buffer.from(Environment.get().YOUTUBE_COOKIE_BASE64, 'base64').toString()
+        }
+    })
+}
 export class Queue {
     public track: (ValidTracks)[] = [];
 }
