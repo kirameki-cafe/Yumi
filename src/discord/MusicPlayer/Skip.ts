@@ -1,5 +1,5 @@
 import { Message, CommandInteraction, Interaction, VoiceChannel } from "discord.js";
-import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, sendMessage, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+import { getEmotes, makeSuccessEmbed, makeErrorEmbed, sendMessage, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 import DiscordProvider from "../../providers/Discord";
 import Users from "../../services/Users"
 import Environment from "../../providers/Environment";
@@ -9,6 +9,24 @@ const EMBEDS = {
     SKIPPED: (data: Message | Interaction) => {
         return makeSuccessEmbed({
             title: `Skipped`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
+    NO_MUSIC_PLAYING: (data: Message | Interaction) => {
+        return makeErrorEmbed({
+            title: `There are no music playing`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
+    USER_NOT_IN_VOICECHANNEL: (data: Message | Interaction) => {
+        return makeErrorEmbed({
+            title: `You need to be in the voice channel first!`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
+    USER_NOT_IN_SAME_VOICECHANNEL: (data: Message | Interaction) => {
+        return makeErrorEmbed({
+            title: `You are not in the same voice channel!`,
             user: (data instanceof Interaction) ? data.user : data.author
         });
     }
@@ -39,19 +57,22 @@ export default class Skip {
         if (!data.guildId) return;
 
         const channel: any = isMessage ? data.member.voice.channel : DiscordProvider.client.guilds.cache.get((data as Interaction).guildId!)!.members.cache.get((data as Interaction).user.id)?.voice.channel;
+
+        if (!data.member.voice.channel)
+            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data)] });
+        
         if (!channel) return;
 
-
-        // TODO: User must be in vc error msg
-        if (!data.member.voice.channel) return;
         let voiceChannel = data.member.voice.channel;
 
-        // TODO: No queue error
-        if(!DiscordMusicPlayer.isGuildInstanceExists(data.guildId)) {
-            return;
-        }
+        if(!DiscordMusicPlayer.isGuildInstanceExists(data.guildId))
+            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data)] });
 
         const instance = DiscordMusicPlayer.getGuildInstance(data.guildId);
+
+        if(instance!.voiceChannel.id !== data.member.voice.channel.id)
+                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data)] }, true);
+
         instance!.skipTrack();
 
         //await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SKIPPED(data)] });
