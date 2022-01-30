@@ -27,7 +27,19 @@ const EMBEDS = {
         });
         embed.setImage(track.thumbnails[0].url);
         return embed;
-    }
+    },
+    USER_NOT_IN_VOICECHANNEL: (data: Message | Interaction) => {
+        return makeErrorEmbed({
+            title: `You need to be in the voice channel first!`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
+    USER_NOT_IN_SAME_VOICECHANNEL: (data: Message | Interaction) => {
+        return makeErrorEmbed({
+            title: `You are not in the same voice channel!`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
 }
 
 
@@ -49,6 +61,7 @@ export default class Play {
             if (!this.tryParseJSONObject(interaction.customId)) return;
 
             let payload = JSON.parse(interaction.customId);
+            if(!interaction.member?.user?.id) return;
 
             /*
                 Discord have 100 char custom id char limit
@@ -62,20 +75,26 @@ export default class Play {
                 payload.module !== 'MP_SM' ||
                 payload.action !== 'play') return;
             
-            interaction.deferReply();
+            await interaction.deferReply();
 
-            let voiceChannel = interaction.guild.channels.cache.get(payload.data.v);
-            let member = interaction.guild.members.cache.get(payload.data.r);
+            let voiceChannel = DiscordProvider.client.guilds.cache.get(interaction.guildId)?.channels.cache.get(payload.data.v);
+            let member = DiscordProvider.client.guilds.cache.get(interaction.guildId)?.members.cache.get(interaction.member?.user?.id);
 
             if(!member) return;
             if (!voiceChannel || !(voiceChannel instanceof VoiceChannel)) return;
-            if (!member.voice.channel) return;
+
+
+            if (!member.voice.channel)
+                return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(interaction)] }, true);
 
             if (!DiscordMusicPlayer.isGuildInstanceExists(interaction.guildId)) {
                 await joinVoiceChannelProcedure(interaction, null, voiceChannel);
             }
 
             let instance = DiscordMusicPlayer.getGuildInstance(interaction.guildId);
+
+            if(instance!.voiceChannel.id !== member.voice.channel.id)
+                return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(interaction)] }, true);
 
             if (!instance!.isConnected()) {
                 await joinVoiceChannelProcedure(interaction, instance!, voiceChannel);
@@ -123,8 +142,9 @@ export default class Play {
         if (!query) return;
         if (!(data.channel instanceof TextChannel)) return;
 
-        // TODO: User must be in vc error msg
-        if (!data.member.voice.channel) return;
+        if (!data.member.voice.channel)
+            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data)] });
+
         let voiceChannel = data.member.voice.channel;
 
         if (!DiscordMusicPlayer.isGuildInstanceExists(data.guildId)) {
@@ -132,6 +152,9 @@ export default class Play {
         }
 
         let instance = DiscordMusicPlayer.getGuildInstance(data.guildId);
+
+        if(instance!.voiceChannel.id !== data.member.voice.channel.id)
+                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data)] }, true);
 
         if (!instance!.isConnected()) {
             await joinVoiceChannelProcedure(data, instance!, voiceChannel);

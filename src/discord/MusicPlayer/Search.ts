@@ -28,6 +28,18 @@ const EMBEDS = {
         });
         embed.setImage(track.thumbnails[0].url);
         return embed;
+    },
+    USER_NOT_IN_VOICECHANNEL: (data: Message | Interaction) => {
+        return makeErrorEmbed({
+            title: `You need to be in the voice channel first!`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
+    USER_NOT_IN_SAME_VOICECHANNEL: (data: Message | Interaction) => {
+        return makeErrorEmbed({
+            title: `You are not in the same voice channel!`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
     }
 }
 
@@ -77,8 +89,10 @@ export default class Search {
         if (!query) return;
         if (!(data.channel instanceof TextChannel)) return;
 
-        // TODO: User must be in vc error msg
-        if (!data.member.voice.channel) return;
+
+        if (!data.member.voice.channel)
+            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data)] });
+        
         let voiceChannel = data.member.voice.channel;
 
         if (!DiscordMusicPlayer.isGuildInstanceExists(data.guildId)) {
@@ -86,6 +100,9 @@ export default class Search {
         }
 
         let instance = DiscordMusicPlayer.getGuildInstance(data.guildId);
+        
+        if (instance!.voiceChannel.id !== voiceChannel.id)
+            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data)] });
 
         if (!instance!.isConnected()) {
             await joinVoiceChannelProcedure(data, instance!, voiceChannel);

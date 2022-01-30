@@ -23,7 +23,7 @@ const EMBEDS = {
             description: `I can't join mutiple voice channel on the same guild.
             I wish I had a superpower, maybe... one day I will.
             
-            Want to move me to your voice channel? You can use the button below (soon)${!haveForceMove ? ` or use move command (soon)` : ", use move command (soon) or just (ab)use me with your admin permissions hehe"}`,
+            There are also somebody listening to the music in the voice channel I'm currently in.${!haveForceMove ? ` Wait until I finish playing there or I'm alone there. Better yet, join them!` : " Wait until I finish playing there or I'm alone there. Better yet, join them! \n\n**Or... just (ab)use your admin permissions and move me to where you want!**"}`,
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
@@ -31,6 +31,12 @@ const EMBEDS = {
         return makeInfoEmbed({
             title: `I'm already here`,
             description: `Already in the voice channel you are currently connected to`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
+    USER_NOT_IN_VOICECHANNEL: (data: Message | Interaction) => {
+        return makeErrorEmbed({
+            title: `You need to be in the voice channel first!`,
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
@@ -198,8 +204,9 @@ export default class Join {
         const channel: any = isMessage ? data.member.voice.channel : DiscordProvider.client.guilds.cache.get((data as Interaction).guildId!)!.members.cache.get((data as Interaction).user.id)?.voice.channel;
         if (!channel) return;
 
-        // TODO: User must be in vc error msg
-        if (!data.member.voice.channel) return;
+        if (!data.member.voice.channel)
+            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data)] });
+        
         let voiceChannel = data.member.voice.channel;
 
        
