@@ -128,7 +128,8 @@ export async function joinVoiceChannelProcedure (data: Interaction | Message, in
         instance = DiscordMusicPlayer.getGuildInstance(data.guildId);
 
         instance!.joinVoiceChannel(voiceChannel, data.channel);
-        await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.VOICECHANNEL_JOINED(data)] });
+        if(!isAcceptableInteraction)
+            await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.VOICECHANNEL_JOINED(data)] });
     }
 
     if (!instance) return;
