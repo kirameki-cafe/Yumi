@@ -43,6 +43,11 @@ const EMBEDS = {
                     name: '🔧 Developer',
                     value: 'interactions, serviceannouncement',
                     inline: true
+                },
+                {
+                    name: '\u200b',
+                    value: '**Made with 💖 and [open source](https://github.com/YuzuZensai/Yumi)**',
+                    inline: false
                 }
             ],
             user: (data instanceof Interaction) ? data.user : data.author
