@@ -44,13 +44,7 @@ const EMBEDS = {
         const embed = makeInfoEmbed({
             title: ' Now playing',
             icon: '🎵',
-            fields: [
-                {
-                    name: `${track.title}`,
-                    value: `\u200B`,
-                    inline: false
-                }
-            ],
+            description: `${track.title}`,
             user: DiscordProvider.client.user
         });
 
