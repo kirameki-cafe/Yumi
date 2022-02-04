@@ -2,7 +2,7 @@
     "News": {
         "color": "#FAEDF0",
         "title": "📰 Newsletter",
-        "description": "\u200B\n**{bot_username} have been super-charged and upgraded!**\nThe long-awaited update is now here, running latest and greatest version!\n\n**What's new?**\n\u200B\n",
+        "description": "\u200B\n**{bot_username} has been super-charged and upgraded!**\nThe long-awaited update is now here, running latest and greatest version!\n\n**What's new?**\n\u200B\n",
         "fields": [
             { 
                 "name": "🔥 Feature 1!",
@@ -16,7 +16,7 @@
             },
             {
                 "name": "🪲 Bugs squashed",
-                "value": "\u200B\nBe gone, bugs!\n\u200B\n",
+                "value": "\u200B\nBegone, bugs!\n\u200B\n",
                 "inline": false
             }
         ],
