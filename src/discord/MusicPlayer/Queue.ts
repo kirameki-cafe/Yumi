@@ -13,18 +13,32 @@ const EMBEDS = {
                 description: `The queue is empty!`,
                 user: (data instanceof Interaction) ? data.user : data.author
             });
-        else if(queue.track.length == 1)
-            return makeInfoEmbed({
-                title: `Queue`,
-                description: `Now playing: ${queue.track[0].title}\n\nThe queue is empty!`,
-                user: (data instanceof Interaction) ? data.user : data.author
-            });
-        else
-            return makeInfoEmbed({
-                title: `Queue`,
-                description: `Now playing: ${queue.track[0].title}\n\nUpcoming song: ${queue.track[1].title}\n\nThere are ${Object.keys(queue).length} songs in the queue!`,
-                user: (data instanceof Interaction) ? data.user : data.author
-            });
+        else {
+            if(queue.track.length == 1) {
+                let queueString = `1. [${queue.track[0].title}](${queue.track[0].url})`
+                return makeInfoEmbed({
+                    title: `Queue`,
+                    description: `Now playing: ${queue.track[0].title}\n\nThere are ${queue.track.length} song in the queue!\n${queueString}`,
+                    user: (data instanceof Interaction) ? data.user : data.author
+                });
+            }
+            else if(queue.track.length >= 10) {
+                let first10 = queue.track.slice(0, 10);
+                let queueString = first10.map((track, index) => `${index + 1}. [${track.title}](${track.url})`).join("\n");
+                return makeInfoEmbed({
+                    title: `Queue`,
+                    description: `Now playing: ${queue.track[0].title}\nUpcoming song: ${queue.track[1].title}\n\nThere are ${queue.track.length} songs in the queue!\n${queueString}\n${queue.track.length > 10 ? `...${queue.track.length - 10} more songs` : ""}`,
+                    user: (data instanceof Interaction) ? data.user : data.author
+                });
+            } else {
+                let queueString = queue.track.map((track, index) => `${index + 1}. [${track.title}](${track.url})`).join("\n");
+                return makeInfoEmbed({
+                    title: `Queue`,
+                    description: `Now playing: ${queue.track[0].title}\nUpcoming song: ${queue.track[1].title}\n\nThere are ${queue.track.length} songs in the queue!\n${queueString}`,
+                    user: (data instanceof Interaction) ? data.user : data.author
+                });
+            }
+        }
     },
     NO_MUSIC_PLAYING: (data: Message | Interaction) => {
         return makeErrorEmbed({
