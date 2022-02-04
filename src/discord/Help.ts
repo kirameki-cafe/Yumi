@@ -21,7 +21,7 @@ const EMBEDS = {
             fields: [
                 {
                     name: '☕ General',
-                    value: `help, ping, invite, userinfo`,
+                    value: `help, ping, invite, userinfo, stats`,
                     inline: true
                 },
                 {
