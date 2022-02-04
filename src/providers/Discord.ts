@@ -19,6 +19,7 @@ import Discord_MusicPlayer_Join from "../discord/MusicPlayer/Join";
 import Discord_MusicPlayer_Leave from "../discord/MusicPlayer/Leave";
 import Discord_MusicPlayer_Queue from "../discord/MusicPlayer/Queue";
 import Discord_MusicPlayer_Search from "../discord/MusicPlayer/Search";
+import Discord_MusicPlayer_Search_NowPlaying from "../discord/MusicPlayer/NowPlaying";
 
 import Discord_Developer_ServiceAnnouncement from "../discord/developer/ServiceAnnouncement"
 
@@ -59,6 +60,7 @@ class Discord {
         this.loaded_module["Discord_MusicPlayer_Leave"] = new Discord_MusicPlayer_Leave();
         this.loaded_module["Discord_MusicPlayer_Queue"] = new Discord_MusicPlayer_Queue();
         this.loaded_module["Discord_MusicPlayer_Search"] = new Discord_MusicPlayer_Search();
+        this.loaded_module["Discord_MusicPlayer_Search_NowPlaying"] = new Discord_MusicPlayer_Search_NowPlaying();
 
         this.loaded_module["MembershipScreening"] = new Discord_MembershipScreening();
 

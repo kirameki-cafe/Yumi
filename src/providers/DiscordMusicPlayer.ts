@@ -111,6 +111,10 @@ export class DiscordMusicPlayerInstance {
                 this.voiceChannel = currentVC;
             }
         });
+
+        this.voiceConnection.on(VoiceConnectionStatus.Disconnected, (oldState: VoiceConnectionState, newState: VoiceConnectionState) => {
+            // TODO: Handle on Disconnect by user (Right-click > Disconnect)
+        });
     }
 
     public async leaveVoiceChannel() {
