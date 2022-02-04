@@ -26,7 +26,7 @@ const EMBEDS = {
                 },
                 {
                     name: '🎵 Music',
-                    value: `play, search, skip, queue, join, leave`,
+                    value: `play (p), search, skip, queue, join, leave`,
                     inline: true
                 },
                 {
