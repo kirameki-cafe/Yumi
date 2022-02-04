@@ -13,6 +13,8 @@ import Discord_InteractionManager from "../discord/InteractionManager";
 import Discord_MembershipScreening from "../discord/MembershipScreening";
 import Discord_osu from "../discord/osu";
 import Discord_UserInfo from "../discord/UserInfo";
+import Discord_Stats from "../discord/Stats";
+
 import Discord_MusicPlayer_Play from "../discord/MusicPlayer/Play";
 import Discord_MusicPlayer_Skip from "../discord/MusicPlayer/Skip";
 import Discord_MusicPlayer_Join from "../discord/MusicPlayer/Join";
@@ -53,6 +55,7 @@ class Discord {
         this.loaded_module["Discord_Say"] = new Discord_Say();
         this.loaded_module["Discord_osu"] = new Discord_osu();
         this.loaded_module["Discord_UserInfo"] = new Discord_UserInfo();
+        this.loaded_module["Discord_Stats"] = new Discord_Stats();
 
         this.loaded_module["Discord_MusicPlayer_Play"] = new Discord_MusicPlayer_Play();
         this.loaded_module["Discord_MusicPlayer_Skip"] = new Discord_MusicPlayer_Skip();
