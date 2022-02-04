@@ -41,6 +41,7 @@ class Environment {
         const PRIVATE_BOT = process.env.PRIVATE_BOT;
 
         const OSU_API_KEY = process.env.OSU_API_KEY;
+        const YOUTUBE_COOKIE_BASE64 = process.env.YOUTUBE_COOKIE_BASE64;
       
         return {
             NODE_ENV,
@@ -49,7 +50,8 @@ class Environment {
             DEVELOPER_IDS,
             PRIVATE_BOT,
 
-            OSU_API_KEY
+            OSU_API_KEY,
+            YOUTUBE_COOKIE_BASE64
         };
     }
 

@@ -1,0 +1,55 @@
+{
+    "News": {
+        "color": "#FAEDF0",
+        "title": "📰 Newsletter",
+        "description": "\u200B\n**{bot_username} have been super-charged and upgraded!**\nThe long-awaited update is now here, running latest and greatest version!\n\n**What's new?**\n\u200B\n",
+        "fields": [
+            { 
+                "name": "🔥 Feature 1!",
+                "value": "\u200B\nSuch wow! New feature so cool 10/10!!!!\n\u200B\n",
+                "inline": false
+            },
+            { 
+                "name": "✨ Shiny and new feature!",
+                "value": "\u200B\nNow brighter than ever!\n\u200B\n",
+                "inline": false
+            },
+            {
+                "name": "🪲 Bugs squashed",
+                "value": "\u200B\nBe gone, bugs!\n\u200B\n",
+                "inline": false
+            }
+        ],
+        "thumbnail": {
+            "url": "bot_avatar"
+        }
+    },
+    "Maintenance": {
+        "color": "#383b80",
+        "title": "🔧 Maintenance",
+        "description": "{bot_username} will be down for maintenance\nThe maintenance includes feature improvement to bug fixes\n\nDuring the maintenance, {bot_username}'s commands and features will be unavailable",
+        "fields": [
+            { "name": "Start", "value": "<t:1812519286:R>", "inline": true},
+            { "name": "End", "value": "<t:3390442486:R>", "inline": true}
+        ],
+        "thumbnail": {
+            "url": "bot_avatar"
+        }
+    },
+    "Message": {
+        "color": "#A1DE93",
+        "title": "✉️ Message",
+        "description": "Hello everyone!",
+        "thumbnail": {
+            "url": "bot_avatar"
+        }
+    },
+    "Alert": {
+        "color": "#EC255A",
+        "title": "🚨 Alert",
+        "description": "{bot_username} currently has an issue with lack of food, {bot_username} need more FOOD! MORE AND MORE!.\nWe're fixing it ASAP",
+        "thumbnail": {
+            "url": "bot_avatar"
+        }
+    }
+}
