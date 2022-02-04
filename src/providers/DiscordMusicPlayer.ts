@@ -155,6 +155,10 @@ export class DiscordMusicPlayerInstance {
             this.queue.track.shift();
             this.playTrack(this.queue.track[0]);
         }
+        else {
+            this.queue.track.shift();
+            this.player.stop();
+        }
     }
 
     public async destroy() {

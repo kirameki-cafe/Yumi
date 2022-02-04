@@ -12,6 +12,12 @@ const EMBEDS = {
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
+    SKIPPED_LASTSONG: (data: Message | Interaction) => {
+        return makeSuccessEmbed({
+            title: `Skipped, that was the last song`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
     NO_MUSIC_PLAYING: (data: Message | Interaction) => {
         return makeErrorEmbed({
             title: `There are no music playing`,
@@ -73,10 +79,14 @@ export default class Skip {
         if(instance!.voiceChannel.id !== data.member.voice.channel.id)
                 return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data)] }, true);
 
+        if(instance?.queue.track.length === 0)
+            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data)] });
+
         instance!.skipTrack();
 
-        //await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SKIPPED(data)] });
-
-        return;
+        if(instance?.queue.track.length === 0)
+            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SKIPPED_LASTSONG(data)] });
+        else
+            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SKIPPED(data)] });
     }
 }
