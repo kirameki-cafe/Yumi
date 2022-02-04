@@ -13,6 +13,16 @@ import Discord_InteractionManager from "../discord/InteractionManager";
 import Discord_MembershipScreening from "../discord/MembershipScreening";
 import Discord_osu from "../discord/osu";
 import Discord_UserInfo from "../discord/UserInfo";
+import Discord_Stats from "../discord/Stats";
+
+import Discord_MusicPlayer_Play from "../discord/MusicPlayer/Play";
+import Discord_MusicPlayer_Skip from "../discord/MusicPlayer/Skip";
+import Discord_MusicPlayer_Join from "../discord/MusicPlayer/Join";
+import Discord_MusicPlayer_Leave from "../discord/MusicPlayer/Leave";
+import Discord_MusicPlayer_Queue from "../discord/MusicPlayer/Queue";
+import Discord_MusicPlayer_Search from "../discord/MusicPlayer/Search";
+import Discord_MusicPlayer_Search_NowPlaying from "../discord/MusicPlayer/NowPlaying";
+
 import Discord_Developer_ServiceAnnouncement from "../discord/developer/ServiceAnnouncement"
 
 import Cache from "./Cache";
@@ -24,8 +34,8 @@ class Discord {
 
     constructor () {
         this.client = new Client({ 
-            partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
-            intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_PRESENCES]
+            //partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
+            intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_VOICE_STATES]
         });
         this.loaded_module = {};
     }
@@ -45,6 +55,15 @@ class Discord {
         this.loaded_module["Discord_Say"] = new Discord_Say();
         this.loaded_module["Discord_osu"] = new Discord_osu();
         this.loaded_module["Discord_UserInfo"] = new Discord_UserInfo();
+        this.loaded_module["Discord_Stats"] = new Discord_Stats();
+
+        this.loaded_module["Discord_MusicPlayer_Play"] = new Discord_MusicPlayer_Play();
+        this.loaded_module["Discord_MusicPlayer_Skip"] = new Discord_MusicPlayer_Skip();
+        this.loaded_module["Discord_MusicPlayer_Join"] = new Discord_MusicPlayer_Join();
+        this.loaded_module["Discord_MusicPlayer_Leave"] = new Discord_MusicPlayer_Leave();
+        this.loaded_module["Discord_MusicPlayer_Queue"] = new Discord_MusicPlayer_Queue();
+        this.loaded_module["Discord_MusicPlayer_Search"] = new Discord_MusicPlayer_Search();
+        this.loaded_module["Discord_MusicPlayer_Search_NowPlaying"] = new Discord_MusicPlayer_Search_NowPlaying();
 
         this.loaded_module["MembershipScreening"] = new Discord_MembershipScreening();
 

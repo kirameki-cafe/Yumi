@@ -5,7 +5,7 @@ import { registerAllGuildsCommands, unregisterAllGuildsCommands } from "../../ut
 import Prisma from "../../providers/Prisma";
 import Users from "../../services/Users";
 
-import {Promise, reject} from "bluebird";
+import { Promise, reject } from "bluebird";
 import fs from "fs";
 import path from "path";
 import Logger from "../../libs/Logger";
@@ -124,20 +124,21 @@ let Announcements = {
     }
 
 }
-
-if (fs.existsSync(path.join(process.cwd(), 'configs/ServiceAnnouncement.json'))) {
-    try {
-        const rawData = fs.readFileSync(path.join(process.cwd(), 'configs/ServiceAnnouncement.json'));
-        const jsonData = JSON.parse(rawData.toString());
-        Announcements = jsonData;
-    } catch (err) {
-        Logger.error("Unable to load custom ServiceAnnouncement config: " + err);
-    }
-} else {
-    fs.writeFileSync(path.join(process.cwd(), 'configs/ServiceAnnouncement.json'), JSON.stringify(Announcements, null, 4), 'utf8');
-}
-
 export default class InteractionManager {
+
+    async init() {
+
+        if (fs.existsSync(path.join(process.cwd(), 'configs/ServiceAnnouncement.json'))) {
+            try {
+                const rawData = fs.readFileSync(path.join(process.cwd(), 'configs/ServiceAnnouncement.json'));
+                const jsonData = JSON.parse(rawData.toString());
+                Announcements = jsonData;
+            } catch (err) {
+                Logger.error("Unable to load custom ServiceAnnouncement config: " + err);
+            }
+        }
+    }
+
     async onCommand(command: string, args: any, message: Message) {
         if (command.toLowerCase() !== 'serviceannouncement') return;
         await this.process(message, args);
@@ -215,7 +216,7 @@ export default class InteractionManager {
                     toSend.set(Guild, channel);
                 }
 
-                let placeholder = await sendMessage(data.channel!, undefined, { embeds:[EMBEDS.SENDING_SERVICE_ANNOUNCEMENT(data)] });
+                let placeholder = await sendMessage(data.channel!, undefined, { embeds: [EMBEDS.SENDING_SERVICE_ANNOUNCEMENT(data)] });
 
                 await Promise.map(toSend, element => {
                     return new Promise(async (resolve, reject) => {
@@ -223,14 +224,14 @@ export default class InteractionManager {
                         let Channel: TextChannel = element[1];
                         try {
                             const guildObject = DiscordProvider.client.guilds.cache.get(Guild.id);
-                            if(!guildObject)
+                            if (!guildObject)
                                 throw new Error('Guild not found');
                             Logger.info(`Sending Service Announcement to ${guildObject?.name} (${guildObject.id}) #${Channel.name} (${Channel.id})`);
-                            await sendMessage(Channel, undefined, { embeds:[EMBEDS.MAKE_PAYLOAD(data, embed)] })
+                            await sendMessage(Channel, undefined, { embeds: [EMBEDS.MAKE_PAYLOAD(data, embed)] })
                         } catch (err) {
                             withError = true;
                             const guildObject = DiscordProvider.client.guilds.cache.get(Guild.id);
-                            if(guildObject)
+                            if (guildObject)
                                 Logger.info(`Unable to send Service Announcement to ${guildObject?.name} (${guildObject.id}) #${Channel.name} (${Channel.id})`);
 
                             reject(err);
@@ -241,16 +242,16 @@ export default class InteractionManager {
                     });
                 }, { concurrency: 2 });
 
-                if(withError) {
-                    if(isMessage)
+                if (withError) {
+                    if (isMessage)
                         (placeholder as Message).edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data)] });
-                    else if(isSlashCommand)
+                    else if (isSlashCommand)
                         return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data)] }, true);
                 }
                 else {
-                    if(isMessage)
+                    if (isMessage)
                         (placeholder as Message).edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data)] });
-                    else if(isSlashCommand)
+                    else if (isSlashCommand)
                         return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data)] }, true);
                 }
             }
