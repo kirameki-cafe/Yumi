@@ -3,6 +3,7 @@ import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, sendMessage, sendMess
 import DiscordProvider from "../providers/Discord";
 import Users from "../services/Users"
 import Environment from "../providers/Environment";
+import os from "os-utils";
 
 const EMBEDS = {
     STATS_INFO: (data: Message | Interaction) => {
@@ -11,7 +12,19 @@ const EMBEDS = {
         return makeInfoEmbed({
             title: `Stats`,
             icon: '📊',
-            description: `Serving in ${DiscordProvider.client.guilds.cache.size} servers\n${DiscordProvider.client.guilds.cache.map((g) => g.memberCount).reduce((a, c) => a + c)} users`,
+            description: 'Stats of the bot',
+            fields: [
+                {
+                    name: '🌐 Users',
+                    value: `${DiscordProvider.client.guilds.cache.size} servers\n${DiscordProvider.client.guilds.cache.map((g) => g.memberCount).reduce((a, c) => a + c)} users`,
+                    inline: true
+                },
+                {
+                    name: '🟢 Uptime since',
+                    value: `System: <t:${(Math.round(new Date().getTime() / 1000)) - Math.round(os.sysUptime())}:R>\nProcess: <t:${(Math.round(new Date().getTime() / 1000)) - Math.round(os.processUptime())}:R>`,
+                    inline: true
+                }
+            ],
             user: (data instanceof Interaction) ? data.user : data.author
         });
     }
