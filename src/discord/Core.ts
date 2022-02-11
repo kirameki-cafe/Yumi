@@ -23,8 +23,8 @@ export default class Core {
             Cache.updateGuildsCache();
         }, 5 * 60 * 1000)
         
-        DiscordProvider.client.user!.setActivity("your heartbeat 💗", {
-            type: "LISTENING"
+        DiscordProvider.client.user!.setActivity("for your heart 💖", {
+            type: "COMPETING"
         });
         
         Logger.info('Core started successfully');
