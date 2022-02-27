@@ -193,9 +193,10 @@ export default class Play {
 
             if(result.length > 1) {
 
+                // TODO: Find a better logic than this
                 // If the first result title is exact match with the query or first title contains half the space of the query, it's probably a sentence
                 // then we don't need to show the search results
-                if(result[0].title === query || result[0].title && (Math.ceil((result[0].title.split(" ").length - 1) / 2) === Math.ceil((query.split(" ").length - 1) / 2))) return;
+                // if(result[0].title === query || result[0].title && (Math.ceil((result[0].title.split(" ").length - 1) / 2) === Math.ceil((query.split(" ").length - 1) / 2))) return;
 
                 // The query length is too long to fit in json
                 if(query.length > 100 - 51) return;
