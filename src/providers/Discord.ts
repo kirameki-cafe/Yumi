@@ -23,7 +23,8 @@ import Discord_MusicPlayer_Queue from "../discord/MusicPlayer/Queue";
 import Discord_MusicPlayer_Search from "../discord/MusicPlayer/Search";
 import Discord_MusicPlayer_Search_NowPlaying from "../discord/MusicPlayer/NowPlaying";
 
-import Discord_Developer_ServiceAnnouncement from "../discord/developer/ServiceAnnouncement"
+import Discord_Developer_ServiceAnnouncement from "../discord/developer/ServiceAnnouncement";
+import Discord_Developer_FakeError from "../discord/developer/FakeError";
 
 import Cache from "./Cache";
 
@@ -68,6 +69,7 @@ class Discord {
         this.loaded_module["MembershipScreening"] = new Discord_MembershipScreening();
 
         this.loaded_module["Discord_Developer_ServiceAnnouncement"] = new Discord_Developer_ServiceAnnouncement();
+        this.loaded_module["Discord_Developer_FakeError"] = new Discord_Developer_FakeError();
 
         for(const module in this.loaded_module) {
             let thisModule = this.loaded_module[module];
