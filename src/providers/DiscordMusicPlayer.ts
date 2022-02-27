@@ -1,6 +1,6 @@
 import playdl, { YouTubeVideo, InfoData } from "play-dl";
 import { Message, VoiceChannel, Snowflake, TextChannel, StageChannel, Guild } from "discord.js";
-import { AudioPlayer, VoiceConnection, createAudioPlayer, joinVoiceChannel, createAudioResource, StreamType, VoiceConnectionStatus, AudioPlayerStatus, NoSubscriberBehavior, VoiceConnectionDestroyedState, VoiceConnectionState, DiscordGatewayAdapterCreator, AudioResource } from "@discordjs/voice";
+import { AudioPlayer, VoiceConnection, createAudioPlayer, joinVoiceChannel, createAudioResource, StreamType, VoiceConnectionStatus, AudioPlayerStatus, NoSubscriberBehavior, VoiceConnectionDestroyedState, VoiceConnectionState, DiscordGatewayAdapterCreator, AudioResource, AudioPlayerError } from "@discordjs/voice";
 import { EventEmitter } from "stream";
 
 import DiscordProvider from "./Discord";
@@ -37,6 +37,23 @@ export class PlayerPlayingEvent {
     }
 }
 
+export class PlayerErrorEvent {
+    public instance: DiscordMusicPlayerInstance;
+    public error: Error;
+
+    constructor(instance: DiscordMusicPlayerInstance, error: Error) {
+        this.instance = instance;
+        this.error = error;
+    }
+}
+
+export class VoiceDisconnectedEvent {
+    public instance: DiscordMusicPlayerInstance;
+
+    constructor(instance: DiscordMusicPlayerInstance) {
+        this.instance = instance;
+    }
+}
 export class DiscordMusicPlayerInstance {
     public queue: Queue;
     public player: AudioPlayer;
@@ -71,6 +88,10 @@ export class DiscordMusicPlayerInstance {
 
         this.player.on(AudioPlayerStatus.Playing, (oldState: any, newState: any) => {
             this.events.emit('playing', new PlayerPlayingEvent(this));
+        });
+
+        this.player.on('error', (error: Error) => {
+            this.events.emit('error', new PlayerErrorEvent(this, error));
         });
     }
 
@@ -113,7 +134,11 @@ export class DiscordMusicPlayerInstance {
         });
 
         this.voiceConnection.on(VoiceConnectionStatus.Disconnected, (oldState: VoiceConnectionState, newState: VoiceConnectionState) => {
-            // TODO: Handle on Disconnect by user (Right-click > Disconnect)
+            setTimeout(() => {
+                if (!DiscordProvider.client.guilds.cache.get(voiceChannel.guildId!)!.me!.voice.channelId) {
+                    this.events.emit('disconnect', new VoiceDisconnectedEvent(this));
+                }
+            }, 1000);
         });
     }
 
@@ -182,6 +207,10 @@ export class DiscordMusicPlayerInstance {
         this.queue.track = [];
         this.textChannel = undefined;
         this.voiceConnection = undefined;
+    }
+
+    public async _fake_error_on_player() {
+        this.player.emit('error', new AudioPlayerError(new Error("fake error"), null!));
     }
 
 }
