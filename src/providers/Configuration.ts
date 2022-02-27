@@ -3,6 +3,7 @@ import path from "path";
 
 import Logger from "../libs/Logger";
 
+const ConfigurationData: any = [];
 class Configuration {
 
     public init(): void {
@@ -12,6 +13,29 @@ class Configuration {
         }
         this.copyExampleIfNotExists("Ping.json");
         this.copyExampleIfNotExists("ServiceAnnouncement.json");
+
+        this.loadConfig("Ping.json");
+        this.loadConfig("ServiceAnnouncement.json");
+    }
+
+    public loadConfig(configFileName: string): void {
+        const dir = path.join(process.cwd(), 'configs/');
+        if (!fs.existsSync(path.join(dir, configFileName))) 
+            throw new Error(`Config file ${configFileName} does not exist`);
+
+        const config = JSON.parse(fs.readFileSync(path.join(dir, configFileName)).toString());
+        ConfigurationData[configFileName.replace(/\.[^/.]+$/, "")] = config;
+    }
+
+    public getConfig(key?: string) {
+        if(!key)
+            return ConfigurationData;
+        else {
+            if(ConfigurationData[key])
+                return ConfigurationData[key];
+            else
+                throw new Error(`No configuration found for ${key}`);
+        }
     }
 
     private copyExampleIfNotExists(file: string): void {
@@ -20,8 +44,6 @@ class Configuration {
             fs.copyFileSync(path.join(process.cwd(), 'configs/', `${file.replace('.json', '.example.json')}`), path.join(dir, file));
         }
     }
-
-    // TODO: Make a real providers like Environment
 
 }
 
