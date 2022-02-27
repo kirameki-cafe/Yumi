@@ -303,7 +303,9 @@ class DiscordMusicPlayer {
     }
 
     public async getYouTubeSongsInPlayList(youtubeLink: string) {
-        return await playdl.playlist_info(youtubeLink);
+        return await playdl.playlist_info(youtubeLink, {
+            incomplete: true
+        });
     }
 
     public isYouTubeLink(link: string): boolean {
@@ -334,6 +336,13 @@ class DiscordMusicPlayer {
 
             return {
                 videoId: videoId
+            }
+        }
+        else if (query.startsWith('https://www.youtube.com/playlist?list=') || query.startsWith('http://www.youtube.com/playlist?list=')) {
+            let listId = query.split('?list=')[1];
+            return {
+                videoId: "",
+                list: listId
             }
         }
         else {
