@@ -79,7 +79,7 @@ export default class Search {
                 //return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.MSINFO(data)] });
                 return;
             }
-            query = args[0];
+            query = args.join(' ');
 
         }
         else if (isSlashCommand) {

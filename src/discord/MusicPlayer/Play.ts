@@ -132,7 +132,7 @@ export default class Play {
                 //return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.MSINFO(data)] });
                 return;
             }
-            query = args[0];
+            query = args.join(' ');
 
         }
         else if (isSlashCommand) {
@@ -180,7 +180,10 @@ export default class Play {
             if (!result) return;
             instance.addTrackToQueue(result[0]);
 
-            // TODO: Let user choose the video
+            if(result.length > 1) {
+                // TODO: Let user choose the video
+            }
+            
             return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data, result[0])] });
         }
 
