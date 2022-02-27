@@ -256,6 +256,17 @@ export default class Play {
 
         if (DiscordMusicPlayer.isYouTubeLink(query)) {
             let linkData = DiscordMusicPlayer.parseYouTubeLink(query);
+
+            if(linkData.videoId === "" && linkData.list) {
+                let playlist = await DiscordMusicPlayer.getYouTubeSongsInPlayList(query);
+                const songs = await playlist.all_videos();
+
+                for(let song of songs) {
+                    instance.addTrackToQueue(song);
+                }
+                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ADDED_SONGS_QUEUE(data, songs)] }, true);
+            }
+
             let result = await DiscordMusicPlayer.searchYouTubeByYouTubeLink(linkData);
 
             if (!result) return;
