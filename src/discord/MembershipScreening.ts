@@ -319,9 +319,9 @@ export default class MembershipScreening {
 
             let payload = JSON.parse(interaction.customId);
 
-            if( typeof payload.module === 'undefined' ||
-                typeof payload.action === 'undefined' ||
-                payload.module !== 'MembershipScreening') return;
+            if( typeof payload.m === 'undefined' ||
+                typeof payload.a === 'undefined' ||
+                payload.m !== 'MembershipScreening') return;
 
             const message = await interaction.channel.messages.fetch(interaction.message.id);
             if(typeof message === 'undefined') return;
@@ -341,11 +341,11 @@ export default class MembershipScreening {
                 iconURL: interaction.user.avatarURL() || ''
             }
 
-            if(['approve', 'deny', 'ban'].includes(payload.action)) {
+            if(['approve', 'deny', 'ban'].includes(payload.a)) {
                 
-                if(!payload.data.requester) return;
+                if(!payload.d.requester) return;
                 let role = (await interaction.guild.roles.fetch()).find(role => role.id === Guild.MembershipScreening_GivenRole);
-                let member = (await interaction.guild.members.fetch()).find(member => member.id === payload.data.requester);
+                let member = (await interaction.guild.members.fetch()).find(member => member.id === payload.d.requester);
 
                 if(!role)
                     return await interaction.reply({ ephemeral: true, embeds: [EMBEDS.NO_LONGER_VALID_ROLE(interaction)]});
@@ -360,7 +360,7 @@ export default class MembershipScreening {
                     return await message.edit({ components: [], embeds: embed });
                 }
 
-                if(payload.action === 'approve') {
+                if(payload.a === 'approve') {
                     try {
                         await member.roles.add(role);
                         embed[0].addField("✅ Approved", `By: ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
@@ -371,7 +371,7 @@ export default class MembershipScreening {
                     }
                 }
 
-                else if(payload.action === 'deny') { 
+                else if(payload.a === 'deny') { 
                     try { 
                         await member.kick(); 
                         embed[0].addField("❌ Denied", `By: ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`);
@@ -382,7 +382,7 @@ export default class MembershipScreening {
                     }
                 }
 
-                else if(payload.action === 'ban') {
+                else if(payload.a === 'ban') {
                     try {
                         await member.ban({
                             reason: `Membership Screening, action issued by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
@@ -442,9 +442,9 @@ export default class MembershipScreening {
             .addComponents(
                 new MessageButton()
                     .setCustomId(JSON.stringify({
-                        module: 'MembershipScreening',
-                        action: 'approve',
-                        data: {
+                        m: 'MembershipScreening',
+                        a: 'approve',
+                        d: {
                             requester: member.id
                         }
                     }))
@@ -455,9 +455,9 @@ export default class MembershipScreening {
             .addComponents(
                 new MessageButton()
                     .setCustomId(JSON.stringify({
-                        module: 'MembershipScreening',
-                        action: 'deny',
-                        data: {
+                        m: 'MembershipScreening',
+                        a: 'deny',
+                        d: {
                             requester: member.id
                         }
                     }))
@@ -468,9 +468,9 @@ export default class MembershipScreening {
             .addComponents(
                 new MessageButton()
                     .setCustomId(JSON.stringify({
-                        module: 'MembershipScreening',
-                        action: 'ban',
-                        data: {
+                        m: 'MembershipScreening',
+                        a: 'ban',
+                        d: {
                             requester: member.id
                         }
                     }))
