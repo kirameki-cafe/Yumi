@@ -18,7 +18,7 @@ const EMBEDS = {
                 let queueString = `1. [${queue.track[0].title}](${queue.track[0].url})`
                 return makeInfoEmbed({
                     title: `Queue`,
-                    description: `Now playing: ${queue.track[0].title}\n\nThere are ${queue.track.length} song in the queue!\n${queueString}`,
+                    description: `Now playing: [${queue.track[0].title}](${queue.track[0].url})\n\nThere are ${queue.track.length} song in the queue!\n${queueString}`,
                     user: (data instanceof Interaction) ? data.user : data.author
                 });
             }
@@ -27,14 +27,14 @@ const EMBEDS = {
                 let queueString = first10.map((track, index) => `${index + 1}. [${track.title}](${track.url})`).join("\n");
                 return makeInfoEmbed({
                     title: `Queue`,
-                    description: `Now playing: ${queue.track[0].title}\nUpcoming song: ${queue.track[1].title}\n\nThere are ${queue.track.length} songs in the queue!\n${queueString}\n${queue.track.length > 10 ? `...${queue.track.length - 10} more songs` : ""}`,
+                    description: `Now playing: [${queue.track[0].title}](${queue.track[0].url})\nUpcoming song: [${queue.track[1].title}](${queue.track[1].url})\n\nThere are ${queue.track.length} songs in the queue!\n${queueString}\n${queue.track.length > 10 ? `...${queue.track.length - 10} more songs` : ""}`,
                     user: (data instanceof Interaction) ? data.user : data.author
                 });
             } else {
                 let queueString = queue.track.map((track, index) => `${index + 1}. [${track.title}](${track.url})`).join("\n");
                 return makeInfoEmbed({
                     title: `Queue`,
-                    description: `Now playing: ${queue.track[0].title}\nUpcoming song: ${queue.track[1].title}\n\nThere are ${queue.track.length} songs in the queue!\n${queueString}`,
+                    description: `Now playing: [${queue.track[0].title}](${queue.track[0].url})\nUpcoming song: [${queue.track[1].title}](${queue.track[1].url})\n\nThere are ${queue.track.length} songs in the queue!\n${queueString}`,
                     user: (data instanceof Interaction) ? data.user : data.author
                 });
             }
