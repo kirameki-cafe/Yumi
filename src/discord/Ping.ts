@@ -2,11 +2,11 @@ import { CommandInteraction, Message, Interaction } from "discord.js";
 import { makeSuccessEmbed, makeProcessingEmbed, sendMessageOrInteractionResponse } from "../utils/DiscordMessage";
 import DiscordProvider from "../providers/Discord";
 import NodePing from "ping";
-import fs from "fs";
-import path from "path";
+import { Promise, reject } from "bluebird";
 import os from "os";
 import Logger from "../libs/Logger";
 import Environment from "../providers/Environment";
+import Configuration from "../providers/Configuration";
 
 enum MeasureType {
     Ping = "ping",
@@ -14,7 +14,6 @@ enum MeasureType {
     DiscordWebsocket = "discordwebsocket"
 }
 
-let measureList: any = [];
 
 const EMBEDS = {
     PING_INFO: (data: Message | Interaction, description: string) => {
@@ -28,20 +27,6 @@ const EMBEDS = {
 }
 
 export default class Ping {
-
-    async init() {
-
-        if (fs.existsSync(path.join(process.cwd(), 'configs/Ping.json'))) {
-            try {
-                const rawData = fs.readFileSync(path.join(process.cwd(), 'configs/Ping.json'));
-                const jsonData = JSON.parse(rawData.toString());
-                measureList = jsonData;
-            } catch (err) {
-                Logger.error("Unable to load custom Ping config: " + err);
-            }
-        }
-
-    }
 
     async onCommand(command: string, args: any, message: Message) {
         if (command.toLowerCase() !== 'ping') return;
@@ -77,36 +62,36 @@ export default class Ping {
 
         let desString = [];
 
-        // TODO: Optimize speed of this
+        await Promise.map(Configuration.getConfig("Ping"), (entry: any) => {
+            return new Promise(async (resolve, reject) => {
+                let stringCurrent = `${entry.title}`;
 
-        for (let entry of measureList) {
+                if (entry.type === MeasureType.Ping) {
+                    const res = await NodePing.promise.probe(entry.host!, { min_reply: 4 });
 
-            let stringCurrent = `${entry.title}`;
+                    if (!res.alive) {
+                        stringCurrent += "Failed";
+                        return desString.push(stringCurrent);
+                    }
 
-            if (entry.type === MeasureType.Ping) {
-                const res = await NodePing.promise.probe(entry.host!, { min_reply: 4 });
+                    if (res.avg === 'unknown' || res.min === 'unknown' || res.max === 'unknown') {
+                        stringCurrent += "Failed";
+                        return desString.push(stringCurrent);
+                    }
 
-                if (!res.alive) {
-                    stringCurrent += "Failed";
-                    return desString.push(stringCurrent);
+                    stringCurrent += `${parseFloat(res.avg).toFixed(1)}ms (${parseFloat(res.min).toFixed(1)}ms - ${parseFloat(res.max).toFixed(1)}ms)`;
+                    desString.push(stringCurrent);
+                } else if (entry.type === MeasureType.DiscordWebsocket) {
+                    stringCurrent += `${Math.round(DiscordProvider.client.ws.ping).toFixed(1)}ms`;
+                    desString.push(stringCurrent);
+                } else if (entry.type === MeasureType.DiscordHTTPPing) {
+                    stringCurrent += `${Math.abs(afterEditDate - beforeEditDate).toFixed(1)}ms`;
+                    desString.push(stringCurrent);
                 }
 
-                if (res.avg === 'unknown' || res.min === 'unknown' || res.max === 'unknown') {
-                    stringCurrent += "Failed";
-                    return desString.push(stringCurrent);
-                }
-
-                stringCurrent += `${parseFloat(res.avg).toFixed(1)}ms (${parseFloat(res.min).toFixed(1)}ms - ${parseFloat(res.max).toFixed(1)}ms)`;
-                desString.push(stringCurrent);
-            } else if (entry.type === MeasureType.DiscordWebsocket) {
-                stringCurrent += `${Math.round(DiscordProvider.client.ws.ping).toFixed(1)}ms`;
-                desString.push(stringCurrent);
-            } else if (entry.type === MeasureType.DiscordHTTPPing) {
-                stringCurrent += `${Math.abs(afterEditDate - beforeEditDate).toFixed(1)}ms`;
-                desString.push(stringCurrent);
-            }
-
-        }
+                resolve();
+            });
+        }, { concurrency: 5 });
 
         desString.push("");
         desString.push("💻 Running on " + `${os.hostname()}${Environment.get().NODE_ENV === "development" ? ' / Development Environment' : ''}`);
