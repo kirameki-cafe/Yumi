@@ -7,6 +7,19 @@ import Prisma from "../../providers/Prisma";
 import { joinVoiceChannelProcedure } from "./Join";
 
 const EMBEDS = {
+    SEARCH_INFO: (data: Message | Interaction) => {
+        return makeInfoEmbed ({
+            title: 'Search',
+            description: `Search for a song`,
+            fields: [
+                {
+                    name: 'Arguments',
+                    value: '``Search query``'
+                }
+            ],
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
     SEARCH_RESULT: (data: Message | Interaction, result: ValidTracks[]) => {
         return makeInfoEmbed({
             title: `Search result`,
@@ -97,9 +110,7 @@ export default class Search {
             if (data === null || !data.guildId || data.member === null || data.guild === null) return;
 
             if (args.length === 0) {
-                // TODO: Show info
-                //return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.MSINFO(data)] });
-                return;
+                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SEARCH_INFO(data)] });
             }
             query = args.join(' ');
 
