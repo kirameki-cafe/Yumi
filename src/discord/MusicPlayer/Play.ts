@@ -3,7 +3,6 @@ import { makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, sendMessage, sen
 import DiscordProvider from "../../providers/Discord";
 import Environment from "../../providers/Environment";
 import DiscordMusicPlayer, { ValidTracks } from "../../providers/DiscordMusicPlayer";
-import Prisma from "../../providers/Prisma";
 import { joinVoiceChannelProcedure } from "./Join";
 
 const EMBEDS = {
@@ -70,6 +69,7 @@ export default class Play {
                 data.r stands for data.requester
                 data.v stands for data.voiceChannel
             */
+
             if (typeof payload.module === 'undefined' ||
                 typeof payload.action === 'undefined' ||
                 payload.module !== 'MP_SM' ||

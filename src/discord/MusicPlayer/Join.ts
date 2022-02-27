@@ -3,7 +3,7 @@ import { getEmotes, makeSuccessEmbed, makeErrorEmbed, sendMessage, sendMessageOr
 import DiscordProvider from "../../providers/Discord";
 import Users from "../../services/Users"
 import Environment from "../../providers/Environment";
-import DiscordMusicPlayer, { PlayerPlayingEvent, ValidTracks, DiscordMusicPlayerInstance } from "../../providers/DiscordMusicPlayer";
+import DiscordMusicPlayer, { PlayerPlayingEvent, PlayerErrorEvent, VoiceDisconnectedEvent, ValidTracks, DiscordMusicPlayerInstance } from "../../providers/DiscordMusicPlayer";
 import Discord from "../../providers/Discord";
 
 const EMBEDS = {
@@ -11,6 +11,13 @@ const EMBEDS = {
         return makeSuccessEmbed({
             title: `Success`,
             description: `Joined voice channel`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
+    VOICECHANNEL_DISCONNECTED: (data: Message | Interaction) => {
+        return makeSuccessEmbed({
+            title: `Disconnected`,
+            description: `I got disconnected from the voice channel`,
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
@@ -37,6 +44,13 @@ const EMBEDS = {
     USER_NOT_IN_VOICECHANNEL: (data: Message | Interaction) => {
         return makeErrorEmbed({
             title: `You need to be in the voice channel first!`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
+    MUSIC_ERROR: (data: Message | Interaction, err: Error) => {
+        return makeErrorEmbed({
+            title: `Error`,
+            description: `${err.message}`,
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
@@ -151,7 +165,19 @@ export async function joinVoiceChannelProcedure (data: Interaction | Message, in
         if (event.instance.textChannel) {
             await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.NOW_PLAYING(data, event.instance.queue.track[0])], components: [row] });
         }
-    })
+    });
+
+    instance.events.on('error', async (event: PlayerErrorEvent) => {
+        if (event.instance.textChannel) {
+            await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.MUSIC_ERROR(data, event.error)] });
+        }
+    });
+
+    instance.events.on('disconnect', async (event: VoiceDisconnectedEvent) => {
+        if (event.instance.textChannel) {
+            await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.VOICECHANNEL_DISCONNECTED(data)] });
+        }
+    });
 }
 
 export default class Join {
