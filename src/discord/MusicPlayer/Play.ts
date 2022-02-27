@@ -151,7 +151,16 @@ export default class Play {
 
             if (payload.m === 'MP_P' && payload.a === 'arp') {
                 
-                if (typeof payload.d === 'undefined' || typeof payload.d.c === 'undefined' || typeof payload.d.v === 'undefined' || typeof payload.d.l === 'undefined') return;
+                if (typeof payload.d === 'undefined') return;
+
+                let data = payload.d.split('$');
+                if(data.length !== 3) return;
+
+                payload.d = {
+                    c: data[0],
+                    v: data[1],
+                    l: data[2]
+                }
 
                 await interaction.deferReply();
                 
@@ -189,7 +198,7 @@ export default class Play {
                 for(let song of songs) {
                     instance.addTrackToQueue(song);
                 }
-                
+
                 await (interaction.message as Message).edit({ components: [] });
                 return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.ADDED_SONGS_QUEUE(interaction, songs)] }, true);
             }
@@ -265,15 +274,12 @@ export default class Play {
                             .setCustomId(JSON.stringify({
                                 m: 'MP_P',
                                 a: 'arp', // Add remaining playlist
-                                d: {
-                                    c: voiceChannel.id,
-                                    v: linkData.videoId,
-                                    l: linkData.list
-                                }
+                                d: `${voiceChannel.id}$${linkData.videoId}$${linkData.list}`
                             }))
                             .setLabel('  Add the remaining songs in the playlist')
                             .setStyle('PRIMARY')
                     )
+
                 return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data, result)], components: [row] });
             }
             else
