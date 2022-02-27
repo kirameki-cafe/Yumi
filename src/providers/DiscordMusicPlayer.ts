@@ -302,6 +302,10 @@ class DiscordMusicPlayer {
         return null;
     }
 
+    public async getYouTubeSongsInPlayList(youtubeLink: string) {
+        return await playdl.playlist_info(youtubeLink);
+    }
+
     public isYouTubeLink(link: string): boolean {
         try {
             this.parseYouTubeLink(link);
@@ -318,7 +322,7 @@ class DiscordMusicPlayer {
                 throw new Error('YouTube link is invalid');
             return {
                 videoId: data.v,
-                list: (data.list ? data.list : undefined)
+                list: (data.list ? (data.list !== "RDMM" ? data.list : undefined) : undefined)
             }
         }
         else if (query.startsWith('https://youtu.be/') || query.startsWith('http://youtu.be/')) {
