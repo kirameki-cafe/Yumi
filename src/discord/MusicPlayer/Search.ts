@@ -1,4 +1,4 @@
-import { Message, CommandInteraction, Interaction, VoiceChannel, MessageActionRow, Permissions, DMChannel, TextChannel, MessageSelectMenu, MessageSelectOptionData } from "discord.js";
+import { Message, CommandInteraction, Interaction, VoiceChannel, MessageActionRow, DMChannel, TextChannel, MessageSelectMenu, MessageSelectOptionData, GuildMember } from "discord.js";
 import { makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, sendMessage, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 import DiscordProvider from "../../providers/Discord";
 import Environment from "../../providers/Environment";
@@ -51,19 +51,41 @@ export default class Search {
         await this.process(message, args);
     }
 
-    async interactionCreate(interaction: CommandInteraction) {
+    async interactionCreate(interaction: Interaction) {
         if (interaction.isCommand()) {
             if (typeof interaction.commandName === 'undefined') return;
             if ((interaction.commandName).toLowerCase() !== 'search') return;
             await this.process(interaction, interaction.options);
         }
+        else if (interaction.isButton()) {
+            if(!interaction.guild || !interaction.guildId) return;
+            if (!this.tryParseJSONObject(interaction.customId)) return;
+
+            let payload = JSON.parse(interaction.customId);
+            if(!interaction.member?.user?.id) return;
+
+            /*
+                Discord have 100 char custom id char limit
+                So we need to shorten our json.
+                MP_P stands for MusicPlayer_Search
+                data.q stands for data.query
+            */
+
+            if (typeof payload.module === 'undefined' ||
+                typeof payload.action === 'undefined' ||
+                payload.module !== 'MP_S' ||
+                payload.action !== 'search') return;
+
+            await this.process(interaction, payload.data.q);
+        }
     }
 
     async process(data: Interaction | Message, args: any) {
         const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
+        const isButton = data instanceof Interaction && data.isButton();
         const isMessage = data instanceof Message;
 
-        if (!isSlashCommand && !isMessage) return;
+        if (!isSlashCommand && !isMessage && !isButton) return;
 
         if (!data.member) return;
         if (!data.guild) return;
@@ -85,15 +107,22 @@ export default class Search {
         else if (isSlashCommand) {
             query = args.getSubcommand();
         }
+        else if (isButton) {
+            query = args;
+        }
 
         if (!query) return;
         if (!(data.channel instanceof TextChannel)) return;
 
+        let guildMember = data.member;
 
-        if (!data.member.voice.channel)
+        if(isButton)
+            guildMember = data.guild.members.cache.get(data.user.id)!
+
+        if (!guildMember.voice.channel)
             return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data)] });
         
-        let voiceChannel = data.member.voice.channel;
+        let voiceChannel = guildMember.voice.channel;
 
         if (!DiscordMusicPlayer.isGuildInstanceExists(data.guildId)) {
             await joinVoiceChannelProcedure(data, null, voiceChannel);
@@ -129,7 +158,7 @@ export default class Search {
             module: 'MP_SM',
             action: 'play',
             data: {
-                r: data.member.id,
+                r: guildMember.id,
                 v: voiceChannel.id
             }
         }))
@@ -154,5 +183,18 @@ export default class Search {
         return;
     }
 
+
+    tryParseJSONObject(jsonString: string) {
+        try {
+            let o = JSON.parse(jsonString);
+            if (o && typeof o === "object") {
+                return true;
+                //return o;
+            }
+        }
+        catch (e) { }
+
+        return false;
+    }
 
 }

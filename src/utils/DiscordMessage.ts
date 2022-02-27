@@ -101,7 +101,7 @@ export async function sendMessageOrInteractionResponse(data: Message | Interacti
     const isSlashCommand = data instanceof Interaction && data.isCommand();
     const isMessage = data instanceof Message;
 
-    if(isSlashCommand || (data instanceof Interaction && data.isSelectMenu())) {
+    if(isSlashCommand || (data instanceof Interaction && ( data.isSelectMenu() || data.isButton()))) {
         if(!data.replied) {
             let message;
             try {

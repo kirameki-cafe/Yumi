@@ -70,7 +70,7 @@ const EMBEDS = {
 export async function joinVoiceChannelProcedure (data: Interaction | Message, instance: (DiscordMusicPlayerInstance | null), voiceChannel: (VoiceChannel | StageChannel)) {
 
     const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-    const isAcceptableInteraction = data instanceof Interaction && data.isSelectMenu();
+    const isAcceptableInteraction = data instanceof Interaction && (data.isSelectMenu() || data.isButton());
     const isMessage = data instanceof Message;
     if ((!isSlashCommand && !isAcceptableInteraction) && !isMessage) return;
 
