@@ -84,12 +84,12 @@ export default class Search {
                 data.q stands for data.query
             */
 
-            if (typeof payload.module === 'undefined' ||
-                typeof payload.action === 'undefined' ||
-                payload.module !== 'MP_S' ||
-                payload.action !== 'search') return;
+            if (typeof payload.m === 'undefined' ||
+                typeof payload.a === 'undefined' ||
+                payload.m !== 'MP_S' ||
+                payload.a !== 'search') return;
 
-            await this.process(interaction, payload.data.q);
+            await this.process(interaction, payload.d.q);
         }
     }
 
@@ -166,9 +166,9 @@ export default class Search {
             data.v stands for data.voiceChannel
         */
         messageSelectMenu.setCustomId(JSON.stringify({
-            module: 'MP_SM',
-            action: 'play',
-            data: {
+            m: 'MP_SM',
+            a: 'play',
+            d: {
                 r: guildMember.id,
                 v: voiceChannel.id
             }
