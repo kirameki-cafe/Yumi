@@ -7,7 +7,7 @@ import { joinVoiceChannelProcedure } from "./Join";
 
 const EMBEDS = {
     PLAY_INFO: (data: Message | Interaction) => {
-        return makeInfoEmbed ({
+        return makeInfoEmbed({
             title: 'Play',
             description: `Play a song`,
             fields: [
@@ -40,6 +40,14 @@ const EMBEDS = {
         embed.setImage(track.thumbnails[0].url);
         return embed;
     },
+    ADDED_SONGS_QUEUE: (data: Message | Interaction, track: ValidTracks[]) => {
+        let embed = makeSuccessEmbed({
+            title: `Songs added to queue!`,
+            description: `Added ${track.length} songs to queue`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+        return embed;
+    },
     USER_NOT_IN_VOICECHANNEL: (data: Message | Interaction) => {
         return makeErrorEmbed({
             title: `You need to be in the voice channel first!`,
@@ -69,11 +77,13 @@ export default class Play {
             await this.process(interaction, interaction.options);
         }
         else if (interaction.isSelectMenu()) {
-            if(!interaction.guild || !interaction.guildId) return;
+            if (!interaction.guild || !interaction.guildId) return;
             if (!this.tryParseJSONObject(interaction.customId)) return;
 
             let payload = JSON.parse(interaction.customId);
-            if(!interaction.member?.user?.id) return;
+            if (!interaction.member?.user?.id) return;
+
+            if (typeof payload.m === 'undefined' || typeof payload.a === 'undefined') return;
 
             /*
                 Discord have 100 char custom id char limit
@@ -83,45 +93,106 @@ export default class Play {
                 data.v stands for data.voiceChannel
             */
 
-            if (typeof payload.module === 'undefined' ||
-                typeof payload.action === 'undefined' ||
-                payload.module !== 'MP_SM' ||
-                payload.action !== 'play') return;
-            
-            await interaction.deferReply();
+            if (payload.m === 'MP_SM' && payload.a === 'play') {
 
-            let voiceChannel = DiscordProvider.client.guilds.cache.get(interaction.guildId)?.channels.cache.get(payload.data.v);
-            let member = DiscordProvider.client.guilds.cache.get(interaction.guildId)?.members.cache.get(interaction.member?.user?.id);
+                await interaction.deferReply();
 
-            if(!member) return;
-            if (!voiceChannel || !(voiceChannel instanceof VoiceChannel)) return;
+                let voiceChannel = DiscordProvider.client.guilds.cache.get(interaction.guildId)?.channels.cache.get(payload.d.v);
+                let member = DiscordProvider.client.guilds.cache.get(interaction.guildId)?.members.cache.get(interaction.member?.user?.id);
+
+                if (!member) return;
+                if (!voiceChannel || !(voiceChannel instanceof VoiceChannel)) return;
 
 
-            if (!member.voice.channel)
-                return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(interaction)] }, true);
+                if (!member.voice.channel)
+                    return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(interaction)] }, true);
 
-            if (!DiscordMusicPlayer.isGuildInstanceExists(interaction.guildId)) {
-                await joinVoiceChannelProcedure(interaction, null, voiceChannel);
+                if (!DiscordMusicPlayer.isGuildInstanceExists(interaction.guildId)) {
+                    await joinVoiceChannelProcedure(interaction, null, voiceChannel);
+                }
+
+                let instance = DiscordMusicPlayer.getGuildInstance(interaction.guildId);
+
+                if (instance!.voiceChannel.id !== member.voice.channel.id)
+                    return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(interaction)] }, true);
+
+                if (!instance!.isConnected()) {
+                    await joinVoiceChannelProcedure(interaction, instance!, voiceChannel);
+                    instance = DiscordMusicPlayer.getGuildInstance(interaction.guildId);
+                }
+
+                if (!instance) return;
+
+                let result = await DiscordMusicPlayer.searchYouTubeByYouTubeLink(DiscordMusicPlayer.parseYouTubeLink(interaction.values[0]));
+                if (!result) return;
+
+                instance.addTrackToQueue(result);
+                //interaction.editReply({ embeds: [EMBEDS.ADDED_QUEUE(interaction, result)] });
+                return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.ADDED_QUEUE(interaction, result)] }, true);
             }
+        }
+        else if (interaction.isButton()) {
 
-            let instance = DiscordMusicPlayer.getGuildInstance(interaction.guildId);
+            if (!interaction.guild || !interaction.guildId) return;
+            if (!this.tryParseJSONObject(interaction.customId)) return;
 
-            if(instance!.voiceChannel.id !== member.voice.channel.id)
-                return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(interaction)] }, true);
+            let payload = JSON.parse(interaction.customId);
+            if (!interaction.member?.user?.id) return;
 
-            if (!instance!.isConnected()) {
-                await joinVoiceChannelProcedure(interaction, instance!, voiceChannel);
-                instance = DiscordMusicPlayer.getGuildInstance(interaction.guildId);
+            if (typeof payload.m === 'undefined' || typeof payload.a === 'undefined') return;
+
+            /*
+                Discord have 100 char custom id char limit
+                So we need to shorten our json.
+                MP_P stands for MusicPlayer_Play
+                data.v stands for data.videoId
+                data.l stands for data.listId
+            */
+
+            if (payload.m === 'MP_P' && payload.a === 'arp') {
+                
+                if (typeof payload.d === 'undefined' || typeof payload.d.c === 'undefined' || typeof payload.d.v === 'undefined' || typeof payload.d.l === 'undefined') return;
+
+                await interaction.deferReply();
+                
+                let voiceChannel = DiscordProvider.client.guilds.cache.get(interaction.guildId)?.channels.cache.get(payload.d.c);
+                let member = DiscordProvider.client.guilds.cache.get(interaction.guildId)?.members.cache.get(interaction.member?.user?.id);
+
+                if (!member) return;
+                if (!voiceChannel || !(voiceChannel instanceof VoiceChannel)) return;
+
+
+                if (!member.voice.channel)
+                    return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(interaction)] }, true);
+
+                if (!DiscordMusicPlayer.isGuildInstanceExists(interaction.guildId)) {
+                    await joinVoiceChannelProcedure(interaction, null, voiceChannel);
+                }
+
+                let instance = DiscordMusicPlayer.getGuildInstance(interaction.guildId);
+
+                if (instance!.voiceChannel.id !== member.voice.channel.id)
+                    return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(interaction)] }, true);
+
+                if (!instance!.isConnected()) {
+                    await joinVoiceChannelProcedure(interaction, instance!, voiceChannel);
+                    instance = DiscordMusicPlayer.getGuildInstance(interaction.guildId);
+                }
+
+                if (!instance) return;
+
+                let playlist = await DiscordMusicPlayer.getYouTubeSongsInPlayList(`https://www.youtube.com/watch?v=${payload.d.v}&list=${payload.d.l}`);
+                const songs = (await playlist.all_videos()).filter((song) => {
+                    return payload.d.v !== song.id;
+                });
+
+                for(let song of songs) {
+                    instance.addTrackToQueue(song);
+                }
+                
+                await (interaction.message as Message).edit({ components: [] });
+                return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.ADDED_SONGS_QUEUE(interaction, songs)] }, true);
             }
-
-            if (!instance) return;
-
-            let result = await DiscordMusicPlayer.searchYouTubeByYouTubeLink(DiscordMusicPlayer.parseYouTubeLink(interaction.values[0]));
-            if (!result) return;
-
-            instance.addTrackToQueue(result);
-            //interaction.editReply({ embeds: [EMBEDS.ADDED_QUEUE(interaction, result)] });
-            return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.ADDED_QUEUE(interaction, result)] }, true);
         }
     }
 
@@ -164,8 +235,8 @@ export default class Play {
 
         let instance = DiscordMusicPlayer.getGuildInstance(data.guildId);
 
-        if(instance!.voiceChannel.id !== data.member.voice.channel.id)
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data)] }, true);
+        if (instance!.voiceChannel.id !== data.member.voice.channel.id)
+            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data)] }, true);
 
         if (!instance!.isConnected()) {
             await joinVoiceChannelProcedure(data, instance!, voiceChannel);
@@ -175,7 +246,8 @@ export default class Play {
         if (!instance) return;
 
         if (DiscordMusicPlayer.isYouTubeLink(query)) {
-            let result = await DiscordMusicPlayer.searchYouTubeByYouTubeLink(DiscordMusicPlayer.parseYouTubeLink(query));
+            let linkData = DiscordMusicPlayer.parseYouTubeLink(query);
+            let result = await DiscordMusicPlayer.searchYouTubeByYouTubeLink(linkData);
 
             if (!result) return;
 
@@ -184,14 +256,35 @@ export default class Play {
             }
 
             instance.addTrackToQueue(result);
-            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data, result)] });
+
+            if (linkData.list) {
+                const row = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setEmoji('✅')
+                            .setCustomId(JSON.stringify({
+                                m: 'MP_P',
+                                a: 'arp', // Add remaining playlist
+                                d: {
+                                    c: voiceChannel.id,
+                                    v: linkData.videoId,
+                                    l: linkData.list
+                                }
+                            }))
+                            .setLabel('  Add the remaining songs in the playlist')
+                            .setStyle('PRIMARY')
+                    )
+                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data, result)], components: [row] });
+            }
+            else
+                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data, result)] });
         } else {
             let result = await DiscordMusicPlayer.searchYouTubeByQuery(query);
 
             if (!result) return;
             instance.addTrackToQueue(result[0]);
 
-            if(result.length > 1) {
+            if (result.length > 1) {
 
                 // TODO: Find a better logic than this
                 // If the first result title is exact match with the query or first title contains half the space of the query, it's probably a sentence
@@ -199,26 +292,26 @@ export default class Play {
                 // if(result[0].title === query || result[0].title && (Math.ceil((result[0].title.split(" ").length - 1) / 2) === Math.ceil((query.split(" ").length - 1) / 2))) return;
 
                 // The query length is too long to fit in json
-                if(query.length > 100 - 51) return;
+                if (query.length > 100 - 51) return;
 
                 const row = new MessageActionRow()
-                .addComponents(
-                    new MessageButton()
-                        .setEmoji('🔎')
-                        .setCustomId(JSON.stringify({
-                            module: 'MP_S',
-                            action: 'search',
-                            data: {
-                                q: query
-                            }
-                        }))
-                        .setLabel('  Not this? Search!')
-                        .setStyle('PRIMARY')
-                )
+                    .addComponents(
+                        new MessageButton()
+                            .setEmoji('🔎')
+                            .setCustomId(JSON.stringify({
+                                m: 'MP_S',
+                                a: 'search',
+                                d: {
+                                    q: query
+                                }
+                            }))
+                            .setLabel('  Not this? Search!')
+                            .setStyle('PRIMARY')
+                    )
 
                 return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data, result[0])], components: [row] });
             }
-            
+
             return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data, result[0])] });
         }
 
