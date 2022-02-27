@@ -6,6 +6,19 @@ import DiscordMusicPlayer, { ValidTracks } from "../../providers/DiscordMusicPla
 import { joinVoiceChannelProcedure } from "./Join";
 
 const EMBEDS = {
+    PLAY_INFO: (data: Message | Interaction) => {
+        return makeInfoEmbed ({
+            title: 'Play',
+            description: `Play a song`,
+            fields: [
+                {
+                    name: 'Arguments',
+                    value: '``Search query or Link``'
+                }
+            ],
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
     YOUTUBE_ONLY: (data: Message | Interaction) => {
         return makeErrorEmbed({
             title: `Only youtube.com link is supported for now`,
@@ -128,9 +141,7 @@ export default class Play {
             if (data === null || !data.guildId || data.member === null || data.guild === null) return;
 
             if (args.length === 0) {
-                // TODO: Show info
-                //return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.MSINFO(data)] });
-                return;
+                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.PLAY_INFO(data)] });
             }
             query = args.join(' ');
 
