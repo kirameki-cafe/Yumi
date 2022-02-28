@@ -1,6 +1,5 @@
 import { Message, Permissions, Interaction, CommandInteraction } from "discord.js";
-import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, sendMessageOrInteractionResponse, sendReply, makeErrorEmbed, makeInfoEmbed } from "../utils/DiscordMessage";
-import DiscordProvider from "../providers/Discord";
+import { makeSuccessEmbed, sendMessageOrInteractionResponse, makeErrorEmbed, makeInfoEmbed } from "../utils/DiscordMessage";
 
 const EMBEDS = {
     SAY_INFO: (data: Message | Interaction) => {

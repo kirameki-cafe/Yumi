@@ -1,8 +1,6 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
 
-import Validator from "validator";
-
 import Logger from "../libs/Logger";
 
 const requiredENV = [

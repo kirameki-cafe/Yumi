@@ -1,8 +1,6 @@
 import { Message, Interaction, CommandInteraction } from "discord.js";
-import { makeInfoEmbed, makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, sendMessageOrInteractionResponse, sendReply } from "../utils/DiscordMessage";
-import DiscordProvider from "../providers/Discord";
+import { makeInfoEmbed, makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, sendMessageOrInteractionResponse } from "../utils/DiscordMessage";
 import {registerAllGuildsCommands, unregisterAllGuildsCommands} from "../utils/DiscordInteraction";
-import Prisma from "../providers/Prisma";
 import Users from "../services/Users";
 
 const EMBEDS = {

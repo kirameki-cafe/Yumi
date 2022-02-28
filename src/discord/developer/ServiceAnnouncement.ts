@@ -1,11 +1,10 @@
 import { Message, MessageEmbed, Interaction, CommandInteraction, TextChannel } from "discord.js";
 import { makeInfoEmbed, makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, makeWarningEmbed, sendMessageOrInteractionResponse, sendMessage } from "../../utils/DiscordMessage";
 import DiscordProvider from "../../providers/Discord";
-import { registerAllGuildsCommands, unregisterAllGuildsCommands } from "../../utils/DiscordInteraction";
 import Prisma from "../../providers/Prisma";
 import Users from "../../services/Users";
 
-import { Promise, reject } from "bluebird";
+import { Promise } from "bluebird";
 import fs from "fs";
 import path from "path";
 import Logger from "../../libs/Logger";

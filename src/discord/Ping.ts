@@ -2,9 +2,8 @@ import { CommandInteraction, Message, Interaction } from "discord.js";
 import { makeSuccessEmbed, makeProcessingEmbed, sendMessageOrInteractionResponse } from "../utils/DiscordMessage";
 import DiscordProvider from "../providers/Discord";
 import NodePing from "ping";
-import { Promise, reject } from "bluebird";
+import { Promise } from "bluebird";
 import os from "os";
-import Logger from "../libs/Logger";
 import Environment from "../providers/Environment";
 import Configuration from "../providers/Configuration";
 

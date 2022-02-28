@@ -1,6 +1,6 @@
-import { GuildChannel, GuildMember, Message, Permissions, TextChannel, MessageActionRow, MessageButton, Interaction, CommandInteraction, Role, ThreadChannel, MessageEmbedFooter } from "discord.js";
+import { GuildChannel, GuildMember, Message, Permissions, TextChannel, MessageActionRow, MessageButton, Interaction, CommandInteraction, Role, ThreadChannel } from "discord.js";
 import App from "..";
-import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, makeInfoEmbed, makeErrorEmbed, sendMessage, sendReply, sendMessageOrInteractionResponse } from "../utils/DiscordMessage";
+import { makeSuccessEmbed, makeInfoEmbed, makeErrorEmbed, sendMessageOrInteractionResponse } from "../utils/DiscordMessage";
 import Logger from "../libs/Logger";
 import DiscordProvider from "../providers/Discord";
 import Prisma from "../providers/Prisma";

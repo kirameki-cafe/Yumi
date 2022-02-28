@@ -1,6 +1,5 @@
-import { Message, Permissions, Interaction, CommandInteraction } from "discord.js";
-import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, sendMessageOrInteractionResponse, sendReply, makeErrorEmbed, makeInfoEmbed } from "../utils/DiscordMessage";
-import DiscordProvider from "../providers/Discord";
+import { Message, Interaction, CommandInteraction } from "discord.js";
+import { sendMessageOrInteractionResponse, makeErrorEmbed, makeInfoEmbed } from "../utils/DiscordMessage";
 import { getColorFromURL } from "color-thief-node";
 
 const EMBEDS = {

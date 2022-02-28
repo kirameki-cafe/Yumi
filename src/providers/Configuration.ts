@@ -1,8 +1,6 @@
 import fs from "fs";
 import path from "path";
 
-import Logger from "../libs/Logger";
-
 const ConfigurationData: any = [];
 class Configuration {
 

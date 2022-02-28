@@ -1,6 +1,6 @@
-import playdl, { YouTubeVideo, InfoData } from "play-dl";
-import { Message, VoiceChannel, Snowflake, TextChannel, StageChannel, Guild } from "discord.js";
-import { AudioPlayer, VoiceConnection, createAudioPlayer, joinVoiceChannel, createAudioResource, StreamType, VoiceConnectionStatus, AudioPlayerStatus, NoSubscriberBehavior, VoiceConnectionDestroyedState, VoiceConnectionState, DiscordGatewayAdapterCreator, AudioResource, AudioPlayerError } from "@discordjs/voice";
+import playdl, { YouTubeVideo } from "play-dl";
+import { VoiceChannel, Snowflake, TextChannel, StageChannel, Guild } from "discord.js";
+import { AudioPlayer, VoiceConnection, createAudioPlayer, joinVoiceChannel, createAudioResource, VoiceConnectionStatus, AudioPlayerStatus, NoSubscriberBehavior, VoiceConnectionState, AudioPlayerError } from "@discordjs/voice";
 import { EventEmitter } from "stream";
 
 import DiscordProvider from "./Discord";

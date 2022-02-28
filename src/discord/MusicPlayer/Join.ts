@@ -1,10 +1,7 @@
-import { Message, CommandInteraction, Interaction, VoiceChannel, Permissions, GuildMember, DMChannel, StageChannel, MessageActionRow, MessageButton, MessageAttachment, TextChannel } from "discord.js";
-import { getEmotes, makeSuccessEmbed, makeErrorEmbed, sendMessage, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+import { Message, CommandInteraction, Interaction, VoiceChannel, Permissions, GuildMember, DMChannel, StageChannel, MessageActionRow, MessageButton, TextChannel } from "discord.js";
+import { makeSuccessEmbed, makeErrorEmbed, sendMessage, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 import DiscordProvider from "../../providers/Discord";
-import Users from "../../services/Users"
-import Environment from "../../providers/Environment";
 import DiscordMusicPlayer, { PlayerPlayingEvent, PlayerErrorEvent, VoiceDisconnectedEvent, ValidTracks, DiscordMusicPlayerInstance } from "../../providers/DiscordMusicPlayer";
-import Discord from "../../providers/Discord";
 
 const EMBEDS = {
     VOICECHANNEL_JOINED: (data: Message | Interaction) => {
