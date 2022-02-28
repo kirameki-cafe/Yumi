@@ -1,9 +1,7 @@
 import { Message, CommandInteraction, Interaction, MessageActionRow, TextChannel, MessageButton } from "discord.js";
-import { getEmotes, makeSuccessEmbed, makeErrorEmbed, sendMessage, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+import { makeErrorEmbed, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 import DiscordProvider from "../../providers/Discord";
-import Users from "../../services/Users"
-import Environment from "../../providers/Environment";
-import DiscordMusicPlayer, { DiscordMusicPlayerInstance, ValidTracks, Queue } from "../../providers/DiscordMusicPlayer";
+import DiscordMusicPlayer, { ValidTracks } from "../../providers/DiscordMusicPlayer";
 
 const EMBEDS = {
     NOW_PLAYING: (data: Message | Interaction, track: ValidTracks) => {

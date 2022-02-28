@@ -1,9 +1,6 @@
-import { Message, CommandInteraction, Interaction, VoiceChannel, MessageActionRow, DMChannel, TextChannel, MessageSelectMenu, MessageSelectOptionData, GuildMember } from "discord.js";
-import { makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, sendMessage, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
-import DiscordProvider from "../../providers/Discord";
-import Environment from "../../providers/Environment";
+import { Message, CommandInteraction, Interaction, MessageActionRow, TextChannel, MessageSelectMenu, MessageSelectOptionData } from "discord.js";
+import { makeErrorEmbed, makeSuccessEmbed, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 import DiscordMusicPlayer, { ValidTracks } from "../../providers/DiscordMusicPlayer";
-import Prisma from "../../providers/Prisma";
 import { joinVoiceChannelProcedure } from "./Join";
 
 const EMBEDS = {

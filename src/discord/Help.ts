@@ -1,5 +1,5 @@
 import { CommandInteraction, Interaction, Message } from "discord.js";
-import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, sendMessageOrInteractionResponse, sendReply, makeInfoEmbed } from "../utils/DiscordMessage";
+import { sendMessageOrInteractionResponse, makeInfoEmbed } from "../utils/DiscordMessage";
 import DiscordProvider from "../providers/Discord";
 import Cache from "../providers/Cache";
 

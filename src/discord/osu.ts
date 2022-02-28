@@ -1,11 +1,8 @@
-import { GuildChannel, GuildMember, Message, Permissions, TextChannel, MessageActionRow, MessageButton, Interaction, CommandInteraction, Role, ThreadChannel } from "discord.js";
-import App from "..";
-import { getEmotes, makeSuccessEmbed, makeProcessingEmbed, makeInfoEmbed, makeErrorEmbed, sendMessage, sendReply, sendMessageOrInteractionResponse } from "../utils/DiscordMessage";
-import Logger from "../libs/Logger";
-import DiscordProvider from "../providers/Discord";
+import { Message, MessageActionRow, MessageButton, Interaction, CommandInteraction } from "discord.js";
+import { makeInfoEmbed, makeErrorEmbed, sendMessageOrInteractionResponse } from "../utils/DiscordMessage";
 import Prisma from "../providers/Prisma";
 import osuAPI from "../providers/osuAPI";
-import { countryCodeEmoji, emojiCountryCode } from "country-code-emoji";
+import { countryCodeEmoji } from "country-code-emoji";
 import countryLookup from "country-code-lookup";
 import validator from 'validator';
 

@@ -1,10 +1,7 @@
-import { Message, MessageEmbed, Interaction, CommandInteraction, TextChannel } from "discord.js";
-import { makeInfoEmbed, makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, makeWarningEmbed, sendMessageOrInteractionResponse, sendMessage } from "../../utils/DiscordMessage";
-import DiscordProvider from "../../providers/Discord";
-import { registerAllGuildsCommands, unregisterAllGuildsCommands } from "../../utils/DiscordInteraction";
+import { Message, Interaction, CommandInteraction } from "discord.js";
+import { makeInfoEmbed, makeErrorEmbed, sendMessageOrInteractionResponse } from "../../utils/DiscordMessage";
 import DiscordMusicPlayer from "../../providers/DiscordMusicPlayer";
 import Users from "../../services/Users";
-
 
 const EMBEDS = {
     FAKEERROR_INFO: (data: Message | Interaction) => {

@@ -1,9 +1,7 @@
-import { Message, CommandInteraction, Interaction, VoiceChannel, TextChannel } from "discord.js";
-import { getEmotes, makeSuccessEmbed, makeErrorEmbed, sendMessage, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
-import DiscordProvider from "../../providers/Discord";
-import Users from "../../services/Users"
-import Environment from "../../providers/Environment";
-import DiscordMusicPlayer, { DiscordMusicPlayerInstance, ValidTracks, Queue } from "../../providers/DiscordMusicPlayer";
+import { Message, CommandInteraction, Interaction, TextChannel } from "discord.js";
+import { makeErrorEmbed, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+
+import DiscordMusicPlayer, { Queue } from "../../providers/DiscordMusicPlayer";
 
 const EMBEDS = {
     QUEUE: (data: Message | Interaction, queue: Queue) => {

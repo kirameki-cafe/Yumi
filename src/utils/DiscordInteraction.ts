@@ -1,6 +1,5 @@
 import Logger from "../libs/Logger";
 import DiscordProvider from "../providers/Discord";
-import { ApplicationCommand, Collection } from "discord.js"
 import { SlashCommandBuilder } from "@discordjs/builders";
 
 export const GLOBAL_COMMANDS: Object[] = [];

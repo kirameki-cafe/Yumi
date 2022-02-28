@@ -1,7 +1,6 @@
-import { Message, CommandInteraction, Interaction, VoiceChannel, MessageActionRow, Permissions, MessageButton, TextChannel } from "discord.js";
-import { makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, sendMessage, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+import { Message, CommandInteraction, Interaction, VoiceChannel, MessageActionRow, MessageButton, TextChannel } from "discord.js";
+import { makeErrorEmbed, makeSuccessEmbed, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 import DiscordProvider from "../../providers/Discord";
-import Environment from "../../providers/Environment";
 import DiscordMusicPlayer, { ValidTracks } from "../../providers/DiscordMusicPlayer";
 import { joinVoiceChannelProcedure } from "./Join";
 

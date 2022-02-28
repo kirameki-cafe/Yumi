@@ -1,9 +1,7 @@
-import { Message, CommandInteraction, Interaction, VoiceChannel } from "discord.js";
-import { getEmotes, makeSuccessEmbed, makeErrorEmbed, sendMessage, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+import { Message, CommandInteraction, Interaction } from "discord.js";
+import { makeSuccessEmbed, makeErrorEmbed, sendMessageOrInteractionResponse } from "../../utils/DiscordMessage";
 import DiscordProvider from "../../providers/Discord";
-import Users from "../../services/Users"
-import Environment from "../../providers/Environment";
-import DiscordMusicPlayer, { DiscordMusicPlayerInstance } from "../../providers/DiscordMusicPlayer";
+import DiscordMusicPlayer from "../../providers/DiscordMusicPlayer";
 
 const EMBEDS = {
     VOICECHANNEL_LEFT: (data: Message | Interaction) => {

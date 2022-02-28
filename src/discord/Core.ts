@@ -1,5 +1,4 @@
 import { Guild } from ".prisma/client";
-import { Message } from "discord.js";
 import Logger from "../libs/Logger";
 import Cache from "../providers/Cache";
 import DiscordProvider from "../providers/Discord";

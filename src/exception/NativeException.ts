@@ -4,7 +4,6 @@ import App from '../providers/App';
 
 class NativeException {
 
-
     public process (): void {
 
         process.on('uncaughtException', exception => {
@@ -20,8 +19,6 @@ class NativeException {
         });
 
     }
-
-
 }
 
 export default new NativeException;
