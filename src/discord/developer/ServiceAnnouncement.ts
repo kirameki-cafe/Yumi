@@ -37,17 +37,17 @@ const EMBEDS = {
         const user = DiscordProvider.client.user;
         payload.footer = {
             text: `${user?.username}`,
-            iconURL: user?.avatarURL() || ''
+            iconURL: `${user?.avatarURL()}?size=4096` || ''
         }
 
         if (!payload.timestamp)
             payload.timestamp = new Date();
 
         if (payload.thumbnail?.url === 'bot_avatar')
-            payload.thumbnail.url = user?.avatarURL() || '';
+            payload.thumbnail.url = `${user?.avatarURL()}?size=4096` || '';
 
         if (payload.image?.url === 'bot_avatar')
-            payload.image.url = user?.avatarURL() || '';
+            payload.image.url = `${user?.avatarURL()}?size=4096` || '';
 
         if (payload.description)
             payload.description = payload.description.replaceAll('{bot_username}', user?.username)
