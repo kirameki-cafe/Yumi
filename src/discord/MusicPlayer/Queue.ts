@@ -3,10 +3,13 @@ import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModu
 import { Message, CommandInteraction, Interaction, TextChannel } from "discord.js";
 import { makeErrorEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 
-import DiscordMusicPlayer, { Queue } from "../../providers/DiscordMusicPlayer";
+import DiscordMusicPlayer, { DiscordMusicPlayerInstance, DiscordMusicPlayerLoopMode } from "../../providers/DiscordMusicPlayer";
 
 const EMBEDS = {
-    QUEUE: (data: Message | Interaction, queue: Queue) => {
+    QUEUE: (data: Message | Interaction, instance: DiscordMusicPlayerInstance) => {
+
+        const queue = instance.queue;
+
         if(!queue.track[0])
             return makeInfoEmbed({
                 title: `Queue`,
@@ -18,7 +21,7 @@ const EMBEDS = {
                 let queueString = `1. [${queue.track[0].title}](${queue.track[0].url})`
                 return makeInfoEmbed({
                     title: `Queue`,
-                    description: `Now playing: [${queue.track[0].title}](${queue.track[0].url})\n\nThere are ${queue.track.length} song in the queue!\n${queueString}`,
+                    description: `Now playing${instance.getLoopMode() === DiscordMusicPlayerLoopMode.Current ? " (Looping current)" : ""}: [${queue.track[0].title}](${queue.track[0].url})\n\nThere are ${queue.track.length} song in the queue!\n${queueString}`,
                     user: (data instanceof Interaction) ? data.user : data.author
                 });
             }
@@ -27,14 +30,14 @@ const EMBEDS = {
                 let queueString = first10.map((track, index) => `${index + 1}. [${track.title}](${track.url})`).join("\n");
                 return makeInfoEmbed({
                     title: `Queue`,
-                    description: `Now playing: [${queue.track[0].title}](${queue.track[0].url})\nUpcoming song: [${queue.track[1].title}](${queue.track[1].url})\n\nThere are ${queue.track.length} songs in the queue!\n${queueString}\n${queue.track.length > 10 ? `...${queue.track.length - 10} more songs` : ""}`,
+                    description: `Now playing${instance.getLoopMode() === DiscordMusicPlayerLoopMode.Current ? " (Looping current)" : ""}: [${queue.track[0].title}](${queue.track[0].url})\nUpcoming song: [${queue.track[1].title}](${queue.track[1].url})\n\nThere are ${queue.track.length} songs in the queue!\n${queueString}\n${queue.track.length > 10 ? `...${queue.track.length - 10} more songs` : ""}`,
                     user: (data instanceof Interaction) ? data.user : data.author
                 });
             } else {
                 let queueString = queue.track.map((track, index) => `${index + 1}. [${track.title}](${track.url})`).join("\n");
                 return makeInfoEmbed({
                     title: `Queue`,
-                    description: `Now playing: [${queue.track[0].title}](${queue.track[0].url})\nUpcoming song: [${queue.track[1].title}](${queue.track[1].url})\n\nThere are ${queue.track.length} songs in the queue!\n${queueString}`,
+                    description: `Now playing${instance.getLoopMode() === DiscordMusicPlayerLoopMode.Current ? " (Looping current)" : ""}: [${queue.track[0].title}](${queue.track[0].url})\nUpcoming song: [${queue.track[1].title}](${queue.track[1].url})\n\nThere are ${queue.track.length} songs in the queue!\n${queueString}`,
                     user: (data instanceof Interaction) ? data.user : data.author
                 });
             }
@@ -71,7 +74,7 @@ export default class QueueCommand extends DiscordModule {
         const instance = DiscordMusicPlayer.getGuildInstance(guild.id);
         if(!instance) return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data.getRaw())] });
 
-        await sendHybridInteractionMessageResponse(data, { embeds:[EMBEDS.QUEUE(data.getRaw(), instance.queue)] });
+        await sendHybridInteractionMessageResponse(data, { embeds:[EMBEDS.QUEUE(data.getRaw(), instance)] });
 
         return;
     }
