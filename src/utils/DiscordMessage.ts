@@ -1,4 +1,4 @@
-import { MessageEmbed, User, MessagePayload, MessageOptions, GuildTextBasedChannel, TextChannel, DMChannel, PartialDMChannel, BaseGuildTextChannel, Message, ColorResolvable, Interaction, InteractionReplyOptions } from "discord.js";
+import { MessageEmbed, User, MessagePayload, MessageOptions, GuildTextBasedChannel, TextChannel, DMChannel, PartialDMChannel, BaseGuildTextChannel, Message, ColorResolvable, Interaction, InteractionReplyOptions, CommandInteraction } from "discord.js";
 import App from "..";
 import Logger from "../libs/Logger";
 import { HybridInteractionMessage } from "./DiscordModule";
@@ -99,7 +99,7 @@ export async function sendReply(rMessage: Message, options: string | MessagePayl
 
 
 export async function sendMessageOrInteractionResponse(data: Message | Interaction, payload: MessageOptions | InteractionReplyOptions, replace = false) {
-    const isSlashCommand = data instanceof Interaction && data.isCommand();
+    const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
     const isMessage = data instanceof Message;
 
     if(isSlashCommand || (data instanceof Interaction && ( data.isSelectMenu() || data.isButton()))) {
