@@ -38,7 +38,12 @@ const EMBEDS = {
             description: `${track.title}`,
             user: (data instanceof Interaction) ? data.user : data.author
         });
-        embed.setImage(track.thumbnails[0].url);
+
+        const highestResolutionThumbnail = track.thumbnails.reduce((prev, current) => (prev.height * prev.width > current.height * current.width) ? prev : current)
+
+        if(highestResolutionThumbnail)
+            embed.setImage(highestResolutionThumbnail.url);
+            
         return embed;
     },
     USER_NOT_IN_VOICECHANNEL: (data: Message | Interaction) => {
