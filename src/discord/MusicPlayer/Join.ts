@@ -178,6 +178,8 @@ export async function joinVoiceChannelProcedure (data: Interaction | Message, in
         if (event.instance.textChannel) {
             await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.VOICECHANNEL_DISCONNECTED(data)] });
         }
+
+        DiscordMusicPlayer.destoryGuildInstance(event.instance.voiceChannel.guildId);
     });
 }
 
