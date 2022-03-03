@@ -48,7 +48,7 @@ const EMBEDS = {
     },
     MUSIC_ERROR: (data: Message | Interaction, err: Error) => {
         return makeErrorEmbed({
-            title: `Error`,
+            title: `Error while playing music, skipping this track`,
             description: `${err.message}`,
             user: (data instanceof Interaction) ? data.user : data.author
         });
@@ -151,6 +151,8 @@ export async function joinVoiceChannelProcedure (data: Interaction | Message, in
 
     // Register Event Listeners
     instance.events.on('playing', async (event: PlayerPlayingEvent) => {
+
+        if(!event.instance.queue || !event.instance.queue.track || event.instance.queue.track.length === 0) return;
 
         const row = new MessageActionRow()
             .addComponents(
