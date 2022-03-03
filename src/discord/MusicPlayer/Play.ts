@@ -61,6 +61,21 @@ const EMBEDS = {
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
+    LOOKUP_ERROR: (data: Message | Interaction, error: Error) => {
+
+        let errorMessage = "";
+
+        if(error.message === "While getting info from url\nPrivate video")
+            errorMessage = "This is a private video";
+        else
+            errorMessage = error.message.replace("While getting info from url\n", "").replace("While getting info from url", "");
+
+        return makeErrorEmbed({
+            title: `Error while looking up the song`,
+            description: `${errorMessage}`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
 }
 export default class Play extends DiscordModule {
 
@@ -201,7 +216,10 @@ export default class Play extends DiscordModule {
 
             if (!instance) return;
 
-            let result = await DiscordMusicPlayer.searchYouTubeByYouTubeLink(DiscordMusicPlayer.parseYouTubeLink(interaction.values[0]));
+            let result = await DiscordMusicPlayer.searchYouTubeByYouTubeLink(DiscordMusicPlayer.parseYouTubeLink(interaction.values[0])).catch((err) => {
+                sendHybridInteractionMessageResponse(hybridData, { embeds: [EMBEDS.LOOKUP_ERROR(hybridData.getRaw(), err)] }, true);
+                return null;
+            });
             if (!result) return;
 
             instance.addTrackToQueue(result);
@@ -263,7 +281,10 @@ export default class Play extends DiscordModule {
                 return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.ADDED_SONGS_QUEUE(data.getRaw(), songs)] }, true);
             }
 
-            let result = await DiscordMusicPlayer.searchYouTubeByYouTubeLink(linkData);
+            let result = await DiscordMusicPlayer.searchYouTubeByYouTubeLink(linkData).catch((err) => {
+                sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.LOOKUP_ERROR(data.getRaw(), err)] }, true);
+                return null;
+            });
 
             if (!result) return;
 
