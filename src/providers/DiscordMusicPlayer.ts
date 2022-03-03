@@ -167,14 +167,20 @@ export class DiscordMusicPlayerInstance {
     public async playTrack(track: ValidTracks) {
 
         if (!this.voiceConnection) throw new Error("No voice connection");
-
-        const stream = await playdl.stream(track.url);
-        const resource = createAudioResource(stream.stream, {
-            inputType: stream.type
-        });
-
-        this.player.play(resource)
-        this.voiceConnection.subscribe(this.player)
+        
+        try {
+            const stream = await playdl.stream(track.url);
+            const resource = createAudioResource(stream.stream, {
+                inputType: stream.type
+            });
+    
+            this.player.play(resource)
+            this.voiceConnection.subscribe(this.player)
+        } catch (error: any) {
+            this.events.emit('error', new PlayerErrorEvent(this, error));
+            this.skipTrack();
+        }
+        
     }
 
     public async skipTrack() {
