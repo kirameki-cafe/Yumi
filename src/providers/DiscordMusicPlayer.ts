@@ -54,12 +54,19 @@ export class VoiceDisconnectedEvent {
         this.instance = instance;
     }
 }
+
+export enum DiscordMusicPlayerLoopMode {
+    None = "none",
+    Current = "current"
+}
 export class DiscordMusicPlayerInstance {
     public queue: Queue;
     public player: AudioPlayer;
     public textChannel?: TextChannel;
     public voiceChannel: (VoiceChannel | StageChannel);
     public voiceConnection?: VoiceConnection;
+
+    public loopMode: DiscordMusicPlayerLoopMode = DiscordMusicPlayerLoopMode.None;
 
     public readonly events: EventEmitter;
 
@@ -77,12 +84,21 @@ export class DiscordMusicPlayerInstance {
         this.player.on(AudioPlayerStatus.Idle, async (oldStage, newStage) => {
             //The player stopped
             if (newStage.status === AudioPlayerStatus.Idle && oldStage.status !== AudioPlayerStatus.Idle) {
+
+                // Loop mode is set to current song
+                if (this.loopMode === DiscordMusicPlayerLoopMode.Current) {
+                    this.playTrack(this.queue.track[0]);
+                    return;
+                }
+
+                // There are more songs in the queue, remove finished song and play the next one
                 if (this.queue.track.length !== 0) {
                     this.queue.track.shift();
                     if (this.queue.track.length > 0) {
                         this.playTrack(this.queue.track[0]);
                     }
                 }
+
             }
         });
 
@@ -194,6 +210,14 @@ export class DiscordMusicPlayerInstance {
             this.queue.track.shift();
             this.player.stop();
         }
+    }
+
+    public setLoopMode(mode: DiscordMusicPlayerLoopMode) {
+        this.loopMode = mode;
+    }
+
+    public getLoopMode() {
+        return this.loopMode;
     }
 
     public async destroy() {
