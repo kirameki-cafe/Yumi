@@ -1,5 +1,7 @@
+import DiscordModule, { HybridInteractionMessage } from "../utils/DiscordModule";
+
 import { Message, Interaction, CommandInteraction, Permissions, ThreadChannel, GuildChannel } from "discord.js";
-import { makeInfoEmbed, makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, sendMessageOrInteractionResponse } from "../utils/DiscordMessage";
+import { makeInfoEmbed, makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, sendHybridInteractionMessageResponse } from "../utils/DiscordMessage";
 import DiscordProvider from "../providers/Discord";
 import Prisma from "../providers/Prisma";
 import Cache from "../providers/Cache";
@@ -18,11 +20,11 @@ const EMBEDS = {
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
-    PROCESSING: (data: Message | Interaction) => {
+    PROCESSING: (data: HybridInteractionMessage) => {
         return makeProcessingEmbed({
-            icon: (data instanceof Message) ? undefined : '⌛',
+            icon: (data.isMessage()) ? undefined : '⌛',
             title: `Performing actions`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            user: data.getUser()
         });
     },
     NO_PERMISSION: (data: Message | Interaction) => {
@@ -44,7 +46,7 @@ const EMBEDS = {
         });
     },
     NO_SERVICE_ANNOUNCEMENT_STATUS_PROVIDED: async (data: Message | Interaction) => {
-        let GuildCache = await Cache.getGuild(data.guildId!);
+        let GuildCache = await Cache.getGuild(data.guild!.id);
 
         // TODO: Better error handling
         if(typeof GuildCache === 'undefined')
@@ -137,196 +139,183 @@ const EMBEDS = {
     },
 }
 
-export default class Settings {
-    async onCommand(command: string, args: any, message: Message) {
-        if(command.toLowerCase() !== 'settings') return;
-        await this.process(message, args);
+export default class Settings extends DiscordModule {
+
+    public id = "Discord_Settings";
+    public commands = ["settings"];
+    public commandInteractionName = "settings";
+
+    async GuildOnModuleCommand(args: any, message: Message) {
+        await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async interactionCreate(interaction: CommandInteraction) { 
-        if(interaction.isCommand()) {
-            if(typeof interaction.commandName === 'undefined') return;
-            if((interaction.commandName).toLowerCase() !== 'settings') return;
-            await this.process(interaction, interaction.options);
-        }
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) { 
+        await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
-    async process(data: Interaction | Message, args: any) {
+    async run(data: HybridInteractionMessage, args: any) {
         
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
-
-        if(!isSlashCommand && !isMessage) return;
-
-        if(data.guild === null || data.guildId === null) return;
-        
-        const Guild = await Prisma.client.guild.findFirst({ where: { id: data.guildId }})
-        if(!Guild) throw new Error('TODO: Handle if guild is not found');
+        const Guild = await Prisma.client.guild.findFirst({ where: { id: data.getGuild()!.id }})
+        if(!Guild) return;
 
         const funct = {
-            setPrefix: async(data: Message | Interaction) => {
+            setPrefix: async(data: HybridInteractionMessage) => {
 
-                if(data === null || !data.guildId || data.member === null || data.guild === null) return;
+                let member = data.getMember();
+                if(!member) return;
 
-                if(data instanceof Message) {
-                    if (!data.member.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
-                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data)] });
-                }
-                else if(isSlashCommand) {
-                    if(!data.guild.members.cache.get(data.user.id)?.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
-                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data)] });
-                }
-        
+                if (!member.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
+                        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data.getRaw())] });
 
-                let newPrefix: string | undefined;
-                if(data instanceof Message) {
+                let newPrefix: string | null | undefined;
+                if(data.isMessage()) {
                     let _name: string;
                     if(typeof args[1] === 'undefined')
-                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PREFIX_PROVIDED(data)] });
+                        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_PREFIX_PROVIDED(data.getRaw())] });
 
                     let __name = args;
                     __name.shift();
                     _name = __name.join(" ");
                     newPrefix = _name;
                 }
-                else if(data instanceof CommandInteraction)
-                    newPrefix = data.options.getString('prefix')!;
+                else if(data.isSlashCommand())
+                    newPrefix = data.getSlashCommand().options.getString('prefix');
 
                 if(!newPrefix)
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PREFIX_PROVIDED(data)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_PREFIX_PROVIDED(data.getRaw())] });
 
                 if(newPrefix.length > 200)
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.PREFIX_TOO_LONG(data)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.PREFIX_TOO_LONG(data.getRaw())] });
 
                 if(newPrefix.startsWith(`<@!${DiscordProvider.client.user?.id}>`))
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.PREFIX_IS_MENTION(data)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.PREFIX_IS_MENTION(data.getRaw())] });
 
-                let placeholder = await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.PROCESSING(data)] });
+                let placeholder: (HybridInteractionMessage | undefined);
 
-                await Prisma.client.guild.update({ where: { id: data.guildId! }, data: { prefix: newPrefix }});
-                Cache.updateGuildCache(data.guildId!);
+                let _placeholder = await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.PROCESSING(data)] });
+                if (_placeholder)
+                    placeholder = new HybridInteractionMessage(_placeholder);
 
-                if(isMessage)
-                    return await (placeholder as Message).edit({ embeds: [EMBEDS.PREFIX_UPDATED(data, newPrefix)] });
-                else if(isSlashCommand)
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.PREFIX_UPDATED(data, newPrefix)]}, true);
+                await Prisma.client.guild.update({ where: { id: data.getGuild()!.id }, data: { prefix: newPrefix }});
+                Cache.updateGuildCache(data.getGuild()!.id);
+
+                if(data && data.isMessage() && placeholder && placeholder.isMessage())
+                    return placeholder.getMessage().edit({ embeds: [EMBEDS.PREFIX_UPDATED(data.getRaw(), newPrefix)] });
+                else if(data.isSlashCommand())
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.PREFIX_UPDATED(data.getRaw(), newPrefix)]}, true);
             },
-            setEnableServiceAnnouncement: async(data: Message | Interaction) => {
+            setEnableServiceAnnouncement: async(data: HybridInteractionMessage) => {
 
-                if(data === null || !data.guildId || data.member === null || data.guild === null) return;
+                let member = data.getMember();
+                if(!member) return;
 
-                if(data instanceof Message) {
-                    if (!data.member.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
-                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data)] });
-                }
-                else if(isSlashCommand) {
-                    if(!data.guild.members.cache.get(data.user.id)?.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
-                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data)] });
-                }
-        
+                if (!member.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
+                        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data.getRaw())] });
 
-                let newStatus: string | undefined;
-                if(data instanceof Message) {
+                let newStatus: string | null | undefined;
+                if(data.isMessage()) {
                     let _name: string;
-                    if(typeof args[1] === 'undefined') {
-                        return await sendMessageOrInteractionResponse(data, { embeds: [await EMBEDS.NO_SERVICE_ANNOUNCEMENT_STATUS_PROVIDED(data)] });
-                    }
+                    if(typeof args[1] === 'undefined') 
+                        return await sendHybridInteractionMessageResponse(data, { embeds: [await EMBEDS.NO_SERVICE_ANNOUNCEMENT_STATUS_PROVIDED(data.getRaw())] });
 
                     let __name = args;
                     __name.shift();
                     _name = __name.join(" ");
                     newStatus = _name;
                 }
-                else if(data instanceof CommandInteraction)
-                    newStatus = data.options.getString('status')!;
+                else if(data.isSlashCommand())
+                    newStatus = data.getSlashCommand().options.getString('status')!;
 
                 if(!newStatus)
-                    return await sendMessageOrInteractionResponse(data, { embeds: [await EMBEDS.NO_SERVICE_ANNOUNCEMENT_STATUS_PROVIDED(data)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [await EMBEDS.NO_SERVICE_ANNOUNCEMENT_STATUS_PROVIDED(data.getRaw())] });
 
                 if(!["true", "false", "yes", "no", "y", "n", "enable", "disable"].includes(newStatus.toLowerCase()))
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_INVALID_STATUS(data)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_INVALID_STATUS(data.getRaw())] });
 
-                await Cache.updateGuildCache(data.guildId!);
-                let GuildCache = await Cache.getGuild(data.guildId!);
+                await Cache.updateGuildCache(data.getGuild()!.id);
+                let GuildCache = await Cache.getGuild(data.getGuild()!.id);
 
                 const newStatusBool = ["true", "yes", "y", "enable"].includes(newStatus.toLowerCase()) ? true : false;
 
                 if(GuildCache?.ServiceAnnouncement_Enabled === newStatusBool)
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_STATUS_ALREADY_SET(data, newStatusBool)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_STATUS_ALREADY_SET(data.getRaw(), newStatusBool)] });
 
                 if(GuildCache?.ServiceAnnouncement_Channel === null)
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_NO_PARAMETER(data)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_NO_PARAMETER(data.getRaw())] });
 
-                let placeholder = await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.PROCESSING(data)] });
+                let placeholder = await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.PROCESSING(data)] });
 
                 await Prisma.client.guild.update(
-                    { where: { id: data.guildId! },
+                    { where: { id: data.getGuild()!.id },
                     data: { 
                         ServiceAnnouncement_Enabled: newStatusBool
                     }
                 });
-                Cache.updateGuildCache(data.guildId!);
+                Cache.updateGuildCache(data.getGuild()!.id);
 
-                if(isMessage)
-                    return await (placeholder as Message).edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_STATUS_UPDATED(data, newStatusBool)]});
-                else if(isSlashCommand)
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_STATUS_UPDATED(data, newStatusBool)]}, true);
+                if(data.isMessage())
+                    return await (placeholder as Message).edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_STATUS_UPDATED(data.getRaw(), newStatusBool)]});
+                else if(data.isSlashCommand())
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_STATUS_UPDATED(data.getRaw(), newStatusBool)]}, true);
             },
-            setServiceAnnouncementChannel: async(data: Message | CommandInteraction) => {
+            setServiceAnnouncementChannel: async(data: HybridInteractionMessage) => {
             
+                let member = data.getMember();
+                if(!member) return;
+
+                if (!member.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
+                        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data.getRaw())] });
+                
                 let channel;
-                if(data instanceof Message) {
+                if(data.isMessage()) {
                     if(typeof args[1] === 'undefined')
-                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_CHANNEL_MENTIONED(data)] });
-                    channel = data.mentions.channels.first();
+                        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_CHANNEL_MENTIONED(data.getRaw())] });
+                    channel = data.getMessage().mentions.channels.first();
                 }
-                else if(data instanceof CommandInteraction)
-                    channel = data.options.getChannel('channel');
+                else if(data.isSlashCommand())
+                    channel = data.getSlashCommand().options.getChannel('channel');
 
                 if(!channel)
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_CHANNEL_FOUND(data)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_CHANNEL_FOUND(data.getRaw())] });
                 
-                let TargetChannel = data.guild!.channels.cache.get(channel.id);
+                let TargetChannel = data.getGuild()!.channels.cache.get(channel.id);
                 if(typeof TargetChannel === 'undefined') return;
 
                 if(TargetChannel instanceof ThreadChannel || TargetChannel.isThread())
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.INVALID_CHANNEL_THREAD(data, TargetChannel)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.INVALID_CHANNEL_THREAD(data.getRaw(), TargetChannel)] });
 
                 if(!TargetChannel.isText())
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.INVALID_CHANNEL(data, TargetChannel)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.INVALID_CHANNEL(data.getRaw(), TargetChannel)] });
 
-                if(!(data!.guild!.me?.permissionsIn(TargetChannel).has([Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.VIEW_CHANNEL])))
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.BOT_NO_PERMISSION(data, TargetChannel)] });
+                if(!(data.getGuild()!.me?.permissionsIn(TargetChannel).has([Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.VIEW_CHANNEL])))
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.BOT_NO_PERMISSION(data.getRaw(), TargetChannel)] });
 
-                let placeholder = await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.PROCESSING(data)] });
+                let placeholder = await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.PROCESSING(data)] });
 
-                await Prisma.client.guild.update({ where: {id: data.guildId! }, data: { ServiceAnnouncement_Channel: channel.id }});
+                await Prisma.client.guild.update({ where: {id: data.getGuild()!.id }, data: { ServiceAnnouncement_Channel: channel.id }});
 
-                if(isMessage)
-                    return await (placeholder as Message).edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_CONFIGURED_CHANNEL(data, TargetChannel)]});
-                else if(isSlashCommand)
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_CONFIGURED_CHANNEL(data, TargetChannel)]}, true);
+                if(data.isMessage())
+                    return await (placeholder as Message).edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_CONFIGURED_CHANNEL(data.getRaw(), TargetChannel)]});
+                else if(data.isSlashCommand())
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_CONFIGURED_CHANNEL(data.getRaw(), TargetChannel)]}, true);
             }
         }
 
         let query;
 
-        if(isMessage) {
-            if(data === null || !data.guildId || data.member === null || data.guild === null) return;
-            
-            if(args.length === 0) {
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SETTINGS_INFO(data)] });
-            }
+        if(data.isMessage()) {
+            if(args.length === 0)
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SETTINGS_INFO(data.getRaw())] });
+    
             query = args[0].toLowerCase();
-
         }
-        else if(isSlashCommand) {
+        else if(data.isSlashCommand()) {
             query = args.getSubcommand();
         }
 
         switch(query) {
             case "info":
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SETTINGS_INFO(data)] });
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SETTINGS_INFO(data.getRaw())] });
             case "setprefix":
                 return await funct.setPrefix(data);
             case "setenableserviceannouncement":

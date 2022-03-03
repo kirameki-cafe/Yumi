@@ -1,5 +1,7 @@
+import DiscordModule, { HybridInteractionMessage } from "../utils/DiscordModule";
+
 import { Message, Permissions, Interaction, CommandInteraction } from "discord.js";
-import { makeSuccessEmbed, sendMessageOrInteractionResponse, makeErrorEmbed, makeInfoEmbed } from "../utils/DiscordMessage";
+import { makeSuccessEmbed, sendHybridInteractionMessageResponse, makeErrorEmbed, makeInfoEmbed } from "../utils/DiscordMessage";
 
 const EMBEDS = {
     SAY_INFO: (data: Message | Interaction) => {
@@ -29,56 +31,55 @@ const EMBEDS = {
     }
 }
 
-export default class Say {
+export default class Say extends DiscordModule {
 
-    async onCommand(command: string, args: any, message: Message) {
-        if(command.toLowerCase() !== 'say') return;
-        await this.process(message, args);
+    public id = "Discord_Say";
+    public commands = ["say"];
+    public commandInteractionName = "say";
+
+    async GuildOnModuleCommand(args: any, message: Message) {
+        await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async interactionCreate(interaction: CommandInteraction) { 
-        if(interaction.isCommand()) {
-            if(typeof interaction.commandName === 'undefined') return;
-            if((interaction.commandName).toLowerCase() !== 'say') return;
-            await this.process(interaction, interaction.options);
-        }
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) { 
+        await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
-    async process(data: Interaction | Message, args: any) {
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
+    async run(data: HybridInteractionMessage, args: any) {
 
-        if(!isSlashCommand && !isMessage) return;
-        
         let query;
 
-        if(isMessage) {
-            if(data === null || !data.guildId || data.member === null || data.guild === null) return;
-            if (!data.member.permissions.has([Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.MANAGE_CHANNELS]))
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data)] });
+        if(data.isMessage()) {
+            const message = data.getMessage();
 
-            if(args.length === 0) {
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SAY_INFO(data)] });
-            }
+            if(!message.member) return;
+
+            if (!message.member.permissions.has([Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.MANAGE_CHANNELS]))
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data.getRaw())] });
+
+            if(args.length === 0)
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SAY_INFO(data.getRaw())] });
+
             query = args.join(" ");
-
         }
-        else if(isSlashCommand) {
-            if(!data.guild!.members.cache.get(data.user.id)?.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data)] });
+        else if(data.isSlashCommand()) {
+            const interaction = data.getSlashCommand();
+            if(!data.getGuild()!.members.cache.get(interaction.user.id)?.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_PERMISSION(data.getRaw())] });
 
-            query = data.options.getString('message');
+            query = interaction.options.getString('message');
         }
 
-        if(isSlashCommand) {
-            await data.channel!.send({ content: query });
-            await data.reply({ ephemeral: true, embeds: [EMBEDS.SUCCESSFULLY_SAID(data)] });
+        if(data.isSlashCommand() && data.getChannel()) {
+            await data.getChannel()!.send({ content: query });
+            await data.getMessageComponentInteraction().reply({ ephemeral: true, embeds: [EMBEDS.SUCCESSFULLY_SAID(data.getRaw())] });
         }
-        else {
-            if(data.deletable)
-                await data.delete();
+        else if(data.isMessage()) {
+            const message = data.getMessage();
+            if(message.deletable)
+                await message.delete();
 
-            await data.channel.send({ content: query });
+            await data.getChannel()!.send({ content: query });
         }
 
     }

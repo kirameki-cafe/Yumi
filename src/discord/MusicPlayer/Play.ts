@@ -1,5 +1,7 @@
-import { Message, CommandInteraction, Interaction, VoiceChannel, MessageActionRow, MessageButton, TextChannel } from "discord.js";
-import { makeErrorEmbed, makeSuccessEmbed, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
+
+import { Message, CommandInteraction, Interaction, VoiceChannel, MessageActionRow, MessageButton, SelectMenuInteraction, ButtonInteraction } from "discord.js";
+import { makeErrorEmbed, makeSuccessEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 import DiscordProvider from "../../providers/Discord";
 import DiscordMusicPlayer, { ValidTracks } from "../../providers/DiscordMusicPlayer";
 import { joinVoiceChannelProcedure } from "./Join";
@@ -60,195 +62,190 @@ const EMBEDS = {
         });
     },
 }
+export default class Play extends DiscordModule {
 
+    public id = "Discord_MusicPlayer_Play";
+    public commands = ["play", "p"];
+    public commandInteractionName = "play";
 
-export default class Play {
-
-    async onCommand(command: string, args: any, message: Message) {
-        if (command.toLowerCase() !== 'play' && command.toLowerCase() !== 'p') return;
-        await this.process(message, args);
+    async GuildOnModuleCommand(args: any, message: Message) {
+        await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async interactionCreate(interaction: Interaction) {
-        if (interaction.isCommand()) {
-            if (typeof interaction.commandName === 'undefined') return;
-            if ((interaction.commandName).toLowerCase() !== 'play') return;
-            await this.process(interaction, interaction.options);
-        }
-        else if (interaction.isSelectMenu()) {
-            if (!interaction.guild || !interaction.guildId) return;
-            if (!this.tryParseJSONObject(interaction.customId)) return;
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) {
+        await this.run(new HybridInteractionMessage(interaction), interaction.options);
+    }
 
-            let payload = JSON.parse(interaction.customId);
-            if (!interaction.member?.user?.id) return;
+    async GuildButtonInteractionCreate(interaction: ButtonInteraction) {
+        const hybridData = new HybridInteractionMessage(interaction);
+        const guild = hybridData.getGuild();
+        const member = hybridData.getMember();
+        const user = hybridData.getUser();
 
-            if (typeof payload.m === 'undefined' || typeof payload.a === 'undefined') return;
+        if (!guild || !member || !user) return;
+        if (!this.isJSONValid(interaction.customId)) return;
 
-            /*
-                Discord have 100 char custom id char limit
-                So we need to shorten our json.
-                MP_SM stands for MusicPlayer_SearchMenu
-                data.r stands for data.requester
-                data.v stands for data.voiceChannel
-            */
+        let payload = JSON.parse(interaction.customId);
 
-            if (payload.m === 'MP_SM' && payload.a === 'play') {
+        if (typeof payload.m === 'undefined' || typeof payload.a === 'undefined') return;
 
-                await interaction.deferReply();
+        /*
+            Discord have 100 char custom id char limit
+            So we need to shorten our json.
+            MP_P stands for MusicPlayer_Play
+            data.v stands for data.videoId
+            data.l stands for data.listId
+        */
 
-                let voiceChannel = DiscordProvider.client.guilds.cache.get(interaction.guildId)?.channels.cache.get(payload.d.v);
-                let member = DiscordProvider.client.guilds.cache.get(interaction.guildId)?.members.cache.get(interaction.member?.user?.id);
+        if (payload.m === 'MP_P' && payload.a === 'arp') {
 
-                if (!member) return;
-                if (!voiceChannel || !(voiceChannel instanceof VoiceChannel)) return;
+            if (typeof payload.d === 'undefined') return;
 
+            let data = payload.d.split('$');
+            if (data.length !== 3) return;
 
-                if (!member.voice.channel)
-                    return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(interaction)] }, true);
-
-                if (!DiscordMusicPlayer.isGuildInstanceExists(interaction.guildId)) {
-                    await joinVoiceChannelProcedure(interaction, null, voiceChannel);
-                }
-
-                let instance = DiscordMusicPlayer.getGuildInstance(interaction.guildId);
-
-                if (instance!.voiceChannel.id !== member.voice.channel.id)
-                    return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(interaction)] }, true);
-
-                if (!instance!.isConnected()) {
-                    await joinVoiceChannelProcedure(interaction, instance!, voiceChannel);
-                    instance = DiscordMusicPlayer.getGuildInstance(interaction.guildId);
-                }
-
-                if (!instance) return;
-
-                let result = await DiscordMusicPlayer.searchYouTubeByYouTubeLink(DiscordMusicPlayer.parseYouTubeLink(interaction.values[0]));
-                if (!result) return;
-
-                instance.addTrackToQueue(result);
-                //interaction.editReply({ embeds: [EMBEDS.ADDED_QUEUE(interaction, result)] });
-                return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.ADDED_QUEUE(interaction, result)] }, true);
+            payload.d = {
+                c: data[0],
+                v: data[1],
+                l: data[2]
             }
-        }
-        else if (interaction.isButton()) {
 
-            if (!interaction.guild || !interaction.guildId) return;
-            if (!this.tryParseJSONObject(interaction.customId)) return;
+            await interaction.deferReply();
 
-            let payload = JSON.parse(interaction.customId);
-            if (!interaction.member?.user?.id) return;
+            let voiceChannel = DiscordProvider.client.guilds.cache.get(guild.id)?.channels.cache.get(payload.d.c);
+            //let member = DiscordProvider.client.guilds.cache.get(guild.id)?.members.cache.get(interaction.member?.user?.id);
 
-            if (typeof payload.m === 'undefined' || typeof payload.a === 'undefined') return;
-
-            /*
-                Discord have 100 char custom id char limit
-                So we need to shorten our json.
-                MP_P stands for MusicPlayer_Play
-                data.v stands for data.videoId
-                data.l stands for data.listId
-            */
-
-            if (payload.m === 'MP_P' && payload.a === 'arp') {
-                
-                if (typeof payload.d === 'undefined') return;
-
-                let data = payload.d.split('$');
-                if(data.length !== 3) return;
-
-                payload.d = {
-                    c: data[0],
-                    v: data[1],
-                    l: data[2]
-                }
-
-                await interaction.deferReply();
-                
-                let voiceChannel = DiscordProvider.client.guilds.cache.get(interaction.guildId)?.channels.cache.get(payload.d.c);
-                let member = DiscordProvider.client.guilds.cache.get(interaction.guildId)?.members.cache.get(interaction.member?.user?.id);
-
-                if (!member) return;
-                if (!voiceChannel || !(voiceChannel instanceof VoiceChannel)) return;
+            if (!voiceChannel || !(voiceChannel instanceof VoiceChannel)) return;
 
 
-                if (!member.voice.channel)
-                    return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(interaction)] }, true);
+            if (!member.voice.channel)
+                return await sendHybridInteractionMessageResponse(hybridData, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(hybridData.getRaw())] }, true);
 
-                if (!DiscordMusicPlayer.isGuildInstanceExists(interaction.guildId)) {
-                    await joinVoiceChannelProcedure(interaction, null, voiceChannel);
-                }
+            if (!DiscordMusicPlayer.isGuildInstanceExists(guild.id))
+                await joinVoiceChannelProcedure(interaction, null, voiceChannel);
 
-                let instance = DiscordMusicPlayer.getGuildInstance(interaction.guildId);
+            let instance = DiscordMusicPlayer.getGuildInstance(guild.id);
 
-                if (instance!.voiceChannel.id !== member.voice.channel.id)
-                    return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(interaction)] }, true);
+            if (instance!.voiceChannel.id !== member.voice.channel.id)
+                return await sendHybridInteractionMessageResponse(hybridData, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(hybridData.getRaw())] }, true);
 
-                if (!instance!.isConnected()) {
-                    await joinVoiceChannelProcedure(interaction, instance!, voiceChannel);
-                    instance = DiscordMusicPlayer.getGuildInstance(interaction.guildId);
-                }
-
-                if (!instance) return;
-
-                let playlist = await DiscordMusicPlayer.getYouTubeSongsInPlayList(`https://www.youtube.com/watch?v=${payload.d.v}&list=${payload.d.l}`);
-                const songs = (await playlist.all_videos()).filter((song) => {
-                    return payload.d.v !== song.id;
-                });
-
-                for(let song of songs) {
-                    instance.addTrackToQueue(song);
-                }
-
-                await (interaction.message as Message).edit({ components: [] });
-                return await sendMessageOrInteractionResponse(interaction, { embeds: [EMBEDS.ADDED_SONGS_QUEUE(interaction, songs)] }, true);
+            if (!instance!.isConnected()) {
+                await joinVoiceChannelProcedure(interaction, instance!, voiceChannel);
+                instance = DiscordMusicPlayer.getGuildInstance(guild.id);
             }
+
+            if (!instance) return;
+
+            let playlist = await DiscordMusicPlayer.getYouTubeSongsInPlayList(`https://www.youtube.com/watch?v=${payload.d.v}&list=${payload.d.l}`);
+            const songs = (await playlist.all_videos()).filter((song) => {
+                return payload.d.v !== song.id;
+            });
+
+            for (let song of songs) {
+                instance.addTrackToQueue(song);
+            }
+
+            if(hybridData.getSelectMenu().message instanceof Message)
+                await (hybridData.getSelectMenu().message as Message).edit({ components: [] });
+
+            return await sendHybridInteractionMessageResponse(hybridData, { embeds: [EMBEDS.ADDED_SONGS_QUEUE(hybridData.getRaw(), songs)] }, true);
         }
     }
 
-    async process(data: Interaction | Message, args: any) {
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
+    async GuildSelectMenuInteractionCreate(interaction: SelectMenuInteraction) {
 
-        if (!isSlashCommand && !isMessage) return;
+        const hybridData = new HybridInteractionMessage(interaction);
+        const guild = hybridData.getGuild();
+        const member = hybridData.getMember();
+        const user = hybridData.getUser();
 
-        if (!data.member) return;
-        if (!data.guild) return;
-        if (!data.guildId) return;
+        if (!guild || !member || !user) return;
+        if (!this.isJSONValid(interaction.customId)) return;
+
+        let payload = JSON.parse(interaction.customId);
+
+        /*
+            Discord have 100 char custom id char limit
+            So we need to shorten our json.
+            MP_SM stands for MusicPlayer_SearchMenu
+            data.r stands for data.requester
+            data.v stands for data.voiceChannel
+        */
+        if (typeof payload.m === 'undefined' || typeof payload.a === 'undefined') return;
+
+        if (payload.m === 'MP_SM' && payload.a === 'play') {
+
+            await interaction.deferReply();
+
+            const voiceChannel = DiscordProvider.client.guilds.cache.get(guild.id)?.channels.cache.get(payload.d.v);
+            //let member = DiscordProvider.client.guilds.cache.get(guild.id)?.members.cache.get(user.id);
+
+            if (!voiceChannel || !(voiceChannel instanceof VoiceChannel)) return;
+
+            if (!member.voice.channel)
+                return await sendHybridInteractionMessageResponse(hybridData, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(interaction)] }, true);
+
+            if (!DiscordMusicPlayer.isGuildInstanceExists(guild.id))
+                await joinVoiceChannelProcedure(interaction, null, voiceChannel);
+
+
+            let instance = DiscordMusicPlayer.getGuildInstance(guild.id);
+
+            if (instance!.voiceChannel.id !== member.voice.channel.id)
+                return await sendHybridInteractionMessageResponse(hybridData, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(interaction)] }, true);
+
+            if (!instance!.isConnected()) {
+                await joinVoiceChannelProcedure(interaction, instance!, voiceChannel);
+                instance = DiscordMusicPlayer.getGuildInstance(guild.id);
+            }
+
+            if (!instance) return;
+
+            let result = await DiscordMusicPlayer.searchYouTubeByYouTubeLink(DiscordMusicPlayer.parseYouTubeLink(interaction.values[0]));
+            if (!result) return;
+
+            instance.addTrackToQueue(result);
+            return await sendHybridInteractionMessageResponse(hybridData, { embeds: [EMBEDS.ADDED_QUEUE(interaction, result)] }, true);
+        }
+
+    }
+
+    async run(data: HybridInteractionMessage, args: any) {
 
         let query;
+        const guild = data.getGuild();
+        const channel = data.getChannel();
+        const member = data.getMember();
 
-        if (isMessage) {
-            if (data === null || !data.guildId || data.member === null || data.guild === null) return;
+        if (data.isMessage()) {
+            if (args.length === 0)
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.PLAY_INFO(data.getRaw())] });
 
-            if (args.length === 0) {
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.PLAY_INFO(data)] });
-            }
             query = args.join(' ');
-
         }
-        else if (isSlashCommand) {
+        else if (data.isSlashCommand()) {
             query = args.getSubcommand();
         }
 
-        if (!query) return;
-        if (!(data.channel instanceof TextChannel)) return;
+        if (!query || !guild || !channel || !member) return;
 
-        if (!data.member.voice.channel)
-            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data)] });
+        if (!member.voice.channel)
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data.getRaw())] });
 
-        let voiceChannel = data.member.voice.channel;
+        const voiceChannel = member.voice.channel;
 
-        if (!DiscordMusicPlayer.isGuildInstanceExists(data.guildId)) {
-            await joinVoiceChannelProcedure(data, null, voiceChannel);
+        if (!DiscordMusicPlayer.isGuildInstanceExists(guild.id)) {
+            await joinVoiceChannelProcedure(data.getRaw(), null, voiceChannel);
         }
 
-        let instance = DiscordMusicPlayer.getGuildInstance(data.guildId);
+        let instance = DiscordMusicPlayer.getGuildInstance(guild.id);
 
-        if (instance!.voiceChannel.id !== data.member.voice.channel.id)
-            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data)] }, true);
+        if (instance!.voiceChannel.id !== member.voice.channel.id)
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data.getRaw())] }, true);
 
         if (!instance!.isConnected()) {
-            await joinVoiceChannelProcedure(data, instance!, voiceChannel);
-            instance = DiscordMusicPlayer.getGuildInstance(data.guildId);
+            await joinVoiceChannelProcedure(data.getRaw(), instance!, voiceChannel);
+            instance = DiscordMusicPlayer.getGuildInstance(guild.id);
         }
 
         if (!instance) return;
@@ -256,22 +253,22 @@ export default class Play {
         if (DiscordMusicPlayer.isYouTubeLink(query)) {
             let linkData = DiscordMusicPlayer.parseYouTubeLink(query);
 
-            if(linkData.videoId === "" && linkData.list) {
+            if (linkData.videoId === "" && linkData.list) {
                 let playlist = await DiscordMusicPlayer.getYouTubeSongsInPlayList(query);
                 const songs = await playlist.all_videos();
 
-                for(let song of songs) {
+                for (let song of songs) {
                     instance.addTrackToQueue(song);
                 }
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ADDED_SONGS_QUEUE(data, songs)] }, true);
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.ADDED_SONGS_QUEUE(data.getRaw(), songs)] }, true);
             }
 
             let result = await DiscordMusicPlayer.searchYouTubeByYouTubeLink(linkData);
 
             if (!result) return;
 
-            if (isMessage && (data as Message).embeds.length > 0) {
-                (data as Message).suppressEmbeds(true);
+            if (data.isMessage() && data.getMessage().embeds.length > 0) {
+                data.getMessage().suppressEmbeds(true);
             }
 
             instance.addTrackToQueue(result);
@@ -290,10 +287,10 @@ export default class Play {
                             .setStyle('PRIMARY')
                     )
 
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data, result)], components: [row] });
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data.getRaw(), result)], components: [row] });
             }
             else
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data, result)] });
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data.getRaw(), result)] });
         } else {
             let result = await DiscordMusicPlayer.searchYouTubeByQuery(query);
 
@@ -325,27 +322,22 @@ export default class Play {
                             .setStyle('PRIMARY')
                     )
 
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data, result[0])], components: [row] });
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data.getRaw(), result[0])], components: [row] });
             }
 
-            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data, result[0])] });
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.ADDED_QUEUE(data.getRaw(), result[0])] });
         }
-
-        return;
     }
 
-    tryParseJSONObject(jsonString: string) {
+    isJSONValid(jsonString: string) {
         try {
             let o = JSON.parse(jsonString);
             if (o && typeof o === "object") {
                 return true;
-                //return o;
             }
         }
         catch (e) { }
-
         return false;
     }
-
 
 }

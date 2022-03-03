@@ -1,6 +1,7 @@
 import { MessageEmbed, User, MessagePayload, MessageOptions, GuildTextBasedChannel, TextChannel, DMChannel, PartialDMChannel, BaseGuildTextChannel, Message, ColorResolvable, Interaction, InteractionReplyOptions } from "discord.js";
 import App from "..";
 import Logger from "../libs/Logger";
+import { HybridInteractionMessage } from "./DiscordModule";
 
 const emotes = {
     "yumiloading": "<a:yumiloading:887350424938627173>"
@@ -134,6 +135,50 @@ export async function sendMessageOrInteractionResponse(data: Message | Interacti
         }
     }
     else if(isMessage) return await sendReply(data, payload);
+}
+
+export async function sendHybridInteractionMessageResponse(data: HybridInteractionMessage, payload: MessageOptions | InteractionReplyOptions, replace = false): (Promise<Message | Interaction | undefined>) {
+
+    if(data.isSlashCommand() || data.isButton() || data.isSelectMenu()) {
+
+        const messageComponent = data.getMessageComponentInteraction();
+
+        if(!messageComponent.replied) {
+            let message;
+            try {
+                if(!messageComponent.deferred) {
+                    await messageComponent.reply(payload);
+                    return messageComponent;
+                }
+                else {
+                    await messageComponent.editReply(payload);
+                    return messageComponent;
+                }
+            }
+            catch(errorDM) {
+                Logger.error(`Cannot find available destinations to send the message CID: ${messageComponent.channel!.id} UID: ${messageComponent.user.id} DM_ERR: ${errorDM}`);
+                return;
+            } finally {
+                return message;
+            }
+        }
+        else {
+            let message;
+            try { 
+                if(replace)
+                    return (await messageComponent.editReply(payload) as Message);
+                else
+                    return (await messageComponent.followUp(payload) as Message);
+            }
+            catch(errorDM) {
+                Logger.error(`Cannot find available destinations to send the message CID: ${messageComponent.channel!.id} UID: ${messageComponent.user.id} DM_ERR: ${errorDM}`);
+                return;
+            } finally {
+                return message;
+            }
+        }
+    }
+    else if(data.isMessage()) return await sendReply(data.getMessage(), payload);
 }
 
 export function getEmotes() {

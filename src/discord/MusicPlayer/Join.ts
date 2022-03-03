@@ -1,5 +1,7 @@
+import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
+
 import { Message, CommandInteraction, Interaction, VoiceChannel, Permissions, GuildMember, DMChannel, StageChannel, MessageActionRow, MessageButton, TextChannel } from "discord.js";
-import { makeSuccessEmbed, makeErrorEmbed, sendMessage, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+import { makeSuccessEmbed, makeErrorEmbed, sendMessage, sendMessageOrInteractionResponse, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 import DiscordProvider from "../../providers/Discord";
 import DiscordMusicPlayer, { PlayerPlayingEvent, PlayerErrorEvent, VoiceDisconnectedEvent, ValidTracks, DiscordMusicPlayerInstance } from "../../providers/DiscordMusicPlayer";
 
@@ -177,68 +179,33 @@ export async function joinVoiceChannelProcedure (data: Interaction | Message, in
     });
 }
 
-export default class Join {
+export default class Join extends DiscordModule {
 
+    public id = "Discord_MusicPlayer_Join";
+    public commands = ["join"];
+    public commandInteractionName = "join";
 
-    async onCommand(command: string, args: any, message: Message) {
-        if (command.toLowerCase() !== 'join') return;
-        await this.process(message, args);
+    async GuildOnModuleCommand(args: any, message: Message) {
+        await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async interactionCreate(interaction: CommandInteraction) {
-        if (interaction.isCommand()) {
-            if (typeof interaction.commandName === 'undefined') return;
-            if ((interaction.commandName).toLowerCase() !== 'join') return;
-            await this.process(interaction, interaction.options);
-        }
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) { 
+        await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
-    async process(data: Interaction | Message, args: any) {
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
+    async run(data: HybridInteractionMessage, args: any) {
 
-        if (!isSlashCommand && !isMessage) return;
+        const guild = data.getGuild();
+        const member = data.getMember();
 
-        if (!data.member) return;
+        if(!guild || !member) return;
 
-        this.joinCommands(data, args);
+        const voiceChannel = member.voice.channel;
 
-    }
-
-    public async joinCommands(data: Interaction | Message, args: any) {
-
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
-        if (!isSlashCommand && !isMessage) return;
-
-        if (!data.member) return;
-        if (!data.channel) return;
-        if (!data.guildId) return;
-
-        if (data.channel instanceof DMChannel) return;
-        if (!(data.channel instanceof TextChannel)) return;
-
-        const channel: any = isMessage ? data.member.voice.channel : DiscordProvider.client.guilds.cache.get((data as Interaction).guildId!)!.members.cache.get((data as Interaction).user.id)?.voice.channel;
-        if (!channel) return;
-
-        if (!data.member.voice.channel)
-            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data)] });
+        if (!voiceChannel)
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data.getRaw())] });
         
-        let voiceChannel = data.member.voice.channel;
-
-       
-
-        //if(!DiscordMusicPlayer.isGuildInstanceExists(data.guildId)) {
-        //   DiscordMusicPlayer.createGuildInstance(data.guildId, voiceChannel);
-        //}
-
-        let instance = DiscordMusicPlayer.getGuildInstance(data.guildId);
-
-        await joinVoiceChannelProcedure(data, instance!, voiceChannel);
-
-        //if(!instance.isConnected())
-        //    instance.joinVoiceChannel(voiceChannel, data.channel ? data.channel : undefined);
-
-
+        const instance = DiscordMusicPlayer.getGuildInstance(guild.id);
+        await joinVoiceChannelProcedure(data.getRaw(), instance, voiceChannel);
     }
 }

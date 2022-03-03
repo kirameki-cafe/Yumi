@@ -1,5 +1,7 @@
+import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
+
 import { Message, CommandInteraction, Interaction } from "discord.js";
-import { makeSuccessEmbed, makeErrorEmbed, sendMessageOrInteractionResponse } from "../../utils/DiscordMessage";
+import { makeSuccessEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from "../../utils/DiscordMessage";
 import DiscordProvider from "../../providers/Discord";
 import DiscordMusicPlayer from "../../providers/DiscordMusicPlayer";
 
@@ -36,55 +38,48 @@ const EMBEDS = {
     }
 }
 
-export default class Skip {
+export default class Skip extends DiscordModule{
 
-    async onCommand(command: string, args: any, message: Message) {
-        if (command.toLowerCase() !== 'skip') return;
-        await this.process(message, args);
+    public id = "Discord_MusicPlayer_Skip";
+    public commands = ["skip"];
+    public commandInteractionName = "skip";
+
+    async GuildOnModuleCommand(args: any, message: Message) {
+        await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async interactionCreate(interaction: CommandInteraction) {
-        if (interaction.isCommand()) {
-            if (typeof interaction.commandName === 'undefined') return;
-            if ((interaction.commandName).toLowerCase() !== 'skip') return;
-            await this.process(interaction, interaction.options);
-        }
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) { 
+        await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
-    async process(data: Interaction | Message, args: any) {
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
-
-        if (!isSlashCommand && !isMessage) return;
-
-        if (!data.member) return;
-        if (!data.guildId) return;
-
-        const channel: any = isMessage ? data.member.voice.channel : DiscordProvider.client.guilds.cache.get((data as Interaction).guildId!)!.members.cache.get((data as Interaction).user.id)?.voice.channel;
-
-        if (!data.member.voice.channel)
-            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data)] });
+    async run(data: HybridInteractionMessage, args: any) {
         
-        if (!channel) return;
+        const guild = data.getGuild();
+        const member = data.getMember();
 
-        let voiceChannel = data.member.voice.channel;
+        if (!guild || !member) return;
 
-        if(!DiscordMusicPlayer.isGuildInstanceExists(data.guildId))
-            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data)] });
+        const voiceChannel = member.voice.channel;
 
-        const instance = DiscordMusicPlayer.getGuildInstance(data.guildId);
+        if (!voiceChannel)
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data.getRaw())] });
 
-        if(instance!.voiceChannel.id !== data.member.voice.channel.id)
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data)] }, true);
+        const instance = DiscordMusicPlayer.getGuildInstance(guild.id);
 
-        if(instance?.queue.track.length === 0)
-            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data)] });
+        if(!instance)
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data.getRaw())] });
 
-        instance!.skipTrack();
+        if(instance.voiceChannel.id !== voiceChannel.id)
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data.getRaw())] }, true);
 
-        if(instance?.queue.track.length === 0)
-            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SKIPPED_LASTSONG(data)] });
+        if(instance.queue.track.length === 0)
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data.getRaw())] });
+
+        instance.skipTrack();
+
+        if(instance.queue.track.length === 0)
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SKIPPED_LASTSONG(data.getRaw())] });
         else
-            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SKIPPED(data)] });
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SKIPPED(data.getRaw())] });
     }
 }

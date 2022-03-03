@@ -1,5 +1,7 @@
+import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
+
 import { Message, MessageEmbed, Interaction, CommandInteraction, TextChannel } from "discord.js";
-import { makeInfoEmbed, makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, makeWarningEmbed, sendMessageOrInteractionResponse, sendMessage } from "../../utils/DiscordMessage";
+import { makeInfoEmbed, makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, makeWarningEmbed, sendHybridInteractionMessageResponse, sendMessage } from "../../utils/DiscordMessage";
 import DiscordProvider from "../../providers/Discord";
 import Prisma from "../../providers/Prisma";
 import Users from "../../services/Users";
@@ -31,7 +33,7 @@ const EMBEDS = {
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
-    MAKE_PAYLOAD: (data: Message | Interaction, payload: any) => {
+    MAKE_PAYLOAD: (payload: any) => {
         const user = DiscordProvider.client.user;
         payload.footer = {
             text: `${user?.username}`,
@@ -123,10 +125,13 @@ let Announcements = {
     }
 
 }
-export default class InteractionManager {
+export default class ServiceAnnouncement extends DiscordModule {
 
-    async init() {
+    public id = "Discord_Developer_ServiceAnnouncement";
+    public commands = ["serviceannouncement"];
+    public commandInteractionName = "serviceannouncement";
 
+    async Init() {
         if (fs.existsSync(path.join(process.cwd(), 'configs/ServiceAnnouncement.json'))) {
             try {
                 const rawData = fs.readFileSync(path.join(process.cwd(), 'configs/ServiceAnnouncement.json'));
@@ -138,30 +143,24 @@ export default class InteractionManager {
         }
     }
 
-    async onCommand(command: string, args: any, message: Message) {
-        if (command.toLowerCase() !== 'serviceannouncement') return;
-        await this.process(message, args);
+    async GuildOnModuleCommand(args: any, message: Message) {
+        await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async interactionCreate(interaction: CommandInteraction) {
-        if (interaction.isCommand()) {
-            if (typeof interaction.commandName === 'undefined') return;
-            if ((interaction.commandName).toLowerCase() !== 'serviceannouncement') return;
-            await this.process(interaction, interaction.options);
-        }
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) { 
+        await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
-    async process(data: Interaction | Message, args: any) {
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
+    async run(data: HybridInteractionMessage, args: any) {
 
-        if (!isSlashCommand && !isMessage) return;
+        if (!Users.isDeveloper(data.getUser()!.id))
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NOT_DEVELOPER(data.getRaw())] });
 
-        if (!Users.isDeveloper(data.member?.user.id!))
-            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NOT_DEVELOPER(data)] });
+        const channel = data.getChannel();
+        if(!channel) return;
 
         const funct = {
-            reload: async (data: Message | Interaction) => {
+            reload: async (data: HybridInteractionMessage) => {
 
                 if (fs.existsSync(path.join(process.cwd(), 'configs/ServiceAnnouncement.json'))) {
                     try {
@@ -170,27 +169,27 @@ export default class InteractionManager {
                         Announcements = jsonData;
                     } catch (err: any) {
                         Logger.error("Unable to load custom ServiceAnnouncement config: " + err);
-                        return await sendMessage(data.channel!, undefined, { embeds: [EMBEDS.RELOAD_ERROR(data, err)] });
+                        return await sendMessage(channel, undefined, { embeds: [EMBEDS.RELOAD_ERROR(data.getRaw(), err)] });
                     }
                 } else {
                     fs.writeFileSync(path.join(process.cwd(), 'configs/ServiceAnnouncement.json'), JSON.stringify(Announcements, null, 4), 'utf8');
                 }
 
-                return await sendMessage(data.channel!, undefined, { embeds: [EMBEDS.RELOADED(data)] });
+                return await sendMessage(channel, undefined, { embeds: [EMBEDS.RELOADED(data.getRaw())] });
             },
-            previewNews: async (data: Message | Interaction) => {
-                return await sendMessage(data.channel!, undefined, { embeds: [EMBEDS.MAKE_PAYLOAD(data, Announcements.News)] });
+            previewNews: async (data: HybridInteractionMessage) => {
+                return await sendMessage(channel, undefined, { embeds: [EMBEDS.MAKE_PAYLOAD(Announcements.News)] });
             },
-            previewMaintenance: async (data: Message | Interaction) => {
-                return await sendMessage(data.channel!, undefined, { embeds: [EMBEDS.MAKE_PAYLOAD(data, Announcements.Maintenance)] });
+            previewMaintenance: async (data: HybridInteractionMessage) => {
+                return await sendMessage(channel, undefined, { embeds: [EMBEDS.MAKE_PAYLOAD(Announcements.Maintenance)] });
             },
-            previewMessage: async (data: Message | Interaction) => {
-                return await sendMessage(data.channel!, undefined, { embeds: [EMBEDS.MAKE_PAYLOAD(data, Announcements.Message)] });
+            previewMessage: async (data: HybridInteractionMessage) => {
+                return await sendMessage(channel, undefined, { embeds: [EMBEDS.MAKE_PAYLOAD(Announcements.Message)] });
             },
-            previewAlert: async (data: Message | Interaction) => {
-                return await sendMessage(data.channel!, undefined, { embeds: [EMBEDS.MAKE_PAYLOAD(data, Announcements.Alert)] });
+            previewAlert: async (data: HybridInteractionMessage) => {
+                return await sendMessage(channel, undefined, { embeds: [EMBEDS.MAKE_PAYLOAD(Announcements.Alert)] });
             },
-            publishServiceAnnouncement: async (data: Message | Interaction, embed: any) => {
+            publishServiceAnnouncement: async (data: HybridInteractionMessage, embed: any) => {
                 const Guilds = await Prisma.client.guild.findMany({});
                 const toSend = new Map();
 
@@ -204,7 +203,6 @@ export default class InteractionManager {
                     try {
                         channel = await DiscordProvider.client.channels.fetch(Guild.ServiceAnnouncement_Channel) as TextChannel;
                     } catch (err) {
-                        // TODO: Handle channel not found error
                         withError = true;
                         const guildObject = DiscordProvider.client.guilds.cache.get(Guild.id);
                         Logger.warn(`Unable to find channel for Service Announcement to ${guildObject?.name} (${Guild.id}) (Channel ID: ${Guild.ServiceAnnouncement_Channel})`);
@@ -215,7 +213,11 @@ export default class InteractionManager {
                     toSend.set(Guild, channel);
                 }
 
-                let placeholder = await sendMessage(data.channel!, undefined, { embeds: [EMBEDS.SENDING_SERVICE_ANNOUNCEMENT(data)] });
+                let placeholder: (HybridInteractionMessage | undefined);
+
+                let _placeholder = await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SENDING_SERVICE_ANNOUNCEMENT(data.getRaw())] }, true);
+                if (_placeholder)
+                    placeholder = new HybridInteractionMessage(_placeholder);
 
                 await Promise.map(toSend, element => {
                     return new Promise(async (resolve, reject) => {
@@ -226,7 +228,7 @@ export default class InteractionManager {
                             if (!guildObject)
                                 throw new Error('Guild not found');
                             Logger.info(`Sending Service Announcement to ${guildObject?.name} (${guildObject.id}) #${Channel.name} (${Channel.id})`);
-                            await sendMessage(Channel, undefined, { embeds: [EMBEDS.MAKE_PAYLOAD(data, embed)] })
+                            await sendMessage(Channel, undefined, { embeds: [EMBEDS.MAKE_PAYLOAD(embed)] })
                         } catch (err) {
                             withError = true;
                             const guildObject = DiscordProvider.client.guilds.cache.get(Guild.id);
@@ -242,38 +244,34 @@ export default class InteractionManager {
                 }, { concurrency: 2 });
 
                 if (withError) {
-                    if (isMessage)
-                        (placeholder as Message).edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data)] });
-                    else if (isSlashCommand)
-                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data)] }, true);
+                    if(data && data.isMessage() && placeholder && placeholder.isMessage())
+                        return placeholder.getMessage().edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data.getRaw())] });
+                    else if(data.isSlashCommand())
+                        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data.getRaw())] }, true);
                 }
                 else {
-                    if (isMessage)
-                        (placeholder as Message).edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data)] });
-                    else if (isSlashCommand)
-                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data)] }, true);
+                    if(data && data.isMessage() && placeholder && placeholder.isMessage())
+                        return placeholder.getMessage().edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data.getRaw())] });
+                    else if(data.isSlashCommand())
+                        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data.getRaw())] }, true);
                 }
             }
         }
 
         let query;
 
-        if (isMessage) {
-            if (data === null || !data.guildId || data.member === null || data.guild === null) return;
-
-            if (args.length === 0) {
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ANNOUNCEMENT_INFO(data)] });
-            }
+        if (data.isMessage()) {
+            if (args.length === 0)
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.ANNOUNCEMENT_INFO(data.getRaw())] });
             query = args[0].toLowerCase();
-
         }
-        else if (isSlashCommand) {
+        else if (data.isSlashCommand()) {
             query = args.getSubcommand();
         }
 
         switch (query) {
             case "info":
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.ANNOUNCEMENT_INFO(data)] });
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.ANNOUNCEMENT_INFO(data.getRaw())] });
             case "reload":
                 return await funct.reload(data);
             case "previewnews":
@@ -293,6 +291,5 @@ export default class InteractionManager {
             case "sendalert":
                 return await funct.publishServiceAnnouncement(data, Announcements.Alert);
         }
-
     }
 }

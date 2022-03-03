@@ -1,5 +1,7 @@
+import DiscordModule, { HybridInteractionMessage } from "../utils/DiscordModule";
+
 import { CommandInteraction, Interaction, Message } from "discord.js";
-import { sendMessageOrInteractionResponse, makeInfoEmbed } from "../utils/DiscordMessage";
+import { sendHybridInteractionMessageResponse, makeInfoEmbed } from "../utils/DiscordMessage";
 import DiscordProvider from "../providers/Discord";
 import Cache from "../providers/Cache";
 
@@ -57,32 +59,24 @@ const EMBEDS = {
     }
 }
 
-export default class Help {
+export default class Help extends DiscordModule {
 
-    async onCommand(command: string, args: any, message: Message) {
-        if(command.toLowerCase() !== 'help') return;
-        await this.process(message, args);
+    public id = "Discord_Help";
+    public commands = ["help"];
+    public commandInteractionName = "help";
+
+    async GuildOnModuleCommand(args: any, message: Message) {
+        await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async interactionCreate(interaction: CommandInteraction) { 
-        if(interaction.isCommand()) {
-            if(typeof interaction.commandName === 'undefined') return;
-            if((interaction.commandName).toLowerCase() !== 'help') return;
-            await this.process(interaction, interaction.options);
-        }
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) { 
+        await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
-    async process(data: Interaction | Message, args: any) {
+    async run(data: HybridInteractionMessage, args: any) {
+        const message = await sendHybridInteractionMessageResponse(data, { embeds: [await EMBEDS.INFO(data.getRaw())] });
 
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
-
-        if(!isSlashCommand && !isMessage) return;
-
-        let sent = await sendMessageOrInteractionResponse(data, { embeds: [await EMBEDS.INFO(data)] });
-
-        if(isMessage)
-            return (sent as Message).react("♥");
-        
+        if(message && data.isMessage())
+            return new HybridInteractionMessage(message).getMessage().react("♥");
     }
 }

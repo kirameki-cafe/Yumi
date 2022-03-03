@@ -1,5 +1,7 @@
+import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
+
 import { Message, CommandInteraction, Interaction, TextChannel } from "discord.js";
-import { makeErrorEmbed, sendMessageOrInteractionResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+import { makeErrorEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 
 import DiscordMusicPlayer, { Queue } from "../../providers/DiscordMusicPlayer";
 
@@ -46,38 +48,30 @@ const EMBEDS = {
     }
 }
 
-export default class QueueCommand {
+export default class QueueCommand extends DiscordModule {
+
+    public id = "Discord_MusicPlayer_Queue";
+    public commands = ["queue", "q"];
+    public commandInteractionName = "queue";
     
-    async onCommand(command: string, args: any, message: Message) {
-        if(command.toLowerCase() !== 'queue') return;
-        await this.process(message, args);
+    async GuildOnModuleCommand(args: any, message: Message) {
+        await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async interactionCreate(interaction: CommandInteraction) { 
-        if(interaction.isCommand()) {
-            if(typeof interaction.commandName === 'undefined') return;
-            if((interaction.commandName).toLowerCase() !== 'queue') return;
-            await this.process(interaction, interaction.options);
-        }
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) {
+        await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
-    async process(data: Interaction | Message, args: any) {
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
+    async run(data: HybridInteractionMessage, args: any) {
 
-        if(!isSlashCommand && !isMessage) return;
+        const guild = data.getGuild();
 
-        if(!data.member) return;
-        if(!data.guildId) return;
-        if(!(data.channel instanceof TextChannel)) return;
+        if(!guild) return;
 
-        //const channel: any = isMessage ? data.member.voice.channel : DiscordProvider.client.guilds.cache.get((data as Interaction).guildId!)!.members.cache.get((data as Interaction).user.id)?.voice.channel; 
-        //if(!channel) return;
-        
-        const instance = DiscordMusicPlayer.getGuildInstance(data.guildId);
-        if(!instance) return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data)] });
+        const instance = DiscordMusicPlayer.getGuildInstance(guild.id);
+        if(!instance) return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data.getRaw())] });
 
-        await sendMessageOrInteractionResponse(data, { embeds:[EMBEDS.QUEUE(data, instance.queue)] });
+        await sendHybridInteractionMessageResponse(data, { embeds:[EMBEDS.QUEUE(data.getRaw(), instance.queue)] });
 
         return;
     }
