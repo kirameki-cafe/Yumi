@@ -1,5 +1,7 @@
+import DiscordModule, { HybridInteractionMessage } from "../utils/DiscordModule";
+
 import { Message, Interaction, CommandInteraction } from "discord.js";
-import { makeInfoEmbed, makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, sendMessageOrInteractionResponse } from "../utils/DiscordMessage";
+import { makeInfoEmbed, makeErrorEmbed, makeSuccessEmbed, makeProcessingEmbed, sendHybridInteractionMessageResponse } from "../utils/DiscordMessage";
 import {registerAllGuildsCommands, unregisterAllGuildsCommands} from "../utils/DiscordInteraction";
 import Users from "../services/Users";
 
@@ -46,66 +48,70 @@ const EMBEDS = {
     }
 }
 
-export default class InteractionManager {
-    async onCommand(command: string, args: any, message: Message) {
-        if(command.toLowerCase() !== 'interaction') return;
-        await this.process(message, args);
+export default class InteractionManager extends DiscordModule {
+
+    public id = "Discord_InteractionManager";
+    public commands = ["interaction"];
+    public commandInteractionName = "interaction";
+
+    async GuildOnModuleCommand(args: any, message: Message) {
+        await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async interactionCreate(interaction: CommandInteraction) { 
-        if(interaction.isCommand()) {
-            if(typeof interaction.commandName === 'undefined') return;
-            if((interaction.commandName).toLowerCase() !== 'interaction') return;
-            await this.process(interaction, interaction.options);
-        }
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) { 
+        await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
-    async process(data: Interaction | Message, args: any) {
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
+    async run(data: HybridInteractionMessage, args: any) {
 
-        if(!isSlashCommand && !isMessage) return;
+        const user = data.getUser();
+        if(!user) return;
 
-        if(!Users.isDeveloper(data.member?.user.id!))
-            return await sendMessageOrInteractionResponse(data, { embeds:[EMBEDS.NOT_DEVELOPER(data)] });
+        if(!Users.isDeveloper(user.id))
+            return await sendHybridInteractionMessageResponse(data, { embeds:[EMBEDS.NOT_DEVELOPER(data.getRaw())] });
 
         const funct = {
-            reloadAll: async(data: Message | Interaction) => {
-                let placeholder = await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.PROCESSING(data)] });
+            reloadAll: async(data: HybridInteractionMessage) => {
+
+                let placeholder: (HybridInteractionMessage | undefined);
+
+                let _placeholder = await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.PROCESSING(data.getRaw())] });
+                if (_placeholder)
+                    placeholder = new HybridInteractionMessage(_placeholder);
+
                 try {
                     await unregisterAllGuildsCommands();
                     await registerAllGuildsCommands();
-                    if(isMessage)
-                        return (placeholder as Message).edit({ embeds: [EMBEDS.RELOADALL_SUCCESS(data)] });
-                    else if(isSlashCommand)
-                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.RELOADALL_SUCCESS(data)]}, true);
+
+                    if(data && data.isMessage() && placeholder && placeholder.isMessage())
+                        return placeholder.getMessage().edit({ embeds: [EMBEDS.RELOADALL_SUCCESS(data.getRaw())] });
+                    else if(data.isSlashCommand())
+                        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.RELOADALL_SUCCESS(data.getRaw())]}, true);
+
                 } catch (err) {
-                    if(isMessage)
-                        (placeholder as Message).edit({ embeds: [EMBEDS.RELOADALL_ERROR(data, err)] });
-                    else if(isSlashCommand)
-                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.RELOADALL_ERROR(data, err)] }, true);
+                    if(data && data.isMessage() && placeholder && placeholder.isMessage())
+                        return placeholder.getMessage().edit({ embeds: [EMBEDS.RELOADALL_ERROR(data.getRaw(), err)] });
+                    else if(data.isSlashCommand())
+                        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.RELOADALL_ERROR(data.getRaw(), err)] }, true);
                 } 
             }
         }
 
         let query;
 
-        if(isMessage) {
-            if(data === null || !data.guildId || data.member === null || data.guild === null) return;
-            
-            if(args.length === 0) {
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.INTERACTION_INFO(data)] });
-            }
-            query = args[0].toLowerCase();
+        if(data.isMessage()) {
+            if(args.length === 0)
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.INTERACTION_INFO(data.getRaw())] });
 
+            query = args[0].toLowerCase();
         }
-        else if(isSlashCommand) {
+        else if(data.isSlashCommand()) {
             query = args.getSubcommand();
         }
 
         switch(query) {
             case "info":
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.INTERACTION_INFO(data)] });
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.INTERACTION_INFO(data.getRaw())] });
             case "reloadall":
                 return await funct.reloadAll(data);
         }

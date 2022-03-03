@@ -1,5 +1,7 @@
+import DiscordModule, { HybridInteractionMessage } from "../utils/DiscordModule";
+
 import { Message, MessageActionRow, MessageButton, Interaction, CommandInteraction } from "discord.js";
-import { makeInfoEmbed, makeErrorEmbed, sendMessageOrInteractionResponse } from "../utils/DiscordMessage";
+import { makeInfoEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from "../utils/DiscordMessage";
 import Prisma from "../providers/Prisma";
 import osuAPI from "../providers/osuAPI";
 import { countryCodeEmoji } from "country-code-emoji";
@@ -62,59 +64,49 @@ const EMBEDS = {
     }
 }
 
-export default class osu {
+export default class osu extends DiscordModule {
 
-    async onCommand(command: string, args: any, message: Message) {
-        
-        if(command.toLowerCase() !== 'osu') return;
-        await this.process(message, args);
+    public id = "Discord_osu";
+    public commands = ["osu"];
+    public commandInteractionName = "osu";
+
+    async GuildOnModuleCommand(args: any, message: Message) {
+        await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async interactionCreate(interaction: CommandInteraction) { 
-        if(interaction.isCommand()) {
-            if(typeof interaction.commandName === 'undefined') return;
-            if((interaction.commandName).toLowerCase() !== 'osu') return;
-            await this.process(interaction, interaction.options);
-        }
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) { 
+        await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
-    async process(data: Interaction | Message, args: any) {
+    async run(data: HybridInteractionMessage, args: any) {
         
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
-
-        if(!isSlashCommand && !isMessage) return;
-
-        if(data.guild === null || data.guildId === null) return;
+        const Guild = await Prisma.client.guild.findFirst({ where: { id: data.getGuild()!.id }})
+        if(!Guild) return;
         
-        const Guild = await Prisma.client.guild.findFirst({ where: { id: data.guildId }})
-        if(!Guild) throw new Error('TODO: Handle if guild is not found');
-        
-
         const funct = {
-            user: async(data: Message | CommandInteraction) => {
+            user: async(data: HybridInteractionMessage) => {
             
                 let user;
-                if(data instanceof Message) {
+                if(data.isMessage()) {
                     if(typeof args[1] === 'undefined')
-                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_USER_MENTIONED(data)] });
+                        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_USER_MENTIONED(data.getRaw())] });
                     const [removed, ...newArgs] = args;
                     user = newArgs.join(" ");
                 }
-                else if(data instanceof CommandInteraction)
-                    user = data.options.getString('user');
+                else if(data.isSlashCommand())
+                    user = data.getSlashCommand().options.getString('user');
 
 
                 if(!validator.isNumeric(user) && !this.validate_osu_username(user))
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.INVALID_USER_MENTIONED(data)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.INVALID_USER_MENTIONED(data.getRaw())] });
 
                 let result = await osuAPI.client.getUser({ u: user });
 
                 if(result instanceof Array && result.length === 0)
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_USER_FOUND(data)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_USER_FOUND(data.getRaw())] });
 
-                if(isSlashCommand) {
-                    await (data as CommandInteraction).deferReply();
+                if(data.isSlashCommand()) {
+                    await data.getSlashCommand().deferReply();
                 }
 
                 const level = {
@@ -202,7 +194,7 @@ export default class osu {
                             value: `*How about we explore the area ahead of us later?*`
                         }*/
                     ],
-                    user: (data instanceof Interaction) ? data.user : data.author
+                    user: data.getUser()
                 });
 
                 embed.setAuthor(`${result.name}'s osu profile`, 'https://upload.wikimedia.org/wikipedia/commons/4/44/Osu%21Logo_%282019%29.png', `https://osu.ppy.sh/users/${result.id}`);
@@ -218,32 +210,31 @@ export default class osu {
                         .setStyle('LINK'),
                 )
 
-                return await sendMessageOrInteractionResponse(data, { embeds: [embed], components: [row] }); 
+                return await sendHybridInteractionMessageResponse(data, { embeds: [embed], components: [row] }); 
             },
-            beatmap: async(data: Message | CommandInteraction) => {
+            beatmap: async(data: HybridInteractionMessage) => {
             
                 let beatmap;
-                if(data instanceof Message) {
+                if(data.isMessage()) {
                     if(typeof args[1] === 'undefined')
-                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_BEATMAP_MENTIONED(data)] });
+                        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_BEATMAP_MENTIONED(data.getRaw())] });
                     const [removed, ...newArgs] = args;
                     beatmap = newArgs.join(" ");
                 }
-                else if(data instanceof CommandInteraction)
-                    beatmap = data.options.getString('beatmap');
+                else if(data.isSlashCommand())
+                    beatmap = data.getSlashCommand().options.getString('beatmap');
 
                     
                 if(!validator.isNumeric(beatmap))
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.INVALID_BEATMAP_ID_MENTIONED(data)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.INVALID_BEATMAP_ID_MENTIONED(data.getRaw())] });
 
                 let result = await osuAPI.client.getBeatmaps({ b: beatmap });
 
                 if(result instanceof Array && result.length === 0)
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NO_BEATMAP_FOUND(data)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_BEATMAP_FOUND(data.getRaw())] });
 
-                if(isSlashCommand) {
-                    await (data as CommandInteraction).deferReply();
-                }
+                if(data.isSlashCommand())
+                    await data.getSlashCommand().deferReply();
 
                 const bm_result = result[0];
                 
@@ -359,7 +350,7 @@ export default class osu {
                             value: `\`\`${bm_result.tags.join(" ")}\`\``,
                         }
                     ],
-                    user: (data instanceof Interaction) ? data.user : data.author
+                    user: data.getUser()
                 });
 
                 embed2.setAuthor(`osu! beatmap`, 'https://upload.wikimedia.org/wikipedia/commons/4/44/Osu%21Logo_%282019%29.png', `https://osu.ppy.sh/beatmapsets/${bm_result.beatmapSetId}${url_mode}/${bm_result.id}`);
@@ -389,19 +380,19 @@ export default class osu {
                         .setStyle('LINK'),
                 )
                 
-                return await sendMessageOrInteractionResponse(data, { embeds: [embed2], components: [row] }); 
+                return await sendHybridInteractionMessageResponse(data, { embeds: [embed2], components: [row] }); 
             }
         }
 
         let query;
 
-        if(isMessage) {
+        if(data.isMessage()) {
             if(args.length === 0) {
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.osu_INFO(data)] });
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.osu_INFO(data.getRaw())] });
             }
             query = args[0].toLowerCase();
         }
-        else if(isSlashCommand) {
+        else if(data.isSlashCommand()) {
             query = args.getSubcommand();
         }
 
@@ -415,6 +406,7 @@ export default class osu {
         }
 
     }
+
     private numberWithCommas(x: Number) {
         try {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -422,6 +414,7 @@ export default class osu {
             return x;
         }
     }
+
     // Criteria from https://github.com/ppy/osu-web/blob/9de00a0b874c56893d98261d558d78d76259d81b/app/Libraries/UsernameValidation.php
     private validate_osu_username(username: string) {
 
@@ -442,4 +435,5 @@ export default class osu {
 
         return true;
     }
+    
 }

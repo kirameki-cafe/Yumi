@@ -1,5 +1,7 @@
+import DiscordModule, { HybridInteractionMessage } from "../utils/DiscordModule";
+
 import { Message, CommandInteraction, Interaction } from "discord.js";
-import { sendMessageOrInteractionResponse, makeInfoEmbed } from "../utils/DiscordMessage";
+import { sendHybridInteractionMessageResponse, makeInfoEmbed } from "../utils/DiscordMessage";
 import DiscordProvider from "../providers/Discord";
 import Users from "../services/Users"
 import Environment from "../providers/Environment";
@@ -18,27 +20,21 @@ const EMBEDS = {
     }
 }
 
-export default class Invite {
+export default class Invite extends DiscordModule {
+
+    public id: string = "Discord_Invite";
+    public commands = ["invite"];
+    public commandInteractionName = "invite";
     
-    async onCommand(command: string, args: any, message: Message) {
-        if(command.toLowerCase() !== 'invite') return;
-        await this.process(message, args);
+    async GuildOnModuleCommand(args: any, message: Message) {
+        await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async interactionCreate(interaction: CommandInteraction) { 
-        if(interaction.isCommand()) {
-            if(typeof interaction.commandName === 'undefined') return;
-            if((interaction.commandName).toLowerCase() !== 'invite') return;
-            await this.process(interaction, interaction.options);
-        }
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) { 
+        await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
-    async process(data: Interaction | Message, args: any) {
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
-
-        if(!isSlashCommand && !isMessage) return;
-        
-        return await sendMessageOrInteractionResponse(data, { embeds:[EMBEDS.INVITE_INFO(data)] });
+    async run(data: HybridInteractionMessage, args: any) {
+        return await sendHybridInteractionMessageResponse(data, { embeds:[EMBEDS.INVITE_INFO(data.getRaw())] });
     }
 }

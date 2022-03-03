@@ -1,4 +1,5 @@
-import {Client, Guild, GuildMember, Intents, Interaction, Message, TextChannel} from "discord.js";
+import { Guild, Client, GuildMember, Intents, Interaction, Message, TextChannel} from "discord.js";
+import { Guild as GuildPrisma } from ".prisma/client";
 
 import Logger from "../libs/Logger";
 import Environment from "./Environment";
@@ -21,117 +22,136 @@ import Discord_MusicPlayer_Join from "../discord/MusicPlayer/Join";
 import Discord_MusicPlayer_Leave from "../discord/MusicPlayer/Leave";
 import Discord_MusicPlayer_Queue from "../discord/MusicPlayer/Queue";
 import Discord_MusicPlayer_Search from "../discord/MusicPlayer/Search";
-import Discord_MusicPlayer_Search_NowPlaying from "../discord/MusicPlayer/NowPlaying";
+import Discord_MusicPlayer_NowPlaying from "../discord/MusicPlayer/NowPlaying";
 
 import Discord_Developer_ServiceAnnouncement from "../discord/developer/ServiceAnnouncement";
 import Discord_Developer_FakeError from "../discord/developer/FakeError";
 
 import Cache from "./Cache";
+import DiscordModule from "../utils/DiscordModule";
+import { Map } from "typescript";
 
 class Discord {
 
     public client: Client;
-    private loaded_module: any;
+    private loaded_module = new Map<string, DiscordModule>();
 
     constructor () {
         this.client = new Client({ 
             //partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
             intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_VOICE_STATES]
         });
-        this.loaded_module = {};
     }
 
     public init(): void {
+
         Logger.info('Logging in to discord');
         this.client.login(Environment.get().DISCORD_TOKEN);
         
+        const modules: DiscordModule[] = [
+            new Discord_Core(),
+            new Discord_Help(),
+            new Discord_Invite(),
+            new Discord_Ping(),
+            new Discord_Stats(),
+            new Discord_UserInfo(),
+            new Discord_Say(),
+            new Discord_InteractionManager(),
+            new Discord_osu(),
+            new Discord_Settings(),
 
-        // TODO: Improve this
-        this.loaded_module["Core"] = new Discord_Core();
-        this.loaded_module["Discord_Settings"] = new Discord_Settings();
-        this.loaded_module["Discord_Ping"] = new Discord_Ping();
-        this.loaded_module["Discord_Help"] = new Discord_Help();
-        this.loaded_module["Discord_Invite"] = new Discord_Invite();
-        this.loaded_module["Discord_InteractionManager"] = new Discord_InteractionManager();
-        this.loaded_module["Discord_Say"] = new Discord_Say();
-        this.loaded_module["Discord_osu"] = new Discord_osu();
-        this.loaded_module["Discord_UserInfo"] = new Discord_UserInfo();
-        this.loaded_module["Discord_Stats"] = new Discord_Stats();
+            new Discord_MusicPlayer_Play(),
+            new Discord_MusicPlayer_NowPlaying(),
+            new Discord_MusicPlayer_Skip(),
+            new Discord_MusicPlayer_Join(),
+            new Discord_MusicPlayer_Leave(),
+            new Discord_MusicPlayer_Queue(),
+            new Discord_MusicPlayer_Search(),
 
-        this.loaded_module["Discord_MusicPlayer_Play"] = new Discord_MusicPlayer_Play();
-        this.loaded_module["Discord_MusicPlayer_Skip"] = new Discord_MusicPlayer_Skip();
-        this.loaded_module["Discord_MusicPlayer_Join"] = new Discord_MusicPlayer_Join();
-        this.loaded_module["Discord_MusicPlayer_Leave"] = new Discord_MusicPlayer_Leave();
-        this.loaded_module["Discord_MusicPlayer_Queue"] = new Discord_MusicPlayer_Queue();
-        this.loaded_module["Discord_MusicPlayer_Search"] = new Discord_MusicPlayer_Search();
-        this.loaded_module["Discord_MusicPlayer_Search_NowPlaying"] = new Discord_MusicPlayer_Search_NowPlaying();
+            new Discord_MembershipScreening(),
 
-        this.loaded_module["MembershipScreening"] = new Discord_MembershipScreening();
+            new Discord_Developer_ServiceAnnouncement(),
+            new Discord_Developer_FakeError()
+        ];
 
-        this.loaded_module["Discord_Developer_ServiceAnnouncement"] = new Discord_Developer_ServiceAnnouncement();
-        this.loaded_module["Discord_Developer_FakeError"] = new Discord_Developer_FakeError();
+        for(const _module of modules) {
+            if(_module.id) {
+                if(this.loaded_module.has(_module.id))
+                    Logger.error(`Module ${_module.constructor.name} is trying to assign a conflicting module id ${_module.id}. ${this.loaded_module.get(_module.id)!.constructor.name} is already assigned to this id.`);
+                else
+                    this.loaded_module.set(_module.id, _module);
+            }
+            else
+                Logger.error(`Invalid module ${_module.constructor.name}. The module does not have an id.`);
+        }
 
-        for(const module in this.loaded_module) {
-            let thisModule = this.loaded_module[module];
-            
-            if (typeof thisModule.init === "function")
-                thisModule.init();
+        Logger.info(`Loaded ${this.loaded_module.size} Discord Modules`);
+
+        for(const module of this.loaded_module) {
+            let thisModule: DiscordModule = module[1];
+            thisModule.Init();
         }
 
         // On bot logged in
         this.client.on("ready", () => {
-            for(const module in this.loaded_module) {
-                let thisModule = this.loaded_module[module];
-                
-                if (typeof thisModule.ready === "function")
-                    thisModule.ready();
+            for(const module of this.loaded_module) {
+                let thisModule: DiscordModule = module[1];
+                thisModule.Ready();
             }
         });
 
         // Member join guild event to modules
         this.client.on("guildMemberAdd", (member: GuildMember) => {
-            for(const module in this.loaded_module) {
-                let thisModule = this.loaded_module[module];
-                
-                if (typeof thisModule.guildMemberAdd === "function")
-                    thisModule.guildMemberAdd(member);
+            for(const module of this.loaded_module) {
+                let thisModule: DiscordModule = module[1];
+                thisModule.GuildMemberAdd(member);
             }
         });
 
         // Interaction create event to modules
         this.client.on("interactionCreate", (interaction: Interaction) => {
-            for(const module in this.loaded_module) {
-                let thisModule = this.loaded_module[module];
+            for(const module of this.loaded_module) {
+                let thisModule: DiscordModule = module[1];
                 
-                if (typeof thisModule.interactionCreate === "function")
-                    thisModule.interactionCreate(interaction);
+                if(interaction.guild) {
+                    thisModule.GuildInteractionCreate(interaction);
+
+                    if(interaction.isCommand() && interaction.commandName && thisModule.commandInteractionName) {
+                        thisModule.GuildCommandInteractionCreate(interaction);
+                        if(interaction.commandName.toLowerCase() === thisModule.commandInteractionName)
+                            thisModule.GuildModuleCommandInteractionCreate(interaction);
+                    }
+                    else if(interaction.isButton()) {
+                        thisModule.GuildButtonInteractionCreate(interaction);
+                    }
+                    else if(interaction.isSelectMenu()) {
+                        thisModule.GuildSelectMenuInteractionCreate(interaction);
+                    }
+                }
+                
+                //thisModule.InteractionCreate(interaction);
             }
         });
 
         // Message create event to modules
         this.client.on("messageCreate", (message: Message) => {
-            for(const module in this.loaded_module) {
-                let thisModule = this.loaded_module[module];
-                
-                if (typeof thisModule.messageCreate === "function")
-                    thisModule.messageCreate(message);
+            for(const module of this.loaded_module) {
+                let thisModule: DiscordModule = module[1];
+                thisModule.GuildMessageCreate(message);
             }
         });
 
         // Joined guild event to modules
-        this.client.on("guildCreate", (guild : Guild) => {
-            for(const module in this.loaded_module) {
-                let thisModule = this.loaded_module[module];
-                
-                if (typeof thisModule.guildCreate === "function")
-                    thisModule.guildCreate(guild);
+        this.client.on("guildCreate", (guild: Guild) => {
+            for(const module of this.loaded_module) {
+                let thisModule: DiscordModule = module[1];
+                thisModule.GuildCreate(guild);
             }
         });
 
-        // Handling commands
+        // Handling guild commands
         this.client.on("messageCreate", async (message: Message) => {
 
-            // TODO: Handle DMs commands soon
             if(!(message.channel instanceof TextChannel)) return;
             if(message.author.bot) return;
             if(typeof message.guild?.id === 'undefined') return;
@@ -196,11 +216,12 @@ class Discord {
             if(args.length === 0)
                 args = [];
 
-            for(const module in this.loaded_module) {
-                let thisModule = this.loaded_module[module];
+            for(const module of this.loaded_module) {
+                let thisModule: DiscordModule = module[1];
+                thisModule.GuildOnCommand(command, args, message);
                 
-                if (typeof thisModule.onCommand === "function")
-                    thisModule.onCommand(command, args, message);
+                if(thisModule.commands && thisModule.commands.includes(command))
+                    thisModule.GuildOnModuleCommand(args, message);
             }
         });
 
@@ -227,11 +248,9 @@ class Discord {
             if(args.length === 0)
                 args = [];
 
-            for(const module in this.loaded_module) {
-                let thisModule = this.loaded_module[module];
-                
-                if (typeof thisModule.onCommand === "function")
-                    thisModule.onCommand(command, args, message);
+            for(const module of this.loaded_module) {
+                let thisModule = module[1];
+                thisModule.GuildOnCommand(command, args, message);
             }
         });
 

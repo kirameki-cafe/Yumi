@@ -1,5 +1,7 @@
+import DiscordModule, { HybridInteractionMessage } from "../utils/DiscordModule";
+
 import { Message, Interaction, CommandInteraction } from "discord.js";
-import { sendMessageOrInteractionResponse, makeErrorEmbed, makeInfoEmbed } from "../utils/DiscordMessage";
+import { sendHybridInteractionMessageResponse, makeErrorEmbed, makeInfoEmbed } from "../utils/DiscordMessage";
 import { getColorFromURL } from "color-thief-node";
 
 const EMBEDS = {
@@ -24,58 +26,45 @@ const EMBEDS = {
     }
 }
 
-export default class UserInfo {
+export default class UserInfo extends DiscordModule {
 
-    async onCommand(command: string, args: any, message: Message) {
-        if(command.toLowerCase() !== 'userinfo') return;
-        await this.process(message, args);
+    public id = "Discord_UserInfo";
+    public commands = ["userinfo"];
+    public commandInteractionName = "userinfo";
+
+    async GuildOnModuleCommand(args: any, message: Message) {
+        await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async interactionCreate(interaction: CommandInteraction) { 
-        if(interaction.isCommand()) {
-            if(typeof interaction.commandName === 'undefined') return;
-            if((interaction.commandName).toLowerCase() !== 'userinfo') return;
-            await this.process(interaction, interaction.options);
-        }
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) { 
+        await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
-    async process(data: Interaction | Message, args: any) {
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
-
-        if(!isSlashCommand && !isMessage) return;
-        
+    async run(data: HybridInteractionMessage, args: any) {
         let query;
 
-        if(isMessage) {
-            if(data === null || !data.guildId || data.member === null || data.guild === null) return;
-            
-            if(args.length === 0) {
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.SAY_INFO(data)] });
-            }
+        if(data.isMessage()) {
+            if(args.length === 0)
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SAY_INFO(data.getRaw())] });
 
-            if(typeof data.mentions.users.first() !== 'undefined') {
-                query = data.mentions.users.first()?.id;
-            }
-            else {
+            if(typeof data.getMessage().mentions.users.first() !== 'undefined')
+                query = data.getMessage().mentions.users.first()?.id;
+            else
                 query = args[0];
-            }
-
         }
-        else if(isSlashCommand) {
-            query = data.options.getUser('user')?.id;
-        }
+        else if(data.isSlashCommand())
+            query = data.getSlashCommand().options.getUser('user')?.id;
 
-        let TargetMember = (await data.guild!.members.fetch()).get(query);
-            if(typeof TargetMember === 'undefined') return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.USER_NOT_FOUND(data)] });
+        // Find the user want to look up
+        let TargetMember = (await data.getGuild()!.members.fetch()).get(query);
+            if(!TargetMember) return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_FOUND(data.getRaw())] });
 
-        if(isSlashCommand) {
-            await data.deferReply();
-        }
-        else if(isMessage) {
-        }
+        
+        if(data.isSlashCommand())
+            await data.getMessageComponentInteraction().deferReply();
 
-        let readableStatus: string = "Unknown";
+        let readableStatus: string;
+        
         switch(TargetMember.presence?.status) {
             case "online":
                 readableStatus = "🟢  Online";
@@ -89,6 +78,9 @@ export default class UserInfo {
             case "offline":
                 readableStatus = "⚫  Offline";
                 break;
+            default:
+                readableStatus = "❓  Unknown";
+                break;
         }
 
         const embed = makeInfoEmbed ({
@@ -100,7 +92,7 @@ export default class UserInfo {
                     value: `\u200b`
                 }
             ],
-            user: (data instanceof Interaction) ? data.user : data.author
+            user: data.getUser()
         });
 
         if(TargetMember.presence?.activities)
@@ -137,7 +129,7 @@ export default class UserInfo {
 
         embed.addField(`📰  Information on this guild`, `${
             (TargetMember.joinedAt === null) ? 'Cannot determine joined date' : `Joined <t:${Math.round(TargetMember.joinedAt.getTime() / 1000)}:R>`}
-            ${(TargetMember.id === data.guild!.ownerId) ? 'Owner of this guild 👑' : ''}
+            ${(TargetMember.id === data.getGuild()!.ownerId) ? 'Owner of this guild 👑' : ''}
             `);
         
         try {
@@ -150,7 +142,7 @@ export default class UserInfo {
         embed.setThumbnail(TargetMember.user.displayAvatarURL());
         embed.setAuthor(`${TargetMember.displayName}`, TargetMember.user.displayAvatarURL());
 
-        return await sendMessageOrInteractionResponse(data, { embeds: [embed] });
+        return await sendHybridInteractionMessageResponse(data, { embeds: [embed] });
 
     }
 }

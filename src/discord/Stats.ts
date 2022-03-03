@@ -1,5 +1,7 @@
+import DiscordModule, { HybridInteractionMessage } from "../utils/DiscordModule";
+
 import { Message, CommandInteraction, Interaction } from "discord.js";
-import { sendMessageOrInteractionResponse, makeInfoEmbed } from "../utils/DiscordMessage";
+import { sendHybridInteractionMessageResponse, makeInfoEmbed } from "../utils/DiscordMessage";
 import DiscordProvider from "../providers/Discord";
 import os from "os-utils";
 
@@ -28,27 +30,21 @@ const EMBEDS = {
     }
 }
 
-export default class Stats {
+export default class Stats extends DiscordModule {
     
-    async onCommand(command: string, args: any, message: Message) {
-        if(command.toLowerCase() !== 'stats') return;
-        await this.process(message, args);
+    public id = "Discord_Stats";
+    public commands = ["stats"];
+    public commandInteractionName = "stats";
+    
+    async GuildOnModuleCommand(args: any, message: Message) {
+        await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async interactionCreate(interaction: CommandInteraction) { 
-        if(interaction.isCommand()) {
-            if(typeof interaction.commandName === 'undefined') return;
-            if((interaction.commandName).toLowerCase() !== 'stats') return;
-            await this.process(interaction, interaction.options);
-        }
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) { 
+        await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
-    async process(data: Interaction | Message, args: any) {
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
-
-        if(!isSlashCommand && !isMessage) return;
-        
-        return await sendMessageOrInteractionResponse(data, { embeds:[EMBEDS.STATS_INFO(data)] });
+    async run(data: HybridInteractionMessage, args: any) {
+        return await sendHybridInteractionMessageResponse(data, { embeds:[EMBEDS.STATS_INFO(data.getRaw())] });
     }
 }

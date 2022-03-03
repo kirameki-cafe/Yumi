@@ -1,5 +1,7 @@
+import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
+
 import { Message, Interaction, CommandInteraction } from "discord.js";
-import { makeInfoEmbed, makeErrorEmbed, sendMessageOrInteractionResponse } from "../../utils/DiscordMessage";
+import { makeInfoEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from "../../utils/DiscordMessage";
 import DiscordMusicPlayer from "../../providers/DiscordMusicPlayer";
 import Users from "../../services/Users";
 
@@ -26,35 +28,33 @@ const EMBEDS = {
     },
 }
 
-export default class FakeError {
+export default class FakeError extends DiscordModule {
 
-    async onCommand(command: string, args: any, message: Message) {
-        if (command.toLowerCase() !== 'fakeerror') return;
-        await this.process(message, args);
+    public id = "Discord_Developer_FakeError";
+    public commands = ["fakeerror"];
+    public commandInteractionName = "fakeerror";
+    
+    async GuildOnModuleCommand(args: any, message: Message) {
+        await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async interactionCreate(interaction: CommandInteraction) {
-        if (interaction.isCommand()) {
-            if (typeof interaction.commandName === 'undefined') return;
-            if ((interaction.commandName).toLowerCase() !== 'fakeerror') return;
-            await this.process(interaction, interaction.options);
-        }
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) {
+        await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
-    async process(data: Interaction | Message, args: any) {
-        const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-        const isMessage = data instanceof Message;
+    async run(data: HybridInteractionMessage, args: any) {
+        
+        const guild = data.getGuild();
+        const user = data.getUser();
+        
+        if(!guild || !user) return;
 
-        if (!isSlashCommand && !isMessage) return;
-
-        if (!Users.isDeveloper(data.member?.user.id!))
-            return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.NOT_DEVELOPER(data)] });
-
-        if(!data.guildId) return;
+        if (!Users.isDeveloper(user.id!))
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NOT_DEVELOPER(data.getRaw())] });
 
         const funct = {
-            crashMusicPlayer: async (data: Message | Interaction) => {
-                const instance = DiscordMusicPlayer.getGuildInstance(data.guildId!);
+            crashMusicPlayer: async (data: HybridInteractionMessage) => {
+                const instance = DiscordMusicPlayer.getGuildInstance(guild.id);
                 if(!instance) return;
 
                 instance._fake_error_on_player();
@@ -63,22 +63,19 @@ export default class FakeError {
 
         let query;
 
-        if (isMessage) {
-            if (data === null || !data.guildId || data.member === null || data.guild === null) return;
-
-            if (args.length === 0) {
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.FAKEERROR_INFO(data)] });
-            }
+        if (data.isMessage()) {
+            if (args.length === 0)
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.FAKEERROR_INFO(data.getRaw())] });
+            
             query = args[0].toLowerCase();
-
         }
-        else if (isSlashCommand) {
+        else if (data.isSlashCommand()) {
             query = args.getSubcommand();
         }
 
         switch (query) {
             case "info":
-                return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.FAKEERROR_INFO(data)] });
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.FAKEERROR_INFO(data.getRaw())] });
             case "crashmusicplayer":
                 return await funct.crashMusicPlayer(data);
         }
