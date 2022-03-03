@@ -210,7 +210,10 @@ export class DiscordMusicPlayerInstance {
     }
 
     public async _fake_error_on_player() {
-        this.player.emit('error', new AudioPlayerError(new Error("fake error"), null!));
+        const stream = 'https://fakestream:42069/fake/stream/fake/audio/fake.mp3';
+        const resource = createAudioResource(stream);
+        this.player.play(resource);
+        this.player.emit('error', new AudioPlayerError(new Error("Music player was manually crashed"), null!));
     }
 
 }

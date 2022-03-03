@@ -25,7 +25,7 @@ import Discord_MusicPlayer_Search from "../discord/MusicPlayer/Search";
 import Discord_MusicPlayer_NowPlaying from "../discord/MusicPlayer/NowPlaying";
 
 import Discord_Developer_ServiceAnnouncement from "../discord/developer/ServiceAnnouncement";
-import Discord_Developer_FakeError from "../discord/developer/FakeError";
+import Discord_Developer_Debug from "../discord/developer/Debug";
 
 import Cache from "./Cache";
 import DiscordModule from "../utils/DiscordModule";
@@ -71,7 +71,7 @@ class Discord {
             new Discord_MembershipScreening(),
 
             new Discord_Developer_ServiceAnnouncement(),
-            new Discord_Developer_FakeError()
+            new Discord_Developer_Debug()
         ];
 
         for(const _module of modules) {
