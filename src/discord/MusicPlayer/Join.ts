@@ -61,7 +61,11 @@ const EMBEDS = {
             user: DiscordProvider.client.user
         });
 
-        embed.setImage(track.thumbnails[0].url);
+        const highestResolutionThumbnail = track.thumbnails.reduce((prev, current) => (prev.height * prev.width > current.height * current.width) ? prev : current)
+
+        if(highestResolutionThumbnail)
+            embed.setImage(highestResolutionThumbnail.url);
+
         return embed;
     }
 }
