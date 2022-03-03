@@ -28,7 +28,7 @@ const EMBEDS = {
                 },
                 {
                     name: '🎵 Music',
-                    value: `play (p), search, skip, queue, nowplaying (np), join, leave`,
+                    value: `play (p), search, skip, queue (q), nowplaying (np), loop, join, leave (disconnect, dc)`,
                     inline: true
                 },
                 {
@@ -43,7 +43,7 @@ const EMBEDS = {
                 },
                 {
                     name: '🔧 Developer',
-                    value: 'interactions, serviceannouncement',
+                    value: 'debug, interactions, serviceannouncement',
                     inline: true
                 },
                 {
