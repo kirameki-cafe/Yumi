@@ -26,7 +26,7 @@ export function makeEmbed(icon: string | undefined, title: string, description: 
     if(typeof user !== 'undefined')
         embed.footer = {
             text: `${user.username}  |  v${App.version}`,
-            iconURL: user.avatarURL() || ''
+            iconURL: `${user.avatarURL()}?size=4096` || ''
         }
     else
         embed.footer = {

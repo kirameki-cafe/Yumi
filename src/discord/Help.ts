@@ -54,7 +54,7 @@ const EMBEDS = {
             ],
             user: (data instanceof Interaction) ? data.user : data.author
         });
-        _e.setThumbnail(DiscordProvider.client.user?.avatarURL() || '');
+        _e.setThumbnail(`${DiscordProvider.client.user?.avatarURL()}?size=4096` || '');
         return _e;
     }
 }
