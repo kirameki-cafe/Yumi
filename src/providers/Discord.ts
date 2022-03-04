@@ -251,8 +251,11 @@ class Discord {
                 args = [];
 
             for(const module of this.loaded_module) {
-                let thisModule = module[1];
+                let thisModule: DiscordModule = module[1];
                 thisModule.GuildOnCommand(command, args, message);
+                
+                if(thisModule.commands && thisModule.commands.includes(command))
+                    thisModule.GuildOnModuleCommand(args, message);
             }
         });
 
