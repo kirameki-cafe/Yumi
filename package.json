@@ -41,7 +41,7 @@
     "tsc": "tsc",
     "development": "ts-node-dev ./src/index.ts --respawn --transpileOnly",
     "build": "tsc -b && copyfiles -u 1 configs_example/**/*.* build/configs_example/",
-    "start": "node ./build/index.js",
+    "docker-build": "docker build . -t yumi:latest",
     "production": "tsc && node ./build/index.js",
     "test": "mocha -r ts-node/register tests/**/*.ts"
   },
