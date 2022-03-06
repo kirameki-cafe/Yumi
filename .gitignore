@@ -44,9 +44,9 @@ bower_components
 # IDE - VSCode
 .vscode/*
 #!.vscode/settings.json Not needed for now
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+#!.vscode/tasks.json
+#!.vscode/launch.json
+#!.vscode/extensions.json
 
 # misc
 .sass-cache
