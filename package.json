@@ -40,9 +40,9 @@
   "scripts": {
     "tsc": "tsc",
     "development": "ts-node-dev ./src/index.ts --respawn --transpileOnly",
-    "build": "tsc -b && copyfiles -u 1 configs_example/**/*.* build/configs_example/",
+    "build": "tsc -b && copyfiles -u 1 configs_example/**/*.* dist/configs_example/",
     "docker-build": "docker build . -t yumi:latest",
-    "production": "tsc && node ./build/index.js",
+    "production": "tsc && node ./dist/index.js",
     "test": "mocha -r ts-node/register tests/**/*.ts"
   },
   "name": "yumi",
