@@ -30,6 +30,6 @@ RUN yarn
 COPY --from=build /home/node/app/prisma ./prisma/
 RUN yarn prisma generate
 
-COPY --from=build /home/node/app/build .
+COPY --from=build /home/node/app/dist .
 
 CMD [ "node", "index.js"]
