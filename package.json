@@ -40,7 +40,8 @@
     "tsc": "tsc",
     "development": "ts-node-dev ./src/index.ts --respawn --transpileOnly",
     "build": "tsc -b && copyfiles -u 1 configs_example/**/*.* dist/configs_example/",
-    "docker-build": "docker build . -t yumi:latest",
+    "docker-build": "docker build . -t ghcr.io/yuzuzensai/yumi:latest",
+    "docker-run": "docker run -d --name yumi --mount type=bind,source=\"$(pwd)\"/configs,target=/home/node/app/configs --network host --env-file .env ghcr.io/yuzuzensai/yumi:latest",
     "production": "tsc && node ./dist/index.js",
     "test": "mocha -r ts-node/register tests/**/*.ts"
   },
