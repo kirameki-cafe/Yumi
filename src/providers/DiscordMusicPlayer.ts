@@ -1,6 +1,6 @@
 import playdl, { YouTubeVideo } from "play-dl";
 import { VoiceChannel, Snowflake, TextChannel, StageChannel, Guild } from "discord.js";
-import { AudioPlayer, VoiceConnection, createAudioPlayer, joinVoiceChannel, createAudioResource, VoiceConnectionStatus, AudioPlayerStatus, NoSubscriberBehavior, VoiceConnectionState, AudioPlayerError } from "@discordjs/voice";
+import { AudioPlayer, VoiceConnection, createAudioPlayer, joinVoiceChannel, createAudioResource, VoiceConnectionStatus, AudioPlayerStatus, NoSubscriberBehavior, VoiceConnectionState, AudioPlayerError, DiscordGatewayAdapterCreator } from "@discordjs/voice";
 import { EventEmitter } from "stream";
 
 import DiscordProvider from "./Discord";
@@ -134,10 +134,8 @@ export class DiscordMusicPlayerInstance {
 
     public joinVoiceChannel(voiceChannel: (VoiceChannel | StageChannel), textChannel?: TextChannel) {
         const permissions = voiceChannel.permissionsFor(DiscordProvider.client.user!);
-        if (!permissions)
-            throw new Error("No permissions");
 
-        if (!voiceChannel.joinable || !permissions.has("CONNECT"))
+        if (!permissions || !voiceChannel.joinable || !permissions.has("CONNECT"))
             throw new Error("No permissions");
 
         if (textChannel)
@@ -146,7 +144,7 @@ export class DiscordMusicPlayerInstance {
         this.voiceConnection = joinVoiceChannel({
             channelId: this.voiceChannel.id,
             guildId: this.voiceChannel.guild.id,
-            adapterCreator: this.voiceChannel.guild.voiceAdapterCreator
+            adapterCreator: this.voiceChannel.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator
         });
 
         this.voiceConnection.on(VoiceConnectionStatus.Ready, (oldState: VoiceConnectionState, newState: VoiceConnectionState) => {
