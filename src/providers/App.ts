@@ -8,7 +8,8 @@ import Configuration from './Configuration';
 
 class App {
 
-    public readonly version = `0.08${Environment.get().NODE_ENV === "development" ? ' / Development Build' : ''}`;
+    public readonly versionNumber = `0.09`;
+    public readonly version = `${this.versionNumber}${Environment.get().NODE_ENV === "development" ? ' / Development Build' : ''}`;
 
     public loadConfig(): void {
         Logger.log('info', 'Loading configuration');
