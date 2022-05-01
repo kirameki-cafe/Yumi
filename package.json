@@ -50,5 +50,5 @@
   "main": "index.js",
   "repository": "https://github.com/YuzuZensai/Yumi.git",
   "author": "YuzuZensai <contact@kirameki.pink>",
-  "license": "MIT"
+  "license": "GPL-3.0"
 }
