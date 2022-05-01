@@ -171,7 +171,7 @@ export class DiscordMusicPlayerInstance {
             this.player.pause();
 
         if (DiscordProvider.client.guilds.cache.get(this.voiceChannel.guild.id)?.me?.voice) {
-            await DiscordProvider.client.guilds.cache.get(this.voiceChannel.guild.id)?.me?.voice.disconnect();
+            this.voiceConnection?.disconnect();
         }
 
     }
