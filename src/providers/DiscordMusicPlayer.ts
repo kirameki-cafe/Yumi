@@ -65,6 +65,7 @@ export class DiscordMusicPlayerInstance {
     public textChannel?: TextChannel;
     public voiceChannel: (VoiceChannel | StageChannel);
     public voiceConnection?: VoiceConnection;
+    public previousTrack?: ValidTracks;
 
     public loopMode: DiscordMusicPlayerLoopMode = DiscordMusicPlayerLoopMode.None;
 
@@ -87,13 +88,19 @@ export class DiscordMusicPlayerInstance {
 
                 // Loop mode is set to current song
                 if (this.loopMode === DiscordMusicPlayerLoopMode.Current) {
-                    this.playTrack(this.queue.track[0]);
+                    if (this.queue.track.length !== 0) {
+                        this.previousTrack = this.queue.track[0];
+                        this.playTrack(this.queue.track[0]);
+                    }
                     return;
                 }
 
                 // There are more songs in the queue, remove finished song and play the next one
                 if (this.queue.track.length !== 0) {
-                    this.queue.track.shift();
+                    let previousTrack = this.queue.track.shift();
+                    if(previousTrack)
+                        this.previousTrack = previousTrack;
+
                     if (this.queue.track.length > 0) {
                         this.playTrack(this.queue.track[0]);
                     }
@@ -203,10 +210,12 @@ export class DiscordMusicPlayerInstance {
         if (!this.voiceConnection) throw new Error("No voice connection");
 
         if (this.queue.track.length > 1) {
+            this.previousTrack = this.queue.track[0];
             this.queue.track.shift();
             this.playTrack(this.queue.track[0]);
         }
         else {
+            this.previousTrack = this.queue.track[0];
             this.queue.track.shift();
             this.player.stop();
         }
@@ -218,6 +227,10 @@ export class DiscordMusicPlayerInstance {
 
     public getLoopMode() {
         return this.loopMode;
+    }
+
+    public getPreviousTrack(): ValidTracks | undefined {
+        return this.previousTrack;
     }
 
     public async destroy() {
@@ -324,13 +337,13 @@ class DiscordMusicPlayer {
                 channel: yt_info.video_details.channel,
                 likes: yt_info.video_details.likes,
                 live: yt_info.video_details.live,
+                liveAt: yt_info.video_details.liveAt,
                 private: yt_info.video_details.private,
                 tags: yt_info.video_details.tags,
                 discretionAdvised: yt_info.video_details.discretionAdvised,
                 music: yt_info.video_details.music
             });
         }
-
 
         return null;
     }

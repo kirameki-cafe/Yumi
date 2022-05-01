@@ -3,7 +3,7 @@ import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModu
 import { Message, CommandInteraction, Interaction, VoiceChannel, Permissions, GuildMember, DMChannel, StageChannel, MessageActionRow, MessageButton, TextChannel } from "discord.js";
 import { makeSuccessEmbed, makeErrorEmbed, sendMessage, sendMessageOrInteractionResponse, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 import DiscordProvider from "../../providers/Discord";
-import DiscordMusicPlayer, { PlayerPlayingEvent, PlayerErrorEvent, VoiceDisconnectedEvent, ValidTracks, DiscordMusicPlayerInstance } from "../../providers/DiscordMusicPlayer";
+import DiscordMusicPlayer, { PlayerPlayingEvent, PlayerErrorEvent, VoiceDisconnectedEvent, ValidTracks, DiscordMusicPlayerInstance, DiscordMusicPlayerLoopMode } from "../../providers/DiscordMusicPlayer";
 
 const EMBEDS = {
     VOICECHANNEL_JOINED: (data: Message | Interaction) => {
@@ -67,6 +67,21 @@ const EMBEDS = {
             embed.setImage(highestResolutionThumbnail.url);
 
         return embed;
+    },
+    NOW_REPEATING: (data: Message | Interaction, track: ValidTracks) => {
+        const embed = makeInfoEmbed({
+            title: ' Now playing (Repeating)',
+            icon: '🎵',
+            description: `${track.title}`,
+            user: DiscordProvider.client.user
+        });
+
+        const highestResolutionThumbnail = track.thumbnails.reduce((prev, current) => (prev.height * prev.width > current.height * current.width) ? prev : current)
+
+        if(highestResolutionThumbnail)
+            embed.setImage(highestResolutionThumbnail.url);
+
+        return embed;
     }
 }
 
@@ -89,7 +104,7 @@ export async function joinVoiceChannelProcedure (data: Interaction | Message, in
 
 
     // If already in VoiceChannel
-    if (DiscordProvider.client.guilds.cache.get(data.guildId!)!.me!.voice.channelId) {
+    if (DiscordProvider.client.guilds.cache.get(data.guildId)!.me!.voice.channelId) {
         // But, no music instance yet (The bot might just restarted)
         if (!instance) {
             // User is in different VoiceChannel
@@ -151,12 +166,18 @@ export async function joinVoiceChannelProcedure (data: Interaction | Message, in
 
     if (!instance) return;
 
-    let nowPlayingMessage: any;
+    let previousTrack: ValidTracks | undefined;
+    let isLoopMessageSent = false;
 
     // Register Event Listeners
     instance.events.on('playing', async (event: PlayerPlayingEvent) => {
 
         if(!event.instance.queue || !event.instance.queue.track || event.instance.queue.track.length === 0) return;
+        previousTrack = event.instance.getPreviousTrack();
+
+        if(event.instance.queue.track[0] !== previousTrack)
+            isLoopMessageSent = false;
+        else if(event.instance.queue.track[0] === previousTrack && isLoopMessageSent) return;
 
         const row = new MessageActionRow()
             .addComponents(
@@ -168,7 +189,13 @@ export async function joinVoiceChannelProcedure (data: Interaction | Message, in
             )
 
         if (event.instance.textChannel) {
-            await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.NOW_PLAYING(data, event.instance.queue.track[0])], components: [row] });
+            if(event.instance.getLoopMode() === DiscordMusicPlayerLoopMode.Current) {
+                isLoopMessageSent = true;
+                await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.NOW_REPEATING(data, event.instance.queue.track[0])], components: [row] });
+            }
+            else {
+                await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.NOW_PLAYING(data, event.instance.queue.track[0])], components: [row] });
+            }
         }
     });
 
