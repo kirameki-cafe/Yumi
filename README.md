@@ -1,2 +1,2 @@
 # 🍭 Yumi
-Yumi - Discord bot from KiraStella Wonderland's Café
+Multipurpose Discord Bot
