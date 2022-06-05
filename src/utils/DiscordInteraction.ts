@@ -145,6 +145,31 @@ GUILD_COMMANDS.push(new SlashCommandBuilder()
     )
 );
 
+GUILD_COMMANDS.push(new SlashCommandBuilder()
+    .setName('stats')
+    .setDescription('Show the bot stats')
+);
+
+GUILD_COMMANDS.push(new SlashCommandBuilder()
+    .setName('skip')
+    .setDescription('Skip the current song')
+);
+
+GUILD_COMMANDS.push(new SlashCommandBuilder()
+    .setName('nowplaying')
+    .setDescription('Show the current song information')
+);
+
+GUILD_COMMANDS.push(new SlashCommandBuilder()
+    .setName('join')
+    .setDescription('Join the voice channel')
+);
+
+GUILD_COMMANDS.push(new SlashCommandBuilder()
+    .setName('leave')
+    .setDescription('Leave the voice channel')
+);
+
 
 export const registerAllGlobalCommands = async () => {
     Logger.log('info', `Registering all global interaction commands`);
