@@ -1,6 +1,6 @@
 import playdl, { YouTubeVideo } from "play-dl";
 import { VoiceChannel, Snowflake, TextChannel, StageChannel, Guild } from "discord.js";
-import { AudioPlayer, VoiceConnection, createAudioPlayer, joinVoiceChannel, createAudioResource, VoiceConnectionStatus, AudioPlayerStatus, NoSubscriberBehavior, VoiceConnectionState, AudioPlayerError, DiscordGatewayAdapterCreator } from "@discordjs/voice";
+import { AudioPlayer, VoiceConnection, createAudioPlayer, joinVoiceChannel, createAudioResource, VoiceConnectionStatus, AudioPlayerStatus, AudioPlayerState, NoSubscriberBehavior, VoiceConnectionState, AudioPlayerError, DiscordGatewayAdapterCreator } from "@discordjs/voice";
 import { EventEmitter } from "stream";
 
 import DiscordProvider from "./Discord";
@@ -67,6 +67,7 @@ export class DiscordMusicPlayerInstance {
     public voiceConnection?: VoiceConnection;
     public previousTrack?: ValidTracks;
 
+    public paused: boolean = false;
     public loopMode: DiscordMusicPlayerLoopMode = DiscordMusicPlayerLoopMode.None;
 
     public readonly events: EventEmitter;
@@ -164,18 +165,27 @@ export class DiscordMusicPlayerInstance {
     }
 
     public async leaveVoiceChannel() {
-
         if (this.player)
             this.player.pause();
 
         if (DiscordProvider.client.guilds.cache.get(this.voiceChannel.guild.id)?.me?.voice) {
             this.voiceConnection?.disconnect();
         }
+    }
 
+    public async pausePlayer() {
+        if(this.paused || !this.player) return;
+        if(!this.player.pause(true)) throw new Error('Unable to pause player');
+        this.paused = true;
+    }
+
+    public async resumePlayer() {
+        if(!this.paused || !this.player) return;
+        if(!this.player.unpause()) throw new Error('Unable to resume player');
+        this.paused = false;
     }
 
     public addTrackToQueue(track: (ValidTracks)) {
-
         if (this.queue.track.length === 0) {
             this.queue.track.push(track);
             this.playTrack(this.queue.track[0]);
@@ -186,7 +196,6 @@ export class DiscordMusicPlayerInstance {
     }
 
     public async playTrack(track: ValidTracks) {
-
         if (!this.voiceConnection) throw new Error("No voice connection");
         
         try {
@@ -201,7 +210,6 @@ export class DiscordMusicPlayerInstance {
             this.events.emit('error', new PlayerErrorEvent(this, error));
             this.skipTrack();
         }
-        
     }
 
     public async skipTrack() {
@@ -229,6 +237,10 @@ export class DiscordMusicPlayerInstance {
 
     public getPreviousTrack(): ValidTracks | undefined {
         return this.previousTrack;
+    }
+
+    public isPaused() {
+        return this.paused;
     }
 
     public async destroy() {

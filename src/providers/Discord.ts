@@ -24,6 +24,8 @@ import Discord_MusicPlayer_Queue from "../discord/MusicPlayer/Queue";
 import Discord_MusicPlayer_Search from "../discord/MusicPlayer/Search";
 import Discord_MusicPlayer_NowPlaying from "../discord/MusicPlayer/NowPlaying";
 import Discord_MusicPlayer_Loop from "../discord/MusicPlayer/Loop";
+import Discord_MusicPlayer_Pause from "../discord/MusicPlayer/Pause";
+import Discord_MusicPlayer_Resume from "../discord/MusicPlayer/Resume";
 
 import Discord_Developer_ServiceAnnouncement from "../discord/developer/ServiceAnnouncement";
 import Discord_Developer_Debug from "../discord/developer/Debug";
@@ -69,6 +71,8 @@ class Discord {
             new Discord_MusicPlayer_Queue(),
             new Discord_MusicPlayer_Search(),
             new Discord_MusicPlayer_Loop(),
+            new Discord_MusicPlayer_Pause(),
+            new Discord_MusicPlayer_Resume(),
 
             new Discord_MembershipScreening(),
 

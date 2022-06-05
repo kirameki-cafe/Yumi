@@ -19,7 +19,7 @@ const EMBEDS = {
         let _e = makeInfoEmbed({
             icon: "💌",
             title: `Help - ${DiscordProvider.client.user?.username}`,
-            description: `\u200b\n📰 **Info**\nYumi is currently undergoing complete rewrite, as expected, losing many of her functionality. All of the features will be re-implemented.\n\n🤔 **Why?**\nYumi was specifically written for use in a only 1 private server, now it's time to extend the border and globalize it (just kidding lol)\n\n🏷️ **Prefix**\nYou can call me using \`\`${prefix.replaceAll('`','`​')}\`\`, <@${DiscordProvider.client.user?.id}> or \`\`/slash command\`\`\n\n💻 **Available commands**`,
+            description: `\u200b\n📰 **Info**\nYumi is currently undergoing complete rewrite, as expected, losing many of her functionality. All of the features will be re-implemented.\n\n🏷️ **Prefix**\nYou can call me using \`\`${prefix.replaceAll('`','`​')}\`\`, <@${DiscordProvider.client.user?.id}> or \`\`/slash command\`\`\n\n💻 **Available commands**`,
             fields: [
                 {
                     name: '☕ General',
@@ -28,7 +28,7 @@ const EMBEDS = {
                 },
                 {
                     name: '🎵 Music',
-                    value: `play (p), search, skip, queue (q), nowplaying (np), loop, join, leave (disconnect, dc)`,
+                    value: `play (p), search, skip, pause, resume, queue (q), nowplaying (np), loop, join, leave (disconnect, dc)`,
                     inline: true
                 },
                 {
