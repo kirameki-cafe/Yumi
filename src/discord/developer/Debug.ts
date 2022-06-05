@@ -14,7 +14,7 @@ const EMBEDS = {
             fields: [
                 {
                     name: 'Available arguments',
-                    value: '``invalidInteraction`` ``crashMusicPlayer`` ``crash``'
+                    value: '``invalidInteraction`` ``crashMusicPlayer`` ``crash`` ``activemusicplayer``'
                 }
             ],
             user: (data instanceof Interaction) ? data.user : data.author
@@ -32,6 +32,13 @@ const EMBEDS = {
             icon: '💀',
             title: 'Crashing myself',
             description: `Sayonara.... cruel world`,
+            user: (data instanceof Interaction) ? data.user : data.author
+        });
+    },
+    ACTIVE_MUSIC_PLAYERS: (data: Message | Interaction, totalplayers: Map<any, any>) => {
+        return makeInfoEmbed({
+            icon: '🎵',
+            title: `Total active music players: ${totalplayers.size}`,
             user: (data instanceof Interaction) ? data.user : data.author
         });
     },
@@ -96,6 +103,9 @@ export default class Debug extends DiscordModule {
 
                 instance._fake_error_on_player();
             },
+            activeMusicPlayer: async (data: HybridInteractionMessage) => {
+                await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.ACTIVE_MUSIC_PLAYERS(data.getRaw(), DiscordMusicPlayer.GuildQueue)] });
+            },
             invalidInteraction: async (data: HybridInteractionMessage) => {
                 
                 const row = new MessageActionRow()
@@ -131,6 +141,8 @@ export default class Debug extends DiscordModule {
                 return await funct.invalidInteraction(data);
             case "crashmusicplayer":
                 return await funct.crashMusicPlayer(data);
+            case "activemusicplayer":
+                return await funct.activeMusicPlayer(data);
         }
 
     }
