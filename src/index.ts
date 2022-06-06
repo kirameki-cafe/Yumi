@@ -6,7 +6,9 @@ NativeException.process();
 App.loadConfig();
 App.loadENV();
 App.loadPrisma();
+App.loadLocale();
 App.loadDiscord();
 App.load_osu();
+
 
 export default App;

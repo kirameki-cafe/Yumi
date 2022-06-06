@@ -5,6 +5,7 @@ import Discord from './Discord';
 import osu from './osuAPI';
 
 import Logger from '../libs/Logger';
+import Locale from './Locale';
 class App {
     public readonly versionNumber = `0.09`;
     public readonly version = `${this.versionNumber}${
@@ -29,6 +30,11 @@ class App {
     public loadDiscord(): void {
         Logger.log('info', 'Loading Discord Client');
         Discord.init();
+    }
+
+    public loadLocale(): void {
+        Logger.log('info', 'Loading Locale');
+        Locale.init();
     }
 
     public load_osu(): void {
