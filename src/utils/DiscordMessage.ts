@@ -4,7 +4,7 @@ import Logger from "../libs/Logger";
 import { HybridInteractionMessage } from "./DiscordModule";
 
 const emotes = {
-    "yumiloading": "<a:yumiloading:887350424938627173>"
+    "yumiloading": "<a:yumiloading:983269480085983262>"
 };
 
 export function makeEmbed(icon: string | undefined, title: string, description: any, color: ColorResolvable, fields: any, user: User, setTimestamp: boolean) {
