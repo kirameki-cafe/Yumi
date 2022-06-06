@@ -1,0 +1,12 @@
+{
+    "stats": {
+        "title": "Stats",
+        "description": "Stats of the bot",
+        "uptime_since": "Uptime since",
+        "users": "Users",
+        "x_servers": "%s servers",
+        "x_users": "%s users",
+        "server_uptime_x": "Server %s",
+        "process_uptime_x": "Process %s"
+    }
+}
