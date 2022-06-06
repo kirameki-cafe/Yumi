@@ -1,12 +1,8 @@
 import Logger from '../libs/Logger';
 
-import App from '../providers/App';
-
 class NativeException {
-
-    public process (): void {
-
-        process.on('uncaughtException', exception => {
+    public process(): void {
+        process.on('uncaughtException', (exception) => {
             Logger.log('critical', 'Critical error, cleaning up and exiting');
             Logger.log('critical', exception.stack);
 
@@ -14,11 +10,10 @@ class NativeException {
             process.exit(1);
         });
 
-        process.on('unhandledRejection', exception => {
+        process.on('unhandledRejection', (exception) => {
             throw exception;
         });
-
     }
 }
 
-export default new NativeException;
+export default new NativeException();

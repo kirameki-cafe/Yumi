@@ -1,25 +1,29 @@
-import DiscordModule, { HybridInteractionMessage } from "../utils/DiscordModule";
+import { CommandInteraction, Interaction, Message } from 'discord.js';
 
-import { CommandInteraction, Interaction, Message } from "discord.js";
-import { sendHybridInteractionMessageResponse, makeInfoEmbed } from "../utils/DiscordMessage";
-import DiscordProvider from "../providers/Discord";
-import Cache from "../providers/Cache";
+import DiscordProvider from '../providers/Discord';
+import Cache from '../providers/Cache';
+
+import DiscordModule, { HybridInteractionMessage } from '../utils/DiscordModule';
+import { sendHybridInteractionMessageResponse, makeInfoEmbed } from '../utils/DiscordMessage';
 
 const EMBEDS = {
     INFO: async (data: Message | Interaction) => {
-
         let GuildCache = await Cache.getGuild(data.guildId!);
 
         // TODO: Better error handling
-        if(typeof GuildCache === 'undefined')
-            throw new Error("Guild not found");
+        if (typeof GuildCache === 'undefined') throw new Error('Guild not found');
 
         let prefix = GuildCache.prefix || '>';
 
         let _e = makeInfoEmbed({
-            icon: "💌",
+            icon: '💌',
             title: `Help - ${DiscordProvider.client.user?.username}`,
-            description: `\u200b\n📰 **Info**\nYumi is currently undergoing complete rewrite, as expected, losing many of her functionality. All of the features will be re-implemented.\n\n🏷️ **Prefix**\nYou can call me using \`\`${prefix.replaceAll('`','`​')}\`\`, <@${DiscordProvider.client.user?.id}> or \`\`/slash command\`\`\n\n💻 **Available commands**`,
+            description: `\u200b\n📰 **Info**\nYumi is currently undergoing complete rewrite, as expected, losing many of her functionality. All of the features will be re-implemented.\n\n🏷️ **Prefix**\nYou can call me using \`\`${prefix.replaceAll(
+                '`',
+                '`​'
+            )}\`\`, <@${
+                DiscordProvider.client.user?.id
+            }> or \`\`/slash command\`\`\n\n💻 **Available commands**`,
             fields: [
                 {
                     name: '☕ General',
@@ -52,31 +56,32 @@ const EMBEDS = {
                     inline: false
                 }
             ],
-            user: (data instanceof Interaction) ? data.user : data.author
+            user: data instanceof Interaction ? data.user : data.author
         });
         _e.setThumbnail(`${DiscordProvider.client.user?.displayAvatarURL()}?size=4096`);
         return _e;
     }
-}
+};
 
 export default class Help extends DiscordModule {
-
-    public id = "Discord_Help";
-    public commands = ["help"];
-    public commandInteractionName = "help";
+    public id = 'Discord_Help';
+    public commands = ['help'];
+    public commandInteractionName = 'help';
 
     async GuildOnModuleCommand(args: any, message: Message) {
         await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) { 
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) {
         await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
     async run(data: HybridInteractionMessage, args: any) {
-        const message = await sendHybridInteractionMessageResponse(data, { embeds: [await EMBEDS.INFO(data.getRaw())] });
+        const message = await sendHybridInteractionMessageResponse(data, {
+            embeds: [await EMBEDS.INFO(data.getRaw())]
+        });
 
-        if(message && data.isMessage())
-            return new HybridInteractionMessage(message).getMessage().react("♥");
+        if (message && data.isMessage())
+            return new HybridInteractionMessage(message).getMessage().react('♥');
     }
 }
