@@ -60,7 +60,7 @@ const EMBEDS = {
         });
     },
     NO_SERVICE_ANNOUNCEMENT_STATUS_PROVIDED: async (data: Message | Interaction) => {
-        let GuildCache = await Cache.getGuild(data.guild!.id);
+        let GuildCache = await Cache.getCachedGuild(data.guild!.id);
 
         // TODO: Better error handling
         if (typeof GuildCache === 'undefined') throw new Error('Guild not found');
@@ -288,7 +288,7 @@ export default class Settings extends DiscordModule {
                     });
 
                 await Cache.updateGuildCache(data.getGuild()!.id);
-                let GuildCache = await Cache.getGuild(data.getGuild()!.id);
+                let GuildCache = await Cache.getCachedGuild(data.getGuild()!.id);
 
                 const newStatusBool = ['true', 'yes', 'y', 'enable'].includes(
                     newStatus.toLowerCase()
