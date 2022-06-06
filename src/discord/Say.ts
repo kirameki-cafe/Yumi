@@ -28,6 +28,13 @@ const EMBEDS = {
             user: data instanceof Interaction ? data.user : data.author
         });
     },
+    SAY_ERROR: (data: Message | Interaction, error: any) => {
+        return makeErrorEmbed({
+            title: `Unable to say`,
+            description: error.message,
+            user: data instanceof Interaction ? data.user : data.author
+        });
+    },
     SUCCESSFULLY_SAID: (data: Message | Interaction) => {
         return makeSuccessEmbed({
             title: 'Successfully said',
@@ -90,15 +97,27 @@ export default class Say extends DiscordModule {
         }
 
         if (data.isSlashCommand() && data.getChannel()) {
-            await data.getChannel()!.send({ content: query });
-            await data
-                .getMessageComponentInteraction()
-                .reply({ ephemeral: true, embeds: [EMBEDS.SUCCESSFULLY_SAID(data.getRaw())] });
+            try {
+                await data.getChannel()!.send({ content: query });
+                await data
+                    .getMessageComponentInteraction()
+                    .reply({ ephemeral: true, embeds: [EMBEDS.SUCCESSFULLY_SAID(data.getRaw())] });
+            } catch (err: any) {
+                return await sendHybridInteractionMessageResponse(data, {
+                    embeds: [EMBEDS.SAY_ERROR(data.getRaw(), err)]
+                });
+            }
         } else if (data.isMessage()) {
             const message = data.getMessage();
             if (message.deletable) await message.delete();
 
-            await data.getChannel()!.send({ content: query });
+            try {
+                await data.getChannel()!.send({ content: query });
+            } catch (err: any) {
+                return await sendHybridInteractionMessageResponse(data, {
+                    embeds: [EMBEDS.SAY_ERROR(data.getRaw(), err)]
+                });
+            }
         }
     }
 }
