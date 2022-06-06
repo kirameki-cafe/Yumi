@@ -140,7 +140,10 @@ export default class UserInfo extends DiscordModule {
         }
 
         embed.setThumbnail(TargetMember.user.displayAvatarURL());
-        embed.setAuthor(`${TargetMember.displayName}`, TargetMember.user.displayAvatarURL());
+        embed.setAuthor({
+            name: `${TargetMember.displayName}`,
+            iconURL: TargetMember.user.displayAvatarURL()
+        });
 
         return await sendHybridInteractionMessageResponse(data, { embeds: [embed] });
 

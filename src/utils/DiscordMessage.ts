@@ -26,7 +26,7 @@ export function makeEmbed(icon: string | undefined, title: string, description: 
     if(typeof user !== 'undefined')
         embed.footer = {
             text: `${user.username}  |  v${App.version}`,
-            iconURL: `${user.displayAvatarURL()}?size=4096` || ''
+            iconURL: `${user.displayAvatarURL()}?size=4096`
         }
     else
         embed.footer = {
@@ -107,7 +107,7 @@ export async function sendMessageOrInteractionResponse(data: Message | Interacti
             let message;
             try {
                 if(!data.deferred)
-                    return await data.reply(payload);
+                    return await data.reply(payload as InteractionReplyOptions);
                 else
                     return await data.editReply(payload);
             }
@@ -124,7 +124,7 @@ export async function sendMessageOrInteractionResponse(data: Message | Interacti
                 if(replace)
                     return await data.editReply(payload);
                 else
-                    return await data.followUp(payload); 
+                    return await data.followUp(payload as InteractionReplyOptions); 
             }
             catch(errorDM) {
                 Logger.error(`Cannot find available destinations to send the message CID: ${data.channel!.id} UID: ${data.user.id} DM_ERR: ${errorDM}`);
@@ -134,7 +134,7 @@ export async function sendMessageOrInteractionResponse(data: Message | Interacti
             }
         }
     }
-    else if(isMessage) return await sendReply(data, payload);
+    else if(isMessage) return await sendReply(data, payload as MessageOptions);
 }
 
 export async function sendHybridInteractionMessageResponse(data: HybridInteractionMessage, payload: MessageOptions | InteractionReplyOptions, replace = false): (Promise<Message | Interaction | undefined>) {
@@ -147,7 +147,7 @@ export async function sendHybridInteractionMessageResponse(data: HybridInteracti
             let message;
             try {
                 if(!messageComponent.deferred) {
-                    await messageComponent.reply(payload);
+                    await messageComponent.reply(payload as InteractionReplyOptions);
                     return messageComponent;
                 }
                 else {
@@ -168,7 +168,7 @@ export async function sendHybridInteractionMessageResponse(data: HybridInteracti
                 if(replace)
                     return (await messageComponent.editReply(payload) as Message);
                 else
-                    return (await messageComponent.followUp(payload) as Message);
+                    return (await messageComponent.followUp(payload as InteractionReplyOptions) as Message);
             }
             catch(errorDM) {
                 Logger.error(`Cannot find available destinations to send the message CID: ${messageComponent.channel!.id} UID: ${messageComponent.user.id} DM_ERR: ${errorDM}`);
@@ -178,7 +178,7 @@ export async function sendHybridInteractionMessageResponse(data: HybridInteracti
             }
         }
     }
-    else if(data.isMessage()) return await sendReply(data.getMessage(), payload);
+    else if(data.isMessage()) return await sendReply(data.getMessage(), payload as MessageOptions);
 }
 
 export function getEmotes() {
