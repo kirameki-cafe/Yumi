@@ -3,24 +3,59 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import DiscordProvider from '../providers/Discord';
 import Logger from '../libs/Logger';
 
-export const GLOBAL_COMMANDS: Object[] = [];
-export const GUILD_COMMANDS: Object[] = [];
-
-GUILD_COMMANDS.push(new SlashCommandBuilder().setName('help').setDescription('Show help menu'));
-GUILD_COMMANDS.push(
-    new SlashCommandBuilder().setName('ping').setDescription('Measure network latency')
-);
-GUILD_COMMANDS.push(
-    new SlashCommandBuilder().setName('invite').setDescription('Invite me to your server!')
-);
-GUILD_COMMANDS.push(
+export const GLOBAL_COMMANDS: Object[] = [
+    new SlashCommandBuilder().setName('help').setDescription('Show help menu'),
+    new SlashCommandBuilder().setName('ping').setDescription('Measure network latency'),
+    new SlashCommandBuilder().setName('invite').setDescription('Invite me to your server!'),
+    new SlashCommandBuilder().setName('stats').setDescription('Show the bot stats'),
+    new SlashCommandBuilder().setName('skip').setDescription('Skip the current song'),
+    new SlashCommandBuilder()
+        .setName('nowplaying')
+        .setDescription('Show the current song information'),
+    new SlashCommandBuilder().setName('join').setDescription('Join the voice channel'),
+    new SlashCommandBuilder().setName('leave').setDescription('Leave the voice channel'),
+    new SlashCommandBuilder().setName('resume').setDescription('Resume paused music'),
+    new SlashCommandBuilder().setName('pause').setDescription('Pause the current music'),
     new SlashCommandBuilder()
         .setName('say')
         .setDescription('Make me say something')
         .addStringOption((option) =>
             option.setName('message').setDescription('Message you want me to say').setRequired(true)
+        ),
+    new SlashCommandBuilder()
+        .setName('osu')
+        .setDescription('Interact with the game osu!')
+        .addSubcommand((user) =>
+            user
+                .setName('user')
+                .setDescription('Get user information on osu!')
+                .addStringOption((user) =>
+                    user.setName('user').setDescription('Username or User id').setRequired(true)
+                )
         )
-);
+        .addSubcommand((beatmap) =>
+            beatmap
+                .setName('beatmap')
+                .setDescription('Get beatmap information on osu!')
+                .addStringOption((user) =>
+                    user.setName('beatmap').setDescription('Beatmap id').setRequired(true)
+                )
+        ),
+    new SlashCommandBuilder()
+        .setName('userinfo')
+        .setDescription('Lookup discord user information')
+        .addSubcommand((user) =>
+            user
+                .setName('user')
+                .setDescription('Lookup discord user information')
+                .addUserOption((user) =>
+                    user.setName('user').setDescription('Discord user to lookup').setRequired(true)
+                )
+        )
+];
+export const GUILD_COMMANDS: Object[] = [];
+
+/*
 GUILD_COMMANDS.push(
     new SlashCommandBuilder()
         .setName('interaction')
@@ -109,64 +144,7 @@ GUILD_COMMANDS.push(
                     'Create greeting message for membership screening into the channel. A message for new commers to read'
                 )
         )
-);
-GUILD_COMMANDS.push(
-    new SlashCommandBuilder()
-        .setName('osu')
-        .setDescription('Interact with the game osu!')
-        .addSubcommand((user) =>
-            user
-                .setName('user')
-                .setDescription('Get user information on osu!')
-                .addStringOption((user) =>
-                    user.setName('user').setDescription('Username or User id').setRequired(true)
-                )
-        )
-        .addSubcommand((beatmap) =>
-            beatmap
-                .setName('beatmap')
-                .setDescription('Get beatmap information on osu!')
-                .addStringOption((user) =>
-                    user.setName('beatmap').setDescription('Beatmap id').setRequired(true)
-                )
-        )
-);
-
-GUILD_COMMANDS.push(
-    new SlashCommandBuilder()
-        .setName('userinfo')
-        .setDescription('Lookup discord user information')
-        .addSubcommand((user) =>
-            user
-                .setName('user')
-                .setDescription('Lookup discord user information')
-                .addUserOption((user) =>
-                    user.setName('user').setDescription('Discord user to lookup').setRequired(true)
-                )
-        )
-);
-
-GUILD_COMMANDS.push(
-    new SlashCommandBuilder().setName('stats').setDescription('Show the bot stats')
-);
-
-GUILD_COMMANDS.push(
-    new SlashCommandBuilder().setName('skip').setDescription('Skip the current song')
-);
-
-GUILD_COMMANDS.push(
-    new SlashCommandBuilder()
-        .setName('nowplaying')
-        .setDescription('Show the current song information')
-);
-
-GUILD_COMMANDS.push(
-    new SlashCommandBuilder().setName('join').setDescription('Join the voice channel')
-);
-
-GUILD_COMMANDS.push(
-    new SlashCommandBuilder().setName('leave').setDescription('Leave the voice channel')
-);
+);*/
 
 export const registerAllGlobalCommands = async () => {
     Logger.log('info', `Registering all global interaction commands`);

@@ -12,7 +12,9 @@ import {
 } from '../utils/DiscordMessage';
 import {
     registerAllGuildsCommands,
-    unregisterAllGuildsCommands
+    registerAllGlobalCommands,
+    unregisterAllGuildsCommands,
+    unregisterAllGlobalCommands
 } from '../utils/DiscordInteraction';
 
 const EMBEDS = {
@@ -23,7 +25,7 @@ const EMBEDS = {
             fields: [
                 {
                     name: 'Available arguments',
-                    value: '``reloadAll``'
+                    value: '``reloadAll`` ``unloadAll`` ``reloadglobal``'
                 }
             ],
             user: data instanceof Interaction ? data.user : data.author
@@ -40,6 +42,19 @@ const EMBEDS = {
         return makeErrorEmbed({
             title: 'Developer only',
             description: `This command is restricted to the developers only`,
+            user: data instanceof Interaction ? data.user : data.author
+        });
+    },
+    UNLOADALL_SUCCESS: (data: Message | Interaction) => {
+        return makeSuccessEmbed({
+            title: 'Unloaded all Interaction',
+            user: data instanceof Interaction ? data.user : data.author
+        });
+    },
+    UNLOADALL_ERROR: (data: Message | Interaction, err: any) => {
+        return makeErrorEmbed({
+            title: 'An error occurred while trying to unload interaction',
+            description: '```' + err + '```',
             user: data instanceof Interaction ? data.user : data.author
         });
     },
@@ -81,6 +96,75 @@ export default class InteractionManager extends DiscordModule {
             });
 
         const funct = {
+            unloadAll: async (data: HybridInteractionMessage) => {
+                let placeholder: HybridInteractionMessage | undefined;
+
+                let _placeholder = await sendHybridInteractionMessageResponse(data, {
+                    embeds: [EMBEDS.PROCESSING(data.getRaw())]
+                });
+                if (_placeholder) placeholder = new HybridInteractionMessage(_placeholder);
+
+                try {
+                    await unregisterAllGuildsCommands();
+
+                    if (data && data.isMessage() && placeholder && placeholder.isMessage())
+                        return placeholder
+                            .getMessage()
+                            .edit({ embeds: [EMBEDS.UNLOADALL_SUCCESS(data.getRaw())] });
+                    else if (data.isSlashCommand())
+                        return await sendHybridInteractionMessageResponse(
+                            data,
+                            { embeds: [EMBEDS.UNLOADALL_SUCCESS(data.getRaw())] },
+                            true
+                        );
+                } catch (err) {
+                    if (data && data.isMessage() && placeholder && placeholder.isMessage())
+                        return placeholder
+                            .getMessage()
+                            .edit({ embeds: [EMBEDS.UNLOADALL_ERROR(data.getRaw(), err)] });
+                    else if (data.isSlashCommand())
+                        return await sendHybridInteractionMessageResponse(
+                            data,
+                            { embeds: [EMBEDS.UNLOADALL_ERROR(data.getRaw(), err)] },
+                            true
+                        );
+                }
+            },
+            reloadGlobal: async (data: HybridInteractionMessage) => {
+                let placeholder: HybridInteractionMessage | undefined;
+
+                let _placeholder = await sendHybridInteractionMessageResponse(data, {
+                    embeds: [EMBEDS.PROCESSING(data.getRaw())]
+                });
+                if (_placeholder) placeholder = new HybridInteractionMessage(_placeholder);
+
+                try {
+                    await unregisterAllGlobalCommands();
+                    await registerAllGlobalCommands();
+
+                    if (data && data.isMessage() && placeholder && placeholder.isMessage())
+                        return placeholder
+                            .getMessage()
+                            .edit({ embeds: [EMBEDS.RELOADALL_SUCCESS(data.getRaw())] });
+                    else if (data.isSlashCommand())
+                        return await sendHybridInteractionMessageResponse(
+                            data,
+                            { embeds: [EMBEDS.RELOADALL_SUCCESS(data.getRaw())] },
+                            true
+                        );
+                } catch (err) {
+                    if (data && data.isMessage() && placeholder && placeholder.isMessage())
+                        return placeholder
+                            .getMessage()
+                            .edit({ embeds: [EMBEDS.RELOADALL_ERROR(data.getRaw(), err)] });
+                    else if (data.isSlashCommand())
+                        return await sendHybridInteractionMessageResponse(
+                            data,
+                            { embeds: [EMBEDS.RELOADALL_ERROR(data.getRaw(), err)] },
+                            true
+                        );
+                }
+            },
             reloadAll: async (data: HybridInteractionMessage) => {
                 let placeholder: HybridInteractionMessage | undefined;
 
@@ -138,6 +222,10 @@ export default class InteractionManager extends DiscordModule {
                 });
             case 'reloadall':
                 return await funct.reloadAll(data);
+            case 'reloadglobal':
+                return await funct.reloadGlobal(data);
+            case 'unloadall':
+                return await funct.unloadAll(data);
         }
     }
 }
