@@ -1,15 +1,15 @@
-import Logger from '../libs/Logger';
-
 import Environment from './Environment';
+import Configuration from './Configuration';
 import Prisma from './Prisma';
 import Discord from './Discord';
 import osu from './osuAPI';
-import Configuration from './Configuration';
 
+import Logger from '../libs/Logger';
 class App {
-
     public readonly versionNumber = `0.09`;
-    public readonly version = `${this.versionNumber}${Environment.get().NODE_ENV === "development" ? ' / Development Build' : ''}`;
+    public readonly version = `${this.versionNumber}${
+        Environment.get().NODE_ENV === 'development' ? ' / Development Build' : ''
+    }`;
 
     public loadConfig(): void {
         Logger.log('info', 'Loading configuration');
@@ -37,4 +37,4 @@ class App {
     }
 }
 
-export default new App;
+export default new App();
