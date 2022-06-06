@@ -142,7 +142,7 @@ export default class Play extends DiscordModule {
                 return await sendHybridInteractionMessageResponse(hybridData, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(hybridData.getRaw())] }, true);
 
             if (!DiscordMusicPlayer.isGuildInstanceExists(guild.id))
-                await joinVoiceChannelProcedure(interaction, null, voiceChannel);
+                await joinVoiceChannelProcedure(new HybridInteractionMessage(interaction) , null, voiceChannel);
 
             let instance = DiscordMusicPlayer.getGuildInstance(guild.id);
 
@@ -150,7 +150,7 @@ export default class Play extends DiscordModule {
                 return await sendHybridInteractionMessageResponse(hybridData, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(hybridData.getRaw())] }, true);
 
             if (!instance!.isConnected()) {
-                await joinVoiceChannelProcedure(interaction, instance!, voiceChannel);
+                await joinVoiceChannelProcedure(new HybridInteractionMessage(interaction), instance!, voiceChannel);
                 instance = DiscordMusicPlayer.getGuildInstance(guild.id);
             }
 
@@ -206,7 +206,7 @@ export default class Play extends DiscordModule {
                 return await sendHybridInteractionMessageResponse(hybridData, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(interaction)] }, true);
 
             if (!DiscordMusicPlayer.isGuildInstanceExists(guild.id))
-                await joinVoiceChannelProcedure(interaction, null, voiceChannel);
+                await joinVoiceChannelProcedure(new HybridInteractionMessage(interaction), null, voiceChannel);
 
 
             let instance = DiscordMusicPlayer.getGuildInstance(guild.id);
@@ -215,7 +215,7 @@ export default class Play extends DiscordModule {
                 return await sendHybridInteractionMessageResponse(hybridData, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(interaction)] }, true);
 
             if (!instance!.isConnected()) {
-                await joinVoiceChannelProcedure(interaction, instance!, voiceChannel);
+                await joinVoiceChannelProcedure(new HybridInteractionMessage(interaction), instance!, voiceChannel);
                 instance = DiscordMusicPlayer.getGuildInstance(guild.id);
             }
 
@@ -258,7 +258,7 @@ export default class Play extends DiscordModule {
         const voiceChannel = member.voice.channel;
 
         if (!DiscordMusicPlayer.isGuildInstanceExists(guild.id)) {
-            await joinVoiceChannelProcedure(data.getRaw(), null, voiceChannel);
+            await joinVoiceChannelProcedure(data, null, voiceChannel);
         }
 
         let instance = DiscordMusicPlayer.getGuildInstance(guild.id);
@@ -267,7 +267,7 @@ export default class Play extends DiscordModule {
             return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data.getRaw())] }, true);
 
         if (!instance!.isConnected()) {
-            await joinVoiceChannelProcedure(data.getRaw(), instance!, voiceChannel);
+            await joinVoiceChannelProcedure(data, instance!, voiceChannel);
             instance = DiscordMusicPlayer.getGuildInstance(guild.id);
         }
 
