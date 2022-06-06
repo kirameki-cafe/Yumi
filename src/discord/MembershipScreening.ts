@@ -210,7 +210,7 @@ export default class MembershipScreening extends DiscordModule {
 
         embed[0].footer = {
             text: `${interaction.user.username}  |  v${App.version}`,
-            iconURL: `${interaction.user.displayAvatarURL()}?size=4096` || ''
+            iconURL: `${interaction.user.displayAvatarURL()}?size=4096`
         }
 
         if (['approve', 'deny', 'ban'].includes(payload.a)) {
@@ -440,7 +440,7 @@ export default class MembershipScreening extends DiscordModule {
             ]
         });
 
-        embed.setThumbnail(`${member.user.displayAvatarURL()}?size=4096` || '');
+        embed.setThumbnail(`${member.user.displayAvatarURL()}?size=4096`);
 
         const row = new MessageActionRow()
             .addComponents(

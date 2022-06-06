@@ -196,8 +196,12 @@ export default class osu extends DiscordModule {
                     ],
                     user: data.getUser()
                 });
+                embed.setAuthor({
+                    name: `${result.name}'s osu profile`,
+                    url: `https://osu.ppy.sh/users/${result.id}`,
+                    iconURL: 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Osulogo.png'                 
+                });
 
-                embed.setAuthor(`${result.name}'s osu profile`, 'https://upload.wikimedia.org/wikipedia/commons/4/44/Osu%21Logo_%282019%29.png', `https://osu.ppy.sh/users/${result.id}`);
                 // TODO: Fix for ppl with no image
                 embed.setThumbnail(`https://a.ppy.sh/${result.id}` || 'https://osu.ppy.sh/images/layout/avatar-guest.png');
 
@@ -353,9 +357,13 @@ export default class osu extends DiscordModule {
                     user: data.getUser()
                 });
 
-                embed2.setAuthor(`osu! beatmap`, 'https://upload.wikimedia.org/wikipedia/commons/4/44/Osu%21Logo_%282019%29.png', `https://osu.ppy.sh/beatmapsets/${bm_result.beatmapSetId}${url_mode}/${bm_result.id}`);
+                embed2.setAuthor({
+                    name: `osu! beatmap`,
+                    url: `https://osu.ppy.sh/beatmapsets/${bm_result.beatmapSetId}${url_mode}/${bm_result.id}`,
+                    iconURL: `https://upload.wikimedia.org/wikipedia/commons/e/e3/Osulogo.png`
+                });
                 embed2.setImage(`https://assets.ppy.sh/beatmaps/${bm_result.beatmapSetId}/covers/cover.jpg`);
-                //
+                
                 const row = new MessageActionRow();
                 if(bm_result.hasDownload)
                     row.addComponents(
