@@ -1,3 +1,4 @@
+import { User as PrismaUser } from '@prisma/client';
 import {
     Message,
     Interaction,
@@ -16,6 +17,7 @@ import {
 
 import DiscordMusicPlayer from '../../providers/DiscordMusicPlayer';
 import Users from '../../services/Users';
+import Cache from '../../providers/Cache';
 
 const EMBEDS = {
     DEBUG_INFO: (data: Message | Interaction) => {
@@ -25,7 +27,7 @@ const EMBEDS = {
             fields: [
                 {
                     name: 'Available arguments',
-                    value: '``invalidInteraction`` ``crashMusicPlayer`` ``crash`` ``activemusicplayer``'
+                    value: '``invalidInteraction`` ``crashMusicPlayer`` ``crash`` ``activemusicplayer`` ``mydata``'
                 }
             ],
             user: data instanceof Interaction ? data.user : data.author
@@ -50,6 +52,14 @@ const EMBEDS = {
         return makeInfoEmbed({
             icon: '🎵',
             title: `Total active music players: ${totalplayers.size}`,
+            user: data instanceof Interaction ? data.user : data.author
+        });
+    },
+    YOUR_USER_DATA: (data: Message | Interaction, userData?: PrismaUser) => {
+        return makeInfoEmbed({
+            icon: '📃',
+            title: `Your user data`,
+            description: JSON.stringify(userData),
             user: data instanceof Interaction ? data.user : data.author
         });
     },
@@ -127,6 +137,14 @@ export default class Debug extends DiscordModule {
                     ]
                 });
             },
+            myData: async (data: HybridInteractionMessage) => {
+                const userData = await Cache.getCachedUser(user.id);
+                await sendHybridInteractionMessageResponse(data, {
+                    embeds: [
+                        EMBEDS.YOUR_USER_DATA(data.getRaw(), userData)
+                    ]
+                });
+            },
             invalidInteraction: async (data: HybridInteractionMessage) => {
                 const row = new MessageActionRow().addComponents(
                     new MessageButton()
@@ -170,6 +188,8 @@ export default class Debug extends DiscordModule {
                 return await funct.crashMusicPlayer(data);
             case 'activemusicplayer':
                 return await funct.activeMusicPlayer(data);
+            case 'mydata':
+                return await funct.myData(data);
         }
     }
 }

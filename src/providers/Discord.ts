@@ -124,7 +124,11 @@ class Discord {
         });
 
         // Interaction create event to modules
-        this.client.on('interactionCreate', (interaction: Interaction) => {
+        this.client.on('interactionCreate', async (interaction: Interaction) => {
+
+            if(!Cache.isUserCached(interaction.user.id))
+                await Cache.updateUserCache(interaction.user.id);
+
             for (const module of this.loaded_module) {
                 let thisModule: DiscordModule = module[1];
 
@@ -175,7 +179,7 @@ class Discord {
             if (message.author.bot) return;
             if (typeof message.guild?.id === 'undefined') return;
 
-            let GuildCache = await Cache.getGuild(message.guild.id);
+            let GuildCache = await Cache.getCachedGuild(message.guild.id);
             if (typeof GuildCache === 'undefined' || typeof GuildCache.prefix === 'undefined')
                 return;
 
@@ -243,15 +247,10 @@ class Discord {
                 } else {
                     if (noPrefixMessage.charAt(0) !== ' ') return;
                 }
-                //if(noPrefixMessage.charAt(0) !== ' ' && !symbols.includes(noPrefixMessage.charAt(0))) return;
             }
 
             if (noPrefixMessage === '') return;
             if (noPrefixMessage.charAt(0) === ' ') {
-                /*if(symbols.includes(GuildCache.prefix.charAt(GuildCache.prefix.length - 1))) {
-                    if((GuildCache.prefix.indexOf(' ') >= 0)) return;
-                }*/
-
                 noPrefixMessage = noPrefixMessage.substring(1);
             }
 
@@ -263,6 +262,9 @@ class Discord {
             args.shift();
 
             if (args.length === 0) args = [];
+
+            if(!Cache.isUserCached(message.author.id))
+                await Cache.updateUserCache(message.author.id);
 
             for (const module of this.loaded_module) {
                 let thisModule: DiscordModule = module[1];
@@ -293,6 +295,9 @@ class Discord {
             args = args.filter((e) => e !== '');
 
             if (args.length === 0) args = [];
+
+            if(!Cache.isUserCached(message.author.id))
+                await Cache.updateUserCache(message.author.id);
 
             for (const module of this.loaded_module) {
                 let thisModule: DiscordModule = module[1];

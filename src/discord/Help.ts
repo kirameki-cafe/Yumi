@@ -8,7 +8,7 @@ import { sendHybridInteractionMessageResponse, makeInfoEmbed } from '../utils/Di
 
 const EMBEDS = {
     INFO: async (data: Message | Interaction) => {
-        let GuildCache = await Cache.getGuild(data.guildId!);
+        let GuildCache = await Cache.getCachedGuild(data.guildId!);
 
         // TODO: Better error handling
         if (typeof GuildCache === 'undefined') throw new Error('Guild not found');
