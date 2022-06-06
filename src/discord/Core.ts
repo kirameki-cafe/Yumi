@@ -26,10 +26,9 @@ export default class Core extends DiscordModule {
             Cache.updateGuildsCache();
         }, 5 * 60 * 1000);
 
+        this.setActivity();
         setInterval(() => {
-            DiscordProvider.client.user!.setActivity('for your heart 💖', {
-                type: 'COMPETING'
-            });
+            this.setActivity();
         }, 5 * 60 * 1000);
 
         Logger.info('Core started successfully');
@@ -45,5 +44,11 @@ export default class Core extends DiscordModule {
         });
 
         await Cache.updateGuildCache(guild.id);
+    }
+
+    private setActivity() {
+        DiscordProvider.client.user!.setActivity('for your heart 💖', {
+            type: 'COMPETING'
+        });
     }
 }
