@@ -1,5 +1,5 @@
 import { I18n } from 'i18n';
-import { Message, CommandInteraction, Interaction } from 'discord.js';
+import { Message, CommandInteraction } from 'discord.js';
 import os from 'os-utils';
 
 import DiscordProvider from '../providers/Discord';
@@ -10,7 +10,7 @@ import Locale from '../providers/Locale';
 import Cache from '../providers/Cache';
 
 const EMBEDS = {
-    STATS_INFO: (data: Message | Interaction, locale: I18n) => {
+    STATS_INFO: (data: HybridInteractionMessage, locale: I18n) => {
         const totalServers = DiscordProvider.client.guilds.cache.size;
         const totalUsers = DiscordProvider.client.guilds.cache.map((g) => g.memberCount).reduce((a, c) => a + c);
         const systemUptime = Math.round(new Date().getTime() / 1000) - Math.round(os.sysUptime());
@@ -38,7 +38,7 @@ const EMBEDS = {
                     inline: true
                 }
             ],
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     }
 };
@@ -66,7 +66,7 @@ export default class Stats extends DiscordModule {
         const LocaleProvider = Locale.getLocaleProvider(cachedGuild.locale);
 
         return await sendHybridInteractionMessageResponse(data, {
-            embeds: [EMBEDS.STATS_INFO(data.getRaw(), LocaleProvider)]
+            embeds: [EMBEDS.STATS_INFO(data, LocaleProvider)]
         });
     }
 }
