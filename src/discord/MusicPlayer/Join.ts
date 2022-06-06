@@ -1,5 +1,3 @@
-import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
-
 import {
     Message,
     CommandInteraction,
@@ -14,6 +12,8 @@ import {
     TextChannel,
     VoiceBasedChannel
 } from 'discord.js';
+import { I18n } from 'i18n';
+
 import {
     makeSuccessEmbed,
     makeErrorEmbed,
@@ -31,65 +31,57 @@ import DiscordMusicPlayer, {
     DiscordMusicPlayerLoopMode
 } from '../../providers/DiscordMusicPlayer';
 
-const EMBEDS = {
-    VOICECHANNEL_JOINED: (data: Message | Interaction) => {
-        return makeSuccessEmbed({
-            title: `Success`,
-            description: `Joined voice channel`,
-            user: data instanceof Interaction ? data.user : data.author
-        });
-    },
-    VOICECHANNEL_DISCONNECTED: (data: Message | Interaction) => {
-        return makeSuccessEmbed({
-            title: `Disconnected`,
-            description: `I got disconnected from the voice channel`,
-            user: data instanceof Interaction ? data.user : data.author
-        });
-    },
-    VOICECHANNEL_INUSE: (data: Message | Interaction) => {
-        let haveForceMove =
-            data instanceof Message
-                ? (data as Message).member!.permissions.has([Permissions.FLAGS.MOVE_MEMBERS])
-                : ((data as Interaction).member! as GuildMember).permissions.has([Permissions.FLAGS.MOVE_MEMBERS]);
+import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
+import Locale from '../../services/Locale';
 
+const EMBEDS = {
+    VOICECHANNEL_JOINED: (data: HybridInteractionMessage, locale: I18n) => {
+        return makeSuccessEmbed({
+            title: locale.__('musicplayer_join.success'),
+            user: data.getUser()
+        });
+    },
+    VOICECHANNEL_DISCONNECTED: (data: HybridInteractionMessage, locale: I18n) => {
+        return makeSuccessEmbed({
+            title: locale.__('musicplayer_join.disconnected'),
+            description: locale.__('musicplayer_join.disconnected_reason_disconnected'),
+            user: data.getUser()
+        });
+    },
+    VOICECHANNEL_INUSE: (data: HybridInteractionMessage, locale: I18n, haveForceMove: boolean) => {
         return makeErrorEmbed({
-            title: `I can't open portal to parallel universe`,
-            description: `I can't join mutiple voice channel on the same guild.
-            I wish I had a superpower, maybe... one day I will.
-            
-            There are also somebody listening to the music in the voice channel I'm currently in.${
-                !haveForceMove
-                    ? ` Wait until I finish playing there or I'm alone there. Better yet, join them!`
-                    : " Wait until I finish playing there or I'm alone there. Better yet, join them! \n\n**Or... just (ab)use your admin permissions and move me to where you want!**"
+            title: locale.__('musicplayer_join.error'),
+            description: `${locale.__('musicplayer_join.in_use')}\n\n${locale.__('musicplayer_join.in_use_wait')}${
+                haveForceMove ? locale.__('musicplayer_join.can_force_move') : ''
             }`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    VOICECHANNEL_ALREADY_JOINED: (data: Message | Interaction) => {
+    VOICECHANNEL_ALREADY_JOINED: (data: HybridInteractionMessage, locale: I18n) => {
         return makeInfoEmbed({
-            title: `I'm already here`,
-            description: `Already in the voice channel you are currently connected to`,
-            user: data instanceof Interaction ? data.user : data.author
+            title: locale.__('musicplayer_join.already_joined_title'),
+            description: locale.__('musicplayer_join.already_joined_description'),
+            user: data.getUser()
         });
     },
-    USER_NOT_IN_VOICECHANNEL: (data: Message | Interaction) => {
+    USER_NOT_IN_VOICECHANNEL: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
-            title: `You need to be in the voice channel first!`,
-            user: data instanceof Interaction ? data.user : data.author
+            title: locale.__('musicplayer.not_in_voice'),
+            user: data.getUser()
         });
     },
-    MUSIC_ERROR: (data: Message | Interaction, err: Error) => {
+    MUSIC_ERROR: (data: HybridInteractionMessage, locale: I18n, error: Error) => {
         return makeErrorEmbed({
-            title: `Error while playing music, skipping this track`,
-            description: `${err.message}`,
-            user: data instanceof Interaction ? data.user : data.author
+            title: locale.__('musicplayer.track_error'),
+            description: error.message,
+            user: data.getUser()
         });
     },
-    NOW_PLAYING: (data: Message | Interaction, track: ValidTracks) => {
+    NOW_PLAYING: (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
         const embed = makeInfoEmbed({
-            title: ' Now playing',
-            icon: '🎵',
-            description: `${track.title}`,
+            title: locale.__('musicplayer.now_playing'),
+            icon: '🎵 ',
+            description: track.title,
             user: DiscordProvider.client.user
         });
 
@@ -101,10 +93,10 @@ const EMBEDS = {
 
         return embed;
     },
-    NOW_REPEATING: (data: Message | Interaction, track: ValidTracks) => {
+    NOW_REPEATING: (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
         const embed = makeInfoEmbed({
-            title: ' Now playing (Repeating)',
-            icon: '🎵',
+            title: locale.__('musicplayer.now_playing_repeating'),
+            icon: '🎵 ',
             description: `${track.title}`,
             user: DiscordProvider.client.user
         });
@@ -144,6 +136,8 @@ export async function joinVoiceChannelProcedure(
     const bot = guild.me;
     if (!bot) return;
 
+    const locale = await Locale.getGuildLocale(guild.id);
+
     // If already in VoiceChannel
     if (bot.voice.channelId) {
         // But, no music instance yet (The bot might just restarted)
@@ -161,7 +155,7 @@ export async function joinVoiceChannelProcedure(
             instance!.joinVoiceChannel(voiceChannel, channel);
             if (!isAcceptableInteraction)
                 await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.VOICECHANNEL_JOINED(data.getRaw())]
+                    embeds: [EMBEDS.VOICECHANNEL_JOINED(data, locale)]
                 });
         }
         // And, already have instance on the guild
@@ -170,7 +164,7 @@ export async function joinVoiceChannelProcedure(
             if (channel.id === instance.voiceChannel.id) {
                 if (!isAcceptableInteraction)
                     return await sendHybridInteractionMessageResponse(data, {
-                        embeds: [EMBEDS.VOICECHANNEL_ALREADY_JOINED(data.getRaw())]
+                        embeds: [EMBEDS.VOICECHANNEL_ALREADY_JOINED(data, locale)]
                     });
                 else return;
             }
@@ -181,7 +175,13 @@ export async function joinVoiceChannelProcedure(
                 if (activeMembers.size > 0) {
                     if (!isAcceptableInteraction)
                         return await sendHybridInteractionMessageResponse(data, {
-                            embeds: [EMBEDS.VOICECHANNEL_INUSE(data.getRaw())]
+                            embeds: [
+                                EMBEDS.VOICECHANNEL_INUSE(
+                                    data,
+                                    locale,
+                                    member.permissions.has([Permissions.FLAGS.MOVE_MEMBERS])
+                                )
+                            ]
                         });
                     else return;
                 }
@@ -191,7 +191,7 @@ export async function joinVoiceChannelProcedure(
                     await bot.voice.setChannel(voiceChannel);
                     if (!isAcceptableInteraction)
                         return await sendHybridInteractionMessageResponse(data, {
-                            embeds: [EMBEDS.VOICECHANNEL_JOINED(data.getRaw())]
+                            embeds: [EMBEDS.VOICECHANNEL_JOINED(data, locale)]
                         });
                     else return;
                 }
@@ -207,7 +207,7 @@ export async function joinVoiceChannelProcedure(
 
         instance!.joinVoiceChannel(voiceChannel, channel);
         if (!isAcceptableInteraction)
-            await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.VOICECHANNEL_JOINED(data.getRaw())] });
+            await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.VOICECHANNEL_JOINED(data, locale)] });
     }
 
     if (!instance) return;
@@ -235,12 +235,12 @@ export async function joinVoiceChannelProcedure(
             if (event.instance.getLoopMode() === DiscordMusicPlayerLoopMode.Current) {
                 isLoopMessageSent = true;
                 await sendMessage(event.instance.textChannel, undefined, {
-                    embeds: [EMBEDS.NOW_REPEATING(data.getRaw(), event.instance.queue.track[0])],
+                    embeds: [EMBEDS.NOW_REPEATING(data, locale, event.instance.queue.track[0])],
                     components: [row]
                 });
             } else {
                 await sendMessage(event.instance.textChannel, undefined, {
-                    embeds: [EMBEDS.NOW_PLAYING(data.getRaw(), event.instance.queue.track[0])],
+                    embeds: [EMBEDS.NOW_PLAYING(data, locale, event.instance.queue.track[0])],
                     components: [row]
                 });
             }
@@ -250,7 +250,7 @@ export async function joinVoiceChannelProcedure(
     instance.events.on('error', async (event: PlayerErrorEvent) => {
         if (event.instance.textChannel) {
             await sendMessage(event.instance.textChannel, undefined, {
-                embeds: [EMBEDS.MUSIC_ERROR(data.getRaw(), event.error)]
+                embeds: [EMBEDS.MUSIC_ERROR(data, locale, event.error)]
             });
         }
     });
@@ -258,7 +258,7 @@ export async function joinVoiceChannelProcedure(
     instance.events.on('disconnect', async (event: VoiceDisconnectedEvent) => {
         if (event.instance.textChannel) {
             await sendMessage(event.instance.textChannel, undefined, {
-                embeds: [EMBEDS.VOICECHANNEL_DISCONNECTED(data.getRaw())]
+                embeds: [EMBEDS.VOICECHANNEL_DISCONNECTED(data, locale)]
             });
         }
 
@@ -285,15 +285,15 @@ export default class Join extends DiscordModule {
 
         if (!guild || !member) return;
 
+        const locale = await Locale.getGuildLocale(guild.id);
         const voiceChannel = member.voice.channel;
 
         if (!voiceChannel)
             return await sendHybridInteractionMessageResponse(data, {
-                embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data.getRaw())]
+                embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data, locale)]
             });
 
         const instance = DiscordMusicPlayer.getGuildInstance(guild.id);
-        console.log(data.isButton);
         await joinVoiceChannelProcedure(data, instance, voiceChannel);
     }
 }

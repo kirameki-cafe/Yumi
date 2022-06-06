@@ -1,39 +1,42 @@
-import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
-
 import { Message, CommandInteraction, Interaction } from "discord.js";
-import { makeSuccessEmbed, makeInfoEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from "../../utils/DiscordMessage";
+import { I18n } from "i18n";
+
 import DiscordProvider from "../../providers/Discord";
 import DiscordMusicPlayer from "../../providers/DiscordMusicPlayer";
 
+import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
+import { makeSuccessEmbed, makeInfoEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from "../../utils/DiscordMessage";
+import Locale from "../../services/Locale";
+
 const EMBEDS = {
-    RESUMED: (data: Message | Interaction) => {
+    RESUMED: (data: HybridInteractionMessage, locale: I18n) => {
         return makeSuccessEmbed({
-            title: `Resumed`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer_resume.resumed'),
+            user: data.getUser()
         });
     },
-    NOT_PAUSED: (data: Message | Interaction) => {
+    NOT_PAUSED: (data: HybridInteractionMessage, locale: I18n) => {
         return makeInfoEmbed({
-            title: `The music is not paused`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer_resume.not_paused'),
+            user: data.getUser()
         });
     },
-    NO_MUSIC_PLAYING: (data: Message | Interaction) => {
+    NO_MUSIC_PLAYING: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
-            title: `There are no music playing`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer.no_music_playing'),
+            user: data.getUser()
         });
     },
-    USER_NOT_IN_VOICECHANNEL: (data: Message | Interaction) => {
+    USER_NOT_IN_VOICECHANNEL: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
-            title: `You need to be in the voice channel first!`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer.not_in_voice'),
+            user: data.getUser()
         });
     },
-    USER_NOT_IN_SAME_VOICECHANNEL: (data: Message | Interaction) => {
+    USER_NOT_IN_SAME_VOICECHANNEL: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
-            title: `You are not in the same voice channel!`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer.different_voice_channel'),
+            user: data.getUser()
         });
     }
 }
@@ -59,26 +62,28 @@ export default class Resume extends DiscordModule{
 
         if (!guild || !member) return;
 
+        const locale = await Locale.getGuildLocale(guild.id);
+
         const voiceChannel = member.voice.channel;
 
         if (!voiceChannel)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data.getRaw())] });
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data, locale)] });
 
         const instance = DiscordMusicPlayer.getGuildInstance(guild.id);
 
         if(!instance)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data.getRaw())] });
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)] });
 
         if(instance.voiceChannel.id !== voiceChannel.id)
-                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data.getRaw())] }, true);
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data, locale)] }, true);
 
         if(instance.queue.track.length === 0)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data.getRaw())] });
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)] });
 
         if(!instance.isPaused())
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NOT_PAUSED(data.getRaw())] });
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NOT_PAUSED(data, locale)] });
 
         instance.resumePlayer();
-        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.RESUMED(data.getRaw())] });
+        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.RESUMED(data, locale)] });
     }
 }

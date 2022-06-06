@@ -1,47 +1,49 @@
-import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
-
+import { I18n } from "i18n";
 import { Message, CommandInteraction, Interaction, MessageActionRow, ButtonInteraction, MessageSelectMenu, MessageSelectOptionData } from "discord.js";
-import { makeErrorEmbed, makeSuccessEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
-import DiscordMusicPlayer, { DiscordMusicPlayerLoopMode } from "../../providers/DiscordMusicPlayer";
 
+import DiscordMusicPlayer, { DiscordMusicPlayerLoopMode } from "../../providers/DiscordMusicPlayer";
+import Locale from "../../services/Locale";
+
+import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
+import { makeErrorEmbed, makeSuccessEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 const EMBEDS = {
-    INVALID_LOOP_MODE: (data: Message | Interaction) => {
+    INVALID_LOOP_MODE: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
-            title: `Invalid loop mode`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer_loop.invalid'),
+            user: data.getUser()
         });
     },
-    LOOP_STATUS: (data: Message | Interaction, loopMode: DiscordMusicPlayerLoopMode) => {
+    LOOP_STATUS: (data: HybridInteractionMessage, locale: I18n, loopMode: DiscordMusicPlayerLoopMode) => {
         let embed = makeInfoEmbed({
-            title: `Current loop mode is ${loopMode}`,
-            description: "Available loop mode: ``None`` ``Current``",
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer_loop.info', loopMode),
+            description: locale.__('musicplayer_loop.valid_args'),
+            user: data.getUser()
         });
         return embed;
     },
-    LOOP_SET: (data: Message | Interaction, loopMode: DiscordMusicPlayerLoopMode) => {
+    LOOP_SET: (data: HybridInteractionMessage, locale: I18n, loopMode: DiscordMusicPlayerLoopMode) => {
         let embed = makeSuccessEmbed({
-            title: `Loop mode is now set to ${loopMode}`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer_loop.loop_set', loopMode),
+            user: data.getUser()
         });
         return embed;
     },
-    USER_NOT_IN_VOICECHANNEL: (data: Message | Interaction) => {
+    USER_NOT_IN_VOICECHANNEL: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
-            title: `You need to be in the voice channel first!`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer.not_in_voice'),
+            user: data.getUser()
         });
     },
-    USER_NOT_IN_SAME_VOICECHANNEL: (data: Message | Interaction) => {
+    USER_NOT_IN_SAME_VOICECHANNEL: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
-            title: `You are not in the same voice channel!`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer.different_voice_channel'),
+            user: data.getUser()
         });
     },
-    NO_MUSIC_PLAYING: (data: Message | Interaction) => {
+    NO_MUSIC_PLAYING: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
-            title: `There are no music playing`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer.no_music_playing'),
+            user: data.getUser()
         });
     }
 }
@@ -67,6 +69,7 @@ export default class Loop extends DiscordModule {
         const channel = data.getChannel();
 
         if (!guild || !user || !member || !channel) return;
+        const locale = await Locale.getGuildLocale(guild.id);
 
         let query;
 
@@ -80,30 +83,30 @@ export default class Loop extends DiscordModule {
         const voiceChannel = member.voice.channel;
 
         if (!voiceChannel)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data.getRaw())] });
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data, locale)] });
 
         const instance = DiscordMusicPlayer.getGuildInstance(guild.id);
 
         if (!instance)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data.getRaw())] });
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)] });
 
         if (instance.voiceChannel.id !== voiceChannel.id)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data.getRaw())] }, true);
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data, locale)] }, true);
 
         if (instance.queue.track.length === 0)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data.getRaw())] });
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)] });
 
         if (!query)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.LOOP_STATUS(data.getRaw(), instance.getLoopMode())] });
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.LOOP_STATUS(data, locale, instance.getLoopMode())] });
 
         let enumKey = Object.keys(DiscordMusicPlayerLoopMode)[Object.values(DiscordMusicPlayerLoopMode).indexOf(query.toLowerCase())];
 
         if(enumKey) {
             instance.setLoopMode(DiscordMusicPlayerLoopMode[enumKey as keyof typeof DiscordMusicPlayerLoopMode]);
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.LOOP_SET(data.getRaw(), instance.getLoopMode())] });
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.LOOP_SET(data, locale, instance.getLoopMode())] });
         }
         
-        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.INVALID_LOOP_MODE(data.getRaw())] });
+        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.INVALID_LOOP_MODE(data, locale)] });
     }
 
 }

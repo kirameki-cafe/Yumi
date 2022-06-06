@@ -1,12 +1,114 @@
 {
-    "stats": {
-        "title": "stats.title",
-        "description": "stats.description",
-        "uptime_since": "stats.uptime_since",
-        "users": "stats.users",
-        "x_servers": "%s stats.x_servers",
-        "x_users": "%s stats.x_users",
-        "server_uptime_x": "stats.server_uptime_x %s",
-        "process_uptime_x": "stats.process_uptime_x %s"
-    }
+	"common": {
+		"available_args": "Available arguments",
+		"no_permissions": "許可していない",
+		"no_permissions_description": "このギルドでは ``%s`` の許可が必要です!"
+	},
+	"stats": {
+		"title": "統計情報",
+		"info": "現在のボットの統計情報",
+		"users": "ユーザー",
+		"x_servers": "%s サーヴァーズ",
+		"x_users": "%s ユーザー",
+		"uptime_since": "アップタイム",
+		"server_uptime_x": "サーヴァーズ %s",
+		"process_uptime_x": "プロセス %s"
+	},
+	"userinfo": {
+		"title": "ユーザー情報",
+		"info": "ユーザー情報を表示する",
+		"valid_args": "(``@メンションまたはユーザーID``)",
+		"user_not_found": "一致するユーザーを見つけることができません",
+		"online": "オンライン",
+		"idle": "アイドル",
+		"dnd": "起こさないで",
+		"offline": "最近のオフライン",
+		"unknown": "オフライン／不明",
+		"user_guild_info": "このギルドの情報",
+		"join_date_unknown": "このギルドの加入日が特定できない",
+		"join_date": "加入 %s",
+		"guild_owner": "このギルドのオーナー",
+		"custom_status": "カスタムステータス",
+		"playing_x": "%sをプレイ中",
+		"streaming_x": "%sをストリーミング中",
+		"listening_x": "%sを再生中",
+		"watching_x": "%s鑑賞中",
+		"competing_x": "%sに参戦中です"
+	},
+	"say": {
+		"title": "言うこと",
+		"info": "ボットとしてメッセージを送信する",
+		"valid_args": "``(テキストメッセージ)``",
+		"success": "メッセージの送信に成功しました",
+		"error": "メッセージを送信できない"
+	},
+	"invite": {
+		"title": "招待状リンク",
+		"info": "[あなたのサーバに%sを招待してください](%s)",
+		"private": "%sの招待は現在非公開です。開発者だけが私を別のサーバーに追加することができます"
+	},
+	"musicplayer": {
+		"now_playing": "再生中",
+		"now_playing_repeating": "再生中（リピート再生）",
+		"no_music_playing": "音楽が流れていない",
+		"not_in_voice": "まず音声チャンネルに入る必要がある!",
+		"different_voice_channel": "音声チャンネルが違うぞ！",
+		"track_error": "音楽再生中にエラーが発生し、このトラックをスキップしています。"
+	},
+	"musicplayer_join": {
+		"success": "音声チャネルへの参加に成功",
+		"error": "音声チャネルに参加できない",
+		"disconnected": "ディスコネクト",
+		"disconnected_reason_disconnected": "音声チャネルから切断された",
+		"in_use": "同じギルドで複数のボイスチャンネルに参加することができません。\n今入っているボイスチャンネルで音楽を聴いている人がいます。",
+		"in_use_wait": "そこで遊び終わるか、そこで一人になるまで待ってください。いっそのこと、参加しちゃいましょう",
+		"can_force_move": "\n\n**もしくは...管理者権限を悪用して、私を好きな場所に移動させてください!**",
+		"already_joined_title": "もうここにいる",
+		"already_joined_description": "現在接続している音声チャンネルですでに"
+	},
+	"musicplayer_leave": {
+		"success": "音声チャネルからの離脱に成功"
+	},
+	"musicplayer_loop": {
+		"info": "現在のループモードは「%s」です。",
+		"valid_args": "使用可能なループモード: ``None`` ``Current``",
+		"invalid": "ループモードが正しくない",
+		"loop_set": "ループモードが「%s」になりました。"
+	},
+	"musicplayer_pause": {
+		"paused": "一時停止",
+		"already_paused": "すでに一時停止中"
+	},
+	"musicplayer_resume": {
+		"resumed": "再開しました",
+		"not_paused": "現在、音楽は一時停止していません"
+	},
+	"musicplayer_play": {
+		"title": "プレイ",
+		"info": "曲を再生する",
+		"valid_args": "``(検索クエリまたはリンク)``",
+		"queue_added_song": "キューに曲を追加しました",
+		"queue_added_songs": "たくさんの曲をキューに追加しました",
+		"queue_added_songs_description": "キューに%s曲を追加",
+		"error": "曲の検索中にエラーが発生"
+	},
+	"musicplayer_queue": {
+		"title": "キュー",
+		"empty": "キューは空です!",
+		"now_playing": "再生中",
+		"upcoming_song": "次の曲",
+		"looping_current": "(この曲の繰り返し)",
+		"song_x_in_queue": "%s曲も並んでいますよ。"
+	},
+	"musicplayer_search": {
+		"title": "検索",
+		"info": "楽曲を検索する",
+		"valid_args": "``(検索クエリ)``",
+		"title_result": "検索結果",
+		"x_results_found": "%s件見つかりました。"
+	},
+	"musicplayer_skip": {
+		"skipped": "スキップした",
+		"skipped_last_song": "スキップした、それは最後の曲だった"
+	}
 }

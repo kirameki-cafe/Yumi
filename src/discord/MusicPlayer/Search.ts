@@ -1,61 +1,45 @@
-import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
-
 import { Message, CommandInteraction, Interaction, MessageActionRow, ButtonInteraction, MessageSelectMenu, MessageSelectOptionData } from "discord.js";
-import { makeErrorEmbed, makeSuccessEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
-import DiscordMusicPlayer, { ValidTracks } from "../../providers/DiscordMusicPlayer";
+import { I18n } from "i18n";
+
 import { joinVoiceChannelProcedure } from "./Join";
 
+import DiscordMusicPlayer, { ValidTracks } from "../../providers/DiscordMusicPlayer";
+import Locale from "../../services/Locale";
+
+import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
+import { makeErrorEmbed, makeSuccessEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+
 const EMBEDS = {
-    SEARCH_INFO: (data: Message | Interaction) => {
+    SEARCH_INFO: (data: HybridInteractionMessage, locale: I18n) => {
         return makeInfoEmbed({
-            title: 'Search',
-            description: `Search for a song`,
+            title: locale.__('musicplayer_search.title'),
+            description: locale.__('musicplayer_search.info'),
             fields: [
                 {
-                    name: 'Arguments',
-                    value: '``Search query``'
+                    name: locale.__('common.available_args'),
+                    value: locale.__('musicplayer_search.valid_args'),
                 }
             ],
-            user: (data instanceof Interaction) ? data.user : data.author
+            user: data.getUser()
         });
     },
-    SEARCH_RESULT: (data: Message | Interaction, result: ValidTracks[]) => {
+    SEARCH_RESULT: (data: HybridInteractionMessage, locale: I18n, result: ValidTracks[]) => {
         return makeInfoEmbed({
-            title: `Search result`,
-            description: `${result.length} results found\n\n${result.map(track => `- [${track.title}](${track.url})`).join('\n')}`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer_search.title_result'),
+            description: `${locale.__('musicplayer_search.x_results_found', result.length.toString())}\n\n${result.map(track => `- [${track.title}](${track.url})`).join('\n')}`,
+            user: data.getUser()
         });
     },
-    INVALID_LINK: (data: Message | Interaction) => {
+    USER_NOT_IN_VOICECHANNEL: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
-            title: `Invalid Link`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer.not_in_voice'),
+            user: data.getUser()
         });
     },
-    ADDED_QUEUE: (data: Message | Interaction, track: ValidTracks) => {
-        let embed = makeSuccessEmbed({
-            title: `Song added to queue!`,
-            description: `${track.title}`,
-            user: (data instanceof Interaction) ? data.user : data.author
-        });
-
-        const highestResolutionThumbnail = track.thumbnails.reduce((prev, current) => (prev.height * prev.width > current.height * current.width) ? prev : current)
-
-        if(highestResolutionThumbnail)
-            embed.setImage(highestResolutionThumbnail.url);
-            
-        return embed;
-    },
-    USER_NOT_IN_VOICECHANNEL: (data: Message | Interaction) => {
+    USER_NOT_IN_SAME_VOICECHANNEL: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
-            title: `You need to be in the voice channel first!`,
-            user: (data instanceof Interaction) ? data.user : data.author
-        });
-    },
-    USER_NOT_IN_SAME_VOICECHANNEL: (data: Message | Interaction) => {
-        return makeErrorEmbed({
-            title: `You are not in the same voice channel!`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer.different_voice_channel'),
+            user: data.getUser()
         });
     }
 }
@@ -100,12 +84,13 @@ export default class Search extends DiscordModule {
         const channel = data.getChannel();
 
         if (!guild || !user || !member || !channel) return;
+        const locale = await Locale.getGuildLocale(guild.id);
 
         let query;
 
         if (data.isMessage()) {
             if (args.length === 0)
-                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SEARCH_INFO(data.getRaw())] });
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SEARCH_INFO(data, locale)] });
 
             query = args.join(' ');
         }
@@ -119,7 +104,7 @@ export default class Search extends DiscordModule {
         const voiceChannel = member.voice.channel;
 
         if (!voiceChannel)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data.getRaw())] });
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data, locale)] });
 
 
         if (!DiscordMusicPlayer.isGuildInstanceExists(guild.id))
@@ -129,7 +114,7 @@ export default class Search extends DiscordModule {
         if (!instance) return;
 
         if (instance.voiceChannel.id !== voiceChannel.id)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data.getRaw())] });
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data, locale)] });
 
         if (!instance.isConnected()) {
             await joinVoiceChannelProcedure(data, instance!, voiceChannel);
@@ -173,7 +158,7 @@ export default class Search extends DiscordModule {
         const row = new MessageActionRow();
         row.addComponents(messageSelectMenu);
 
-        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SEARCH_RESULT(data.getRaw(), result)], components: [row] });
+        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SEARCH_RESULT(data, locale, result)], components: [row] });
     }
 
 

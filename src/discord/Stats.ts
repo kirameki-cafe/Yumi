@@ -6,8 +6,7 @@ import DiscordProvider from '../providers/Discord';
 
 import DiscordModule, { HybridInteractionMessage } from '../utils/DiscordModule';
 import { sendHybridInteractionMessageResponse, makeInfoEmbed } from '../utils/DiscordMessage';
-import Locale from '../providers/Locale';
-import Cache from '../providers/Cache';
+import Locale from '../services/Locale';
 
 const EMBEDS = {
     STATS_INFO: (data: HybridInteractionMessage, locale: I18n) => {
@@ -19,7 +18,7 @@ const EMBEDS = {
         return makeInfoEmbed({
             title: locale.__('stats.title'),
             icon: '📊',
-            description: locale.__('stats.description'),
+            description: locale.__('stats.info'),
             fields: [
                 {
                     name: `🌐 ${locale.__('stats.users')}`,
@@ -60,13 +59,10 @@ export default class Stats extends DiscordModule {
         const guild = data.getGuild();
         if (!guild) return;
 
-        const cachedGuild = await Cache.getCachedGuild(guild.id);
-        if (!cachedGuild) return;
-
-        const LocaleProvider = Locale.getLocaleProvider(cachedGuild.locale);
+        const locale = await Locale.getGuildLocale(guild.id);
 
         return await sendHybridInteractionMessageResponse(data, {
-            embeds: [EMBEDS.STATS_INFO(data, LocaleProvider)]
+            embeds: [EMBEDS.STATS_INFO(data, locale)]
         });
     }
 }
