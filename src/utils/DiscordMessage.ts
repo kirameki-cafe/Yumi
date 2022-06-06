@@ -11,8 +11,7 @@ import {
     Message,
     ColorResolvable,
     Interaction,
-    InteractionReplyOptions,
-    CommandInteraction
+    InteractionReplyOptions
 } from 'discord.js';
 
 import App from '..';
@@ -29,7 +28,7 @@ interface EmbedData {
     description?: any;
     color?: ColorResolvable;
     fields?: any;
-    user?: User;
+    user?: User | null;
     setTimestamp: boolean;
 }
 
@@ -39,7 +38,7 @@ interface EmbedDataPresets {
     description?: any;
     color?: ColorResolvable;
     fields?: any;
-    user?: User;
+    user?: User | null;
     setTimestamp?: boolean;
 }
 
@@ -81,15 +80,15 @@ export function makeInfoEmbed(data: EmbedDataPresets) {
     });
 }
 
-export function makeSuccessEmbed(options: EmbedDataPresets) {
+export function makeSuccessEmbed(data: EmbedDataPresets) {
     return makeEmbed({
-        icon: !options.icon ? '✅' : options.icon,
-        title: options.title,
-        description: options.description,
+        icon: !data.icon ? '✅' : data.icon,
+        title: data.title,
+        description: data.description,
         color: '#B5EAD7',
-        fields: options.fields,
-        user: options.user,
-        setTimestamp: options.setTimestamp || true
+        fields: data.fields,
+        user: data.user,
+        setTimestamp: data.setTimestamp || true
     });
 }
 
@@ -207,7 +206,6 @@ export async function sendHybridInteractionMessageResponse(
 export function getEmotes() {
     return emotes;
 }
-
 
 async function sendReply(rMessage: Message, options: string | MessagePayload | MessageOptions) {
     let message;
