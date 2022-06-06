@@ -1,0 +1,12 @@
+{
+    "stats": {
+        "title": "stats.title",
+        "description": "stats.description",
+        "uptime_since": "stats.uptime_since",
+        "users": "stats.users",
+        "x_servers": "%s stats.x_servers",
+        "x_users": "%s stats.x_users",
+        "server_uptime_x": "stats.server_uptime_x %s",
+        "process_uptime_x": "stats.process_uptime_x %s"
+    }
+}
