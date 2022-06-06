@@ -1,16 +1,19 @@
-import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
+import { Message, CommandInteraction, MessageActionRow, MessageButton } from "discord.js";
+import { I18n } from "i18n";
 
-import { Message, CommandInteraction, Interaction, MessageActionRow, TextChannel, MessageButton } from "discord.js";
-import { makeErrorEmbed, makeInfoEmbed, sendHybridInteractionMessageResponse } from "../../utils/DiscordMessage";
 import DiscordProvider from "../../providers/Discord";
 import DiscordMusicPlayer, { ValidTracks } from "../../providers/DiscordMusicPlayer";
+import Locale from "../../services/Locale";
+
+import { makeErrorEmbed, makeInfoEmbed, sendHybridInteractionMessageResponse } from "../../utils/DiscordMessage";
+import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
 
 const EMBEDS = {
-    NOW_PLAYING: (data: Message | Interaction, track: ValidTracks) => {
+    NOW_PLAYING: (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
         const embed = makeInfoEmbed({
-            title: ' Now playing',
-            icon: '🎵',
-            description: `${track.title}`,
+            title: locale.__('musicplayer.now_playing'),
+            icon: '🎵 ',
+            description: track.title,
             user: DiscordProvider.client.user
         });
 
@@ -21,10 +24,10 @@ const EMBEDS = {
         
         return embed;
     },
-    NO_MUSIC_PLAYING: (data: Message | Interaction) => {
+    NO_MUSIC_PLAYING: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
-            title: `There are no music playing`,
-            user: (data instanceof Interaction) ? data.user : data.author
+            title: locale.__('musicplayer.no_music_playing'),
+            user: data.getUser()
         });
     }
 }
@@ -48,8 +51,9 @@ export default class NowPlaying extends DiscordModule {
         const guild = data.getGuild();
         if(!guild) return;
         
+        const locale = await Locale.getGuildLocale(guild.id);
         const instance = DiscordMusicPlayer.getGuildInstance(guild.id);
-        if(!instance || !instance.queue.track[0]) return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data.getRaw())] });
+        if(!instance || !instance.queue.track[0]) return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)] });
 
         const row = new MessageActionRow()
             .addComponents(
@@ -60,6 +64,6 @@ export default class NowPlaying extends DiscordModule {
                     .setStyle('LINK'),
             )
 
-        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NOW_PLAYING(data.getRaw(), instance.queue.track[0])], components: [row] });
+        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NOW_PLAYING(data, locale, instance.queue.track[0])], components: [row] });
     }
 }

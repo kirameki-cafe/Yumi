@@ -1,12 +1,114 @@
 {
-    "stats": {
-        "title": "Stats",
-        "description": "Stats of the bot",
-        "uptime_since": "Uptime since",
-        "users": "Users",
-        "x_servers": "%s servers",
-        "x_users": "%s users",
-        "server_uptime_x": "Server %s",
-        "process_uptime_x": "Process %s"
-    }
+	"common": {
+		"available_args": "Available arguments",
+		"no_permissions": "No permission",
+		"no_permissions_description": "You need ``%s`` permission on this guild!"
+	},
+	"stats": {
+		"title": "Stats",
+		"info": "Current stats of the bot",
+		"users": "Users",
+		"x_servers": "%s servers",
+		"x_users": "%s users",
+		"uptime_since": "Uptime since",
+		"server_uptime_x": "Server %s",
+		"process_uptime_x": "Process %s"
+	},
+	"userinfo": {
+		"title": "User Information",
+		"info": "Show user information",
+		"valid_args": "(``@Mention or User ID``)",
+		"user_not_found": "Unable to find any matching user",
+		"online": "Online",
+		"idle": "Idle",
+		"dnd": "Do not disturb",
+		"offline": "Recently Offline",
+		"unknown": "Offline / Unknown",
+		"user_guild_info": "Information on this guild",
+		"join_date_unknown": "Cannot determine join date",
+		"join_date": "Joined %s",
+		"guild_owner": "Owner of this guild",
+		"custom_status": "Custom Status",
+		"playing_x": "Playing %s",
+		"streaming_x": "Streaming %s",
+		"listening_x": "Listening to %s",
+		"watching_x": "Watching %s",
+		"competing_x": "Competing %s"
+	},
+	"say": {
+		"title": "Say",
+		"info": "Send a message as the bot",
+		"valid_args": "``(Text message)``",
+		"success": "Successfully sent a message",
+		"error": "Unable to send the message"
+	},
+	"invite": {
+		"title": "Invite",
+		"info": "[Invite %s to your server!](%s)",
+		"private": "%s's invite is currently private. Only the developers can add me to another server"
+	},
+	"musicplayer": {
+		"now_playing": "Now playing",
+		"now_playing_repeating": "Now playing (Repeating)",
+		"no_music_playing": "There are no music playing",
+		"not_in_voice": "You need to be in the voice channel first!",
+		"different_voice_channel": "You are not in the same voice channel!",
+		"track_error": "Error while playing music, skipping this track"
+	},
+	"musicplayer_join": {
+		"success": "Successfully joined the voice channel",
+		"error": "Unable to join the voice channel",
+		"disconnected": "Disconnected",
+		"disconnected_reason_disconnected": "I got disconnected from the voice channel",
+		"in_use": "I can't join mutiple voice channel on the same guild.\n There are also somebody listening to the music in the voice channel I'm currently in.",
+		"in_use_wait": "Wait until I finish playing there or I'm alone there. Better yet, join them!",
+		"can_force_move": "\n\n**Or... just (ab)use your admin permissions and move me to where you want!**",
+		"already_joined_title": "I'm already here",
+		"already_joined_description": "Already in the voice channel you are currently connected to"
+	},
+	"musicplayer_leave": {
+		"success": "Successfully left the voice channel"
+	},
+	"musicplayer_loop": {
+		"info": "Current loop mode is %s",
+		"valid_args": "Available loop mode: ``None`` ``Current``",
+		"invalid": "Invalid loop mode",
+		"loop_set": "Loop mode is now set to %s"
+	},
+	"musicplayer_pause": {
+		"paused": "Paused",
+		"already_paused": "Already paused"
+	},
+	"musicplayer_resume": {
+		"resumed": "Resumed",
+		"not_paused": "The music is not paused"
+	},
+	"musicplayer_play": {
+		"title": "Play",
+		"info": "Play a song",
+		"valid_args": "``(Search query or Link)``",
+		"queue_added_song": "Song added to queue!",
+		"queue_added_songs": "Songs added to queue!",
+		"queue_added_songs_description": "Added %s songs to the queue",
+		"error": "Error while looking up the song"
+	},
+	"musicplayer_queue": {
+		"title": "Queue",
+		"empty": "The queue is empty!",
+		"now_playing": "Now playing",
+		"upcoming_song": "Upcoming song",
+		"looping_current": "(Looping current)",
+		"song_x_in_queue": "There are %s song in the queue!"
+	},
+	"musicplayer_search": {
+		"title": "Search",
+		"info": "Search for a song",
+		"valid_args": "``(Search query)``",
+		"title_result": "Search result",
+		"x_results_found": "%s results found"
+	},
+	"musicplayer_skip": {
+		"skipped": "Skipped",
+		"skipped_last_song": "Skipped, that was the last song"
+	}
 }

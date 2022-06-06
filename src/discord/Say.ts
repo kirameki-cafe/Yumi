@@ -1,4 +1,5 @@
 import { Message, Permissions, Interaction, CommandInteraction } from 'discord.js';
+import { I18n } from 'i18n';
 
 import DiscordModule, { HybridInteractionMessage } from '../utils/DiscordModule';
 import {
@@ -7,38 +8,43 @@ import {
     makeErrorEmbed,
     makeInfoEmbed
 } from '../utils/DiscordMessage';
+import Locale from '../services/Locale';
 
 const EMBEDS = {
-    SAY_INFO: (data: Message | Interaction) => {
+    SAY_INFO: (data: HybridInteractionMessage, locale: I18n) => {
         return makeInfoEmbed({
-            title: 'Say',
-            description: `Make me say something!`,
+            title: locale.__('say.title'),
+            description: locale.__('say.info'),
             fields: [
                 {
-                    name: 'Available arguments',
-                    value: '``Your message``'
+                    name: locale.__('common.available_args'),
+                    value: locale.__('say.valid_args')
                 }
             ],
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    NO_PERMISSION: (data: Message | Interaction) => {
+    NO_PERMISSION: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
-            title: 'You need ``VIEW_CHANNEL, SEND_MESSAGES and MANAGE_CHANNELS`` permission on this guild!',
-            user: data instanceof Interaction ? data.user : data.author
+            title: locale.__('common.no_permissions'),
+            description: locale.__(
+                'common.no_permissions_description',
+                'VIEW_CHANNEL, SEND_MESSAGES and MANAGE_CHANNELS'
+            ),
+            user: data.getUser()
         });
     },
-    SAY_ERROR: (data: Message | Interaction, error: any) => {
+    SAY_ERROR: (data: HybridInteractionMessage, locale: I18n, error: Error) => {
         return makeErrorEmbed({
-            title: `Unable to say`,
-            description: error.message,
-            user: data instanceof Interaction ? data.user : data.author
+            title: locale.__('say.error'),
+            description: error.message ? error.message : undefined,
+            user: data.getUser()
         });
     },
-    SUCCESSFULLY_SAID: (data: Message | Interaction) => {
+    SUCCESSFULLY_SAID: (data: HybridInteractionMessage, locale: I18n) => {
         return makeSuccessEmbed({
-            title: 'Successfully said',
-            user: data instanceof Interaction ? data.user : data.author
+            title: locale.__('say.success'),
+            user: data.getUser()
         });
     }
 };
@@ -57,6 +63,11 @@ export default class Say extends DiscordModule {
     }
 
     async run(data: HybridInteractionMessage, args: any) {
+        const guild = data.getGuild();
+        if (!guild) return;
+
+        const locale = await Locale.getGuildLocale(guild.id);
+
         let query;
 
         if (data.isMessage()) {
@@ -72,12 +83,12 @@ export default class Say extends DiscordModule {
                 ])
             )
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.NO_PERMISSION(data.getRaw())]
+                    embeds: [EMBEDS.NO_PERMISSION(data, locale)]
                 });
 
             if (args.length === 0)
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.SAY_INFO(data.getRaw())]
+                    embeds: [EMBEDS.SAY_INFO(data, locale)]
                 });
 
             query = args.join(' ');
@@ -90,7 +101,7 @@ export default class Say extends DiscordModule {
                     ?.permissions.has([Permissions.FLAGS.ADMINISTRATOR])
             )
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.NO_PERMISSION(data.getRaw())]
+                    embeds: [EMBEDS.NO_PERMISSION(data, locale)]
                 });
 
             query = interaction.options.getString('message');
@@ -101,10 +112,10 @@ export default class Say extends DiscordModule {
                 await data.getChannel()!.send({ content: query });
                 await data
                     .getMessageComponentInteraction()
-                    .reply({ ephemeral: true, embeds: [EMBEDS.SUCCESSFULLY_SAID(data.getRaw())] });
+                    .reply({ ephemeral: true, embeds: [EMBEDS.SUCCESSFULLY_SAID(data, locale)] });
             } catch (err: any) {
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.SAY_ERROR(data.getRaw(), err)]
+                    embeds: [EMBEDS.SAY_ERROR(data, locale, err)]
                 });
             }
         } else if (data.isMessage()) {
@@ -115,7 +126,7 @@ export default class Say extends DiscordModule {
                 await data.getChannel()!.send({ content: query });
             } catch (err: any) {
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.SAY_ERROR(data.getRaw(), err)]
+                    embeds: [EMBEDS.SAY_ERROR(data, locale, err)]
                 });
             }
         }

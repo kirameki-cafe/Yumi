@@ -23,7 +23,7 @@ const emotes = {
 };
 
 interface EmbedData {
-    icon?: string;
+    icon?: string | null;
     title: string;
     description?: any;
     color?: ColorResolvable;
@@ -33,7 +33,7 @@ interface EmbedData {
 }
 
 interface EmbedDataPresets {
-    icon?: string;
+    icon?: string | null;
     title: string;
     description?: any;
     color?: ColorResolvable;
@@ -70,7 +70,7 @@ export function makeEmbed(data: EmbedData) {
 
 export function makeInfoEmbed(data: EmbedDataPresets) {
     return makeEmbed({
-        icon: !data.icon ? '🔮' : data.icon,
+        icon: !data.icon && data.icon !== null ? '🔮' : data.icon,
         title: data.title,
         description: data.description,
         color: '#C7CEEA',
@@ -82,7 +82,7 @@ export function makeInfoEmbed(data: EmbedDataPresets) {
 
 export function makeSuccessEmbed(data: EmbedDataPresets) {
     return makeEmbed({
-        icon: !data.icon ? '✅' : data.icon,
+        icon: !data.icon && data.icon !== null ? '✅' : data.icon,
         title: data.title,
         description: data.description,
         color: '#B5EAD7',
@@ -94,7 +94,7 @@ export function makeSuccessEmbed(data: EmbedDataPresets) {
 
 export function makeWarningEmbed(data: EmbedDataPresets) {
     return makeEmbed({
-        icon: !data.icon ? '⚠️' : data.icon,
+        icon: !data.icon && data.icon !== null ? '⚠️' : data.icon,
         title: data.title,
         description: data.description,
         color: '#FFEEAD',
@@ -106,7 +106,7 @@ export function makeWarningEmbed(data: EmbedDataPresets) {
 
 export function makeErrorEmbed(data: EmbedDataPresets) {
     return makeEmbed({
-        icon: !data.icon ? '❌' : data.icon,
+        icon: !data.icon && data.icon !== null ? '❌' : data.icon,
         title: data.title,
         description: data.description,
         color: '#FF9AA2',
@@ -118,7 +118,7 @@ export function makeErrorEmbed(data: EmbedDataPresets) {
 
 export function makeProcessingEmbed(data: EmbedDataPresets) {
     return makeEmbed({
-        icon: !data.icon ? getEmotes().yumiloading : data.icon,
+        icon: !data.icon && data.icon !== null ? getEmotes().yumiloading : data.icon,
         title: data.title,
         description: data.description,
         color: '#E2F0CB',
