@@ -16,7 +16,8 @@ class Locale {
     public getLocaleProvider(locale: string) {
         const i18n = new I18n();
         i18n.configure({
-            directory: this.localePath
+            directory: this.localePath,
+            objectNotation: true
         })
         i18n.setLocale(locale);
         return i18n;
