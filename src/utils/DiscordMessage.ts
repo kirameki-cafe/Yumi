@@ -23,107 +23,104 @@ const emotes = {
     yumiloading: '<a:yumiloading:983269480085983262>'
 };
 
-export function makeEmbed(
-    icon: string | undefined,
-    title: string,
-    description: any,
-    color: ColorResolvable,
-    fields: any,
-    user: User,
-    setTimestamp: boolean
-) {
+interface EmbedData {
+    icon?: string;
+    title: string;
+    description?: any;
+    color?: ColorResolvable;
+    fields?: any;
+    user?: User;
+    setTimestamp: boolean;
+}
+
+export function makeEmbed(data: EmbedData) {
     const embed = new MessageEmbed();
-    embed.setColor(color || '#FFFFFF');
+    embed.setColor(data.color || '#FFFFFF');
 
-    if (typeof icon === 'undefined') embed.setTitle(title);
-    else embed.setTitle(`${icon}  ${title}`);
+    if (!data.icon) embed.setTitle(data.title);
+    else embed.setTitle(`${data.icon}  ${data.title}`);
 
-    if (typeof description !== 'undefined') embed.setDescription(description);
+    if (data.description) embed.setDescription(data.description);
 
-    if (setTimestamp) embed.setTimestamp();
+    if (data.setTimestamp) embed.setTimestamp();
 
-    if (typeof user !== 'undefined')
+    if (data.user)
         embed.footer = {
-            text: `${user.username}  |  v${App.version}`,
-            iconURL: `${user.displayAvatarURL()}?size=4096`
+            text: `${data.user.username}  |  v${App.version}`,
+            iconURL: `${data.user.displayAvatarURL()}?size=4096`
         };
     else
         embed.footer = {
             text: `v${App.version}`
         };
 
-    if (typeof fields !== 'undefined') embed.addFields(fields);
+    if (data.fields) embed.addFields(data.fields);
 
     return embed;
 }
 
+export function makeInfoEmbed(options: any) {
+    return makeEmbed({
+        icon: !options.icon ? '🔮' : options.icon,
+        title: options.title,
+        description: options.description,
+        color: '#C7CEEA',
+        fields: options.fields,
+        user: options.user,
+        setTimestamp: options.setTimestamp || true
+    });
+}
+
 export function makeSuccessEmbed(options: any) {
-    return makeEmbed(
-        typeof options.icon === 'undefined' ? '✅' : options.icon,
-        options.title,
-        options.description,
-        '#B5EAD7',
-        options.fields,
-        options.user,
-        options.setTimestamp || true
-    );
+    return makeEmbed({
+        icon: !options.icon ? '✅' : options.icon,
+        title: options.title,
+        description: options.description,
+        color: '#B5EAD7',
+        fields: options.fields,
+        user: options.user,
+        setTimestamp: options.setTimestamp || true
+    });
 }
 
 export function makeWarningEmbed(options: any) {
-    return makeEmbed(
-        typeof options.icon === 'undefined' ? '⚠️' : options.icon,
-        options.title,
-        options.description,
-        '#FFEEAD',
-        options.fields,
-        options.user,
-        options.setTimestamp || true
-    );
+    return makeEmbed({
+        icon: !options.icon ? '⚠️' : options.icon,
+        title: options.title,
+        description: options.description,
+        color: '#FFEEAD',
+        fields: options.fields,
+        user: options.user,
+        setTimestamp: options.setTimestamp || true
+    });
 }
 
 export function makeErrorEmbed(options: any) {
-    return makeEmbed(
-        typeof options.icon === 'undefined' ? '❌' : options.icon,
-        options.title,
-        options.description,
-        '#FF9AA2',
-        options.fields,
-        options.user,
-        options.setTimestamp || true
-    );
+    return makeEmbed({
+        icon: !options.icon ? '❌' : options.icon,
+        title: options.title,
+        description: options.description,
+        color: '#FF9AA2',
+        fields: options.fields,
+        user: options.user,
+        setTimestamp: options.setTimestamp || true
+    });
 }
 
 export function makeProcessingEmbed(options: any) {
-    return makeEmbed(
-        typeof options.icon === 'undefined' ? getEmotes().yumiloading : options.icon,
-        options.title,
-        options.description,
-        '#E2F0CB',
-        options.fields,
-        options.user,
-        options.setTimestamp || true
-    );
-}
-
-export function makeInfoEmbed(options: any) {
-    return makeEmbed(
-        typeof options.icon === 'undefined' ? '🔮' : options.icon,
-        options.title,
-        options.description,
-        '#C7CEEA',
-        options.fields,
-        options.user,
-        options.setTimestamp || true
-    );
+    return makeEmbed({
+        icon: !options.icon ? getEmotes().yumiloading : options.icon,
+        title: options.title,
+        description: options.description,
+        color: '#E2F0CB',
+        fields: options.fields,
+        user: options.user,
+        setTimestamp: options.setTimestamp || true
+    });
 }
 
 export async function sendMessage(
-    channel:
-        | TextChannel
-        | DMChannel
-        | BaseGuildTextChannel
-        | GuildTextBasedChannel
-        | PartialDMChannel,
+    channel: TextChannel | DMChannel | BaseGuildTextChannel | GuildTextBasedChannel | PartialDMChannel,
     user: User | undefined,
     options: string | MessagePayload | MessageOptions
 ) {
@@ -150,10 +147,7 @@ export async function sendMessage(
     }
 }
 
-export async function sendReply(
-    rMessage: Message,
-    options: string | MessagePayload | MessageOptions
-) {
+export async function sendReply(rMessage: Message, options: string | MessagePayload | MessageOptions) {
     let message;
 
     try {
@@ -170,52 +164,6 @@ export async function sendReply(
     } finally {
         return message;
     }
-}
-
-export async function sendMessageOrInteractionResponse(
-    data: Message | Interaction,
-    payload: MessageOptions | InteractionReplyOptions,
-    replace = false
-) {
-    const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-    const isMessage = data instanceof Message;
-
-    if (
-        isSlashCommand ||
-        (data instanceof Interaction && (data.isSelectMenu() || data.isButton()))
-    ) {
-        if (!data.replied) {
-            let message;
-            try {
-                if (!data.deferred) return await data.reply(payload as InteractionReplyOptions);
-                else return await data.editReply(payload);
-            } catch (errorDM) {
-                Logger.error(
-                    `Cannot find available destinations to send the message CID: ${
-                        data.channel!.id
-                    } UID: ${data.user.id} DM_ERR: ${errorDM}`
-                );
-                return;
-            } finally {
-                return message;
-            }
-        } else {
-            let message;
-            try {
-                if (replace) return await data.editReply(payload);
-                else return await data.followUp(payload as InteractionReplyOptions);
-            } catch (errorDM) {
-                Logger.error(
-                    `Cannot find available destinations to send the message CID: ${
-                        data.channel!.id
-                    } UID: ${data.user.id} DM_ERR: ${errorDM}`
-                );
-                return;
-            } finally {
-                return message;
-            }
-        }
-    } else if (isMessage) return await sendReply(data, payload as MessageOptions);
 }
 
 export async function sendHybridInteractionMessageResponse(
@@ -238,9 +186,9 @@ export async function sendHybridInteractionMessageResponse(
                 }
             } catch (errorDM) {
                 Logger.error(
-                    `Cannot find available destinations to send the message CID: ${
-                        messageComponent.channel!.id
-                    } UID: ${messageComponent.user.id} DM_ERR: ${errorDM}`
+                    `Cannot find available destinations to send the message CID: ${messageComponent.channel!.id} UID: ${
+                        messageComponent.user.id
+                    } DM_ERR: ${errorDM}`
                 );
                 return;
             } finally {
@@ -250,23 +198,19 @@ export async function sendHybridInteractionMessageResponse(
             let message;
             try {
                 if (replace) return (await messageComponent.editReply(payload)) as Message;
-                else
-                    return (await messageComponent.followUp(
-                        payload as InteractionReplyOptions
-                    )) as Message;
+                else return (await messageComponent.followUp(payload as InteractionReplyOptions)) as Message;
             } catch (errorDM) {
                 Logger.error(
-                    `Cannot find available destinations to send the message CID: ${
-                        messageComponent.channel!.id
-                    } UID: ${messageComponent.user.id} DM_ERR: ${errorDM}`
+                    `Cannot find available destinations to send the message CID: ${messageComponent.channel!.id} UID: ${
+                        messageComponent.user.id
+                    } DM_ERR: ${errorDM}`
                 );
                 return;
             } finally {
                 return message;
             }
         }
-    } else if (data.isMessage())
-        return await sendReply(data.getMessage(), payload as MessageOptions);
+    } else if (data.isMessage()) return await sendReply(data.getMessage(), payload as MessageOptions);
 }
 
 export function getEmotes() {

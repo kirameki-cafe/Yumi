@@ -123,7 +123,7 @@ export default class Search extends DiscordModule {
 
 
         if (!DiscordMusicPlayer.isGuildInstanceExists(guild.id))
-            await joinVoiceChannelProcedure(data.getRaw(), null, voiceChannel);
+            await joinVoiceChannelProcedure(data, null, voiceChannel);
 
         let instance = DiscordMusicPlayer.getGuildInstance(guild.id);
         if (!instance) return;
@@ -132,7 +132,7 @@ export default class Search extends DiscordModule {
             return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data.getRaw())] });
 
         if (!instance.isConnected()) {
-            await joinVoiceChannelProcedure(data.getRaw(), instance!, voiceChannel);
+            await joinVoiceChannelProcedure(data, instance!, voiceChannel);
             instance = DiscordMusicPlayer.getGuildInstance(guild.id);
         }
 

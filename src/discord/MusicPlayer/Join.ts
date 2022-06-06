@@ -1,7 +1,7 @@
 import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
 
-import { Message, CommandInteraction, Interaction, VoiceChannel, Permissions, GuildMember, DMChannel, StageChannel, MessageActionRow, MessageButton, TextChannel } from "discord.js";
-import { makeSuccessEmbed, makeErrorEmbed, sendMessage, sendMessageOrInteractionResponse, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+import { Message, CommandInteraction, Interaction, VoiceChannel, Permissions, GuildMember, DMChannel, StageChannel, MessageActionRow, MessageButton, TextChannel, VoiceBasedChannel } from "discord.js";
+import { makeSuccessEmbed, makeErrorEmbed, sendMessage, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 import DiscordProvider from "../../providers/Discord";
 import DiscordMusicPlayer, { PlayerPlayingEvent, PlayerErrorEvent, VoiceDisconnectedEvent, ValidTracks, DiscordMusicPlayerInstance, DiscordMusicPlayerLoopMode } from "../../providers/DiscordMusicPlayer";
 
@@ -85,48 +85,52 @@ const EMBEDS = {
     }
 }
 
-export async function joinVoiceChannelProcedure (data: Interaction | Message, instance: (DiscordMusicPlayerInstance | null), voiceChannel: (VoiceChannel | StageChannel)) {
+export async function joinVoiceChannelProcedure (data: HybridInteractionMessage, instance: (DiscordMusicPlayerInstance | null), voiceChannel: (VoiceChannel | StageChannel)) {
 
-    const isSlashCommand = data instanceof CommandInteraction && data.isCommand();
-    const isAcceptableInteraction = data instanceof Interaction && (data.isSelectMenu() || data.isButton());
-    const isMessage = data instanceof Message;
+    const isSlashCommand = data.isSlashCommand();
+    const isAcceptableInteraction = data.isSelectMenu() || data.isButton();
+    const isMessage = data.isMessage();
     if ((!isSlashCommand && !isAcceptableInteraction) && !isMessage) return;
 
-    if (!data.member) return;
-    if (!data.channel) return;
-    if (!data.guildId) return;
+    const member = data.getMember();
+    const channel = data.getChannel();
+    const guild = data.getGuild();
 
-    if (data.channel instanceof DMChannel) return;
-    if (!(data.channel instanceof TextChannel)) return;
+    if(!member || !channel || !guild) return;
 
-    const channel: any = isMessage ? data.member.voice.channel : DiscordProvider.client.guilds.cache.get((data as Interaction).guildId!)!.members.cache.get((data as Interaction).user.id)?.voice.channel;
-    if (!channel) return;
+    if (channel instanceof DMChannel) return;
+    if (!(channel instanceof TextChannel)) return;
 
+    const memberVoiceChannel = member.voice.channel;//isMessage ? member.voice.channel : DiscordProvider.client.guilds.cache.get(guild.id)!.members.cache.get((data as Interaction).user.id)?.voice.channel;
+    if (!memberVoiceChannel) return;
+
+    const bot = guild.me;
+    if(!bot) return;
 
     // If already in VoiceChannel
-    if (DiscordProvider.client.guilds.cache.get(data.guildId)!.me!.voice.channelId) {
+    if (bot.voice.channelId) {
         // But, no music instance yet (The bot might just restarted)
         if (!instance) {
             // User is in different VoiceChannel
-            if (channel.id !== DiscordProvider.client.guilds.cache.get(data.guildId)?.me?.voice) {
+            if (memberVoiceChannel.id !== bot.voice.channelId) {
                 //Disconnect it
-                await DiscordProvider.client.guilds.cache.get(data.guildId)?.me?.voice.disconnect();
+                await bot.voice.disconnect();
             }
 
             //Create instance for a new one
-            DiscordMusicPlayer.createGuildInstance(data.guildId, voiceChannel);
-            instance = DiscordMusicPlayer.getGuildInstance(data.guildId);
+            DiscordMusicPlayer.createGuildInstance(guild.id, voiceChannel);
+            instance = DiscordMusicPlayer.getGuildInstance(guild.id);
 
-            instance!.joinVoiceChannel(voiceChannel, data.channel);
+            instance!.joinVoiceChannel(voiceChannel, channel);
             if(!isAcceptableInteraction)
-                await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.VOICECHANNEL_JOINED(data)] });
+                await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.VOICECHANNEL_JOINED(data.getRaw())] });
         }
         // And, already have instance on the guild
         else {
             // And, User VoiceChannel is same as the instance
             if (channel.id === instance.voiceChannel.id) {
                 if(!isAcceptableInteraction)
-                    return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.VOICECHANNEL_ALREADY_JOINED(data)] });
+                    return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.VOICECHANNEL_ALREADY_JOINED(data.getRaw())] });
                 else return;
             }
             // But, not the same VoiceChannel
@@ -135,15 +139,15 @@ export async function joinVoiceChannelProcedure (data: Interaction | Message, in
                 // And someone else is using the bot
                 if(activeMembers.size > 0) {
                     if(!isAcceptableInteraction)
-                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.VOICECHANNEL_INUSE(data)] });
+                        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.VOICECHANNEL_INUSE(data.getRaw())] });
                     else return;
                 }
                 // And alone in the VoiceChannel
                 else {
                     // Move to the new voice channel
-                    await DiscordProvider.client.guilds.cache.get(data.guildId)?.me?.voice.setChannel(voiceChannel);
+                    await bot.voice.setChannel(voiceChannel);
                     if(!isAcceptableInteraction)
-                        return await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.VOICECHANNEL_JOINED(data)] });
+                        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.VOICECHANNEL_JOINED(data.getRaw())] });
                     else return;
                 }
             }
@@ -154,14 +158,14 @@ export async function joinVoiceChannelProcedure (data: Interaction | Message, in
     else {
 
         if (instance)
-            await DiscordMusicPlayer.destoryGuildInstance(data.guildId!);
+            await DiscordMusicPlayer.destoryGuildInstance(guild.id);
 
-        DiscordMusicPlayer.createGuildInstance(data.guildId, voiceChannel);
-        instance = DiscordMusicPlayer.getGuildInstance(data.guildId);
+        DiscordMusicPlayer.createGuildInstance(guild.id, voiceChannel);
+        instance = DiscordMusicPlayer.getGuildInstance(guild.id);
 
-        instance!.joinVoiceChannel(voiceChannel, data.channel);
+        instance!.joinVoiceChannel(voiceChannel, channel);
         if(!isAcceptableInteraction)
-            await sendMessageOrInteractionResponse(data, { embeds: [EMBEDS.VOICECHANNEL_JOINED(data)] });
+            await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.VOICECHANNEL_JOINED(data.getRaw())] });
     }
 
     if (!instance) return;
@@ -191,23 +195,23 @@ export async function joinVoiceChannelProcedure (data: Interaction | Message, in
         if (event.instance.textChannel) {
             if(event.instance.getLoopMode() === DiscordMusicPlayerLoopMode.Current) {
                 isLoopMessageSent = true;
-                await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.NOW_REPEATING(data, event.instance.queue.track[0])], components: [row] });
+                await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.NOW_REPEATING(data.getRaw(), event.instance.queue.track[0])], components: [row] });
             }
             else {
-                await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.NOW_PLAYING(data, event.instance.queue.track[0])], components: [row] });
+                await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.NOW_PLAYING(data.getRaw(), event.instance.queue.track[0])], components: [row] });
             }
         }
     });
 
     instance.events.on('error', async (event: PlayerErrorEvent) => {
         if (event.instance.textChannel) {
-            await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.MUSIC_ERROR(data, event.error)] });
+            await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.MUSIC_ERROR(data.getRaw(), event.error)] });
         }
     });
 
     instance.events.on('disconnect', async (event: VoiceDisconnectedEvent) => {
         if (event.instance.textChannel) {
-            await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.VOICECHANNEL_DISCONNECTED(data)] });
+            await sendMessage(event.instance.textChannel, undefined, { embeds: [EMBEDS.VOICECHANNEL_DISCONNECTED(data.getRaw())] });
         }
 
         DiscordMusicPlayer.destoryGuildInstance(event.instance.voiceChannel.guildId);
@@ -241,6 +245,7 @@ export default class Join extends DiscordModule {
             return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data.getRaw())] });
         
         const instance = DiscordMusicPlayer.getGuildInstance(guild.id);
-        await joinVoiceChannelProcedure(data.getRaw(), instance, voiceChannel);
+        console.log(data.isButton)
+        await joinVoiceChannelProcedure(data, instance, voiceChannel);
     }
 }
