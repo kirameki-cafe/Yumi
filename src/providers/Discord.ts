@@ -26,12 +26,11 @@ import Discord_MusicPlayer_Loop from '../discord/MusicPlayer/Loop';
 import Discord_MusicPlayer_Pause from '../discord/MusicPlayer/Pause';
 import Discord_MusicPlayer_Resume from '../discord/MusicPlayer/Resume';
 
-import Discord_Developer_ServiceAnnouncement from '../discord/developer/ServiceAnnouncement';
-import Discord_Developer_Debug from '../discord/developer/Debug';
+import Discord_Developer_ServiceAnnouncement from '../discord/Developer/ServiceAnnouncement';
+import Discord_Developer_Debug from '../discord/Developer/Debug';
 
 import Cache from './Cache';
 import DiscordModule from '../utils/DiscordModule';
-import { Map } from 'typescript';
 
 class Discord {
     public client: Client;
@@ -87,17 +86,12 @@ class Discord {
             if (_module.id) {
                 if (this.loaded_module.has(_module.id))
                     Logger.error(
-                        `Module ${
-                            _module.constructor.name
-                        } is trying to assign a conflicting module id ${_module.id}. ${
-                            this.loaded_module.get(_module.id)!.constructor.name
-                        } is already assigned to this id.`
+                        `Module ${_module.constructor.name} is trying to assign a conflicting module id ${
+                            _module.id
+                        }. ${this.loaded_module.get(_module.id)!.constructor.name} is already assigned to this id.`
                     );
                 else this.loaded_module.set(_module.id, _module);
-            } else
-                Logger.error(
-                    `Invalid module ${_module.constructor.name}. The module does not have an id.`
-                );
+            } else Logger.error(`Invalid module ${_module.constructor.name}. The module does not have an id.`);
         }
 
         Logger.info(`Loaded ${this.loaded_module.size} Discord Modules`);
@@ -125,9 +119,7 @@ class Discord {
 
         // Interaction create event to modules
         this.client.on('interactionCreate', async (interaction: Interaction) => {
-
-            if(!Cache.isUserCached(interaction.user.id))
-                await Cache.updateUserCache(interaction.user.id);
+            if (!Cache.isUserCached(interaction.user.id)) await Cache.updateUserCache(interaction.user.id);
 
             for (const module of this.loaded_module) {
                 let thisModule: DiscordModule = module[1];
@@ -135,16 +127,9 @@ class Discord {
                 if (interaction.guild) {
                     thisModule.GuildInteractionCreate(interaction);
 
-                    if (
-                        interaction.isCommand() &&
-                        interaction.commandName &&
-                        thisModule.commandInteractionName
-                    ) {
+                    if (interaction.isCommand() && interaction.commandName && thisModule.commandInteractionName) {
                         thisModule.GuildCommandInteractionCreate(interaction);
-                        if (
-                            interaction.commandName.toLowerCase() ===
-                            thisModule.commandInteractionName
-                        )
+                        if (interaction.commandName.toLowerCase() === thisModule.commandInteractionName)
                             thisModule.GuildModuleCommandInteractionCreate(interaction);
                     } else if (interaction.isButton()) {
                         thisModule.GuildButtonInteractionCreate(interaction);
@@ -180,8 +165,7 @@ class Discord {
             if (typeof message.guild?.id === 'undefined') return;
 
             let GuildCache = await Cache.getCachedGuild(message.guild.id);
-            if (typeof GuildCache === 'undefined' || typeof GuildCache.prefix === 'undefined')
-                return;
+            if (typeof GuildCache === 'undefined' || typeof GuildCache.prefix === 'undefined') return;
 
             if (!message.content.startsWith(GuildCache.prefix)) return;
 
@@ -263,8 +247,7 @@ class Discord {
 
             if (args.length === 0) args = [];
 
-            if(!Cache.isUserCached(message.author.id))
-                await Cache.updateUserCache(message.author.id);
+            if (!Cache.isUserCached(message.author.id)) await Cache.updateUserCache(message.author.id);
 
             for (const module of this.loaded_module) {
                 let thisModule: DiscordModule = module[1];
@@ -285,7 +268,11 @@ class Discord {
             if (!message.mentions.users) return;
 
             if (message.mentions.users.first()?.id !== this.client.user?.id) return;
-            if (!message.content.startsWith(`<@!${this.client.user?.id}>`)) return;
+            if (
+                !message.content.startsWith(`<@!${this.client.user?.id}>`) &&
+                !message.content.startsWith(`<@${this.client.user?.id}>`)
+            )
+                return;
 
             let args = message.content.split(' ');
             let command = args[1];
@@ -296,8 +283,7 @@ class Discord {
 
             if (args.length === 0) args = [];
 
-            if(!Cache.isUserCached(message.author.id))
-                await Cache.updateUserCache(message.author.id);
+            if (!Cache.isUserCached(message.author.id)) await Cache.updateUserCache(message.author.id);
 
             for (const module of this.loaded_module) {
                 let thisModule: DiscordModule = module[1];
