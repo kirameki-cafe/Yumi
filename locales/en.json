@@ -47,6 +47,18 @@
 		"info": "[Invite %s to your server!](%s)",
 		"private": "%s's invite is currently private. Only the developers can add me to another server"
 	},
+	"help": {
+		"title": "Help - %s",
+		"prefix_title": "Prefix",
+		"prefix_description": "You can call me using ``%s`` %s or ``/slash command``",
+		"available_commands": "Available commands",
+		"general": "General",
+		"music": "Music",
+		"games": "Games",
+		"admin": "Admin",
+		"developer": "Developer",
+		"footer": "Made with 💖 and [open source]"
+	},
 	"musicplayer": {
 		"now_playing": "Now playing",
 		"now_playing_repeating": "Now playing (Repeating)",
