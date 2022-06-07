@@ -47,6 +47,18 @@
 		"info": "[あなたのサーバに%sを招待してください](%s)",
 		"private": "%sの招待は現在非公開です。開発者だけが私を別のサーバーに追加することができます"
 	},
+	"help": {
+		"title": "ヘルプ - %s",
+		"prefix_title": "プリフィクス",
+		"prefix_description": "%s、%s、``/スラッシュコマンド`` で呼び出すことができます",
+		"available_commands": "使用可能なコマンド",
+		"general": "一般",
+		"music": "音楽",
+		"games": "ゲーム",
+		"admin": "管理者",
+		"developer": "デベロッパー",
+		"footer": "💖 を込めて作りました、[オープンソース]"
+	},
 	"musicplayer": {
 		"now_playing": "再生中",
 		"now_playing_repeating": "再生中（リピート再生）",
