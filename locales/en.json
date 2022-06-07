@@ -2,7 +2,8 @@
 	"common": {
 		"available_args": "Available arguments",
 		"no_permissions": "No permission",
-		"no_permissions_description": "You need ``%s`` permission on this guild!"
+		"no_permissions_description": "You need ``%s`` permission on this guild!",
+		"processing": "Performing actions"
 	},
 	"stats": {
 		"title": "Stats",
@@ -122,5 +123,20 @@
 	"musicplayer_skip": {
 		"skipped": "Skipped",
 		"skipped_last_song": "Skipped, that was the last song"
+	},
+	"settings": {
+		"title": "Settings",
+		"description": "Change how %s behave on **%s**",
+		"valid_args": "``prefix`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
+	},
+	"settings_prefix": {
+		"info": "Current prefix is %s",
+		"info_description": "Provide a new prefix to change",
+		"prefix_too_long": "Prefix too long",
+		"prefix_too_long_description": "Can you even remember that? 😆",
+		"prefix_is_mention": "Prefix cannot be mention of me",
+		"prefix_is_mention_description": "You can already call me by mentioning me. I got that covered, don't worry",
+		"prefix_updated": "Prefix updated",
+		"prefix_updated_description": "From now onwards, I shall be called by using ``%s``"
 	}
 }

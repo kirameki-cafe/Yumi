@@ -2,7 +2,8 @@
 	"common": {
 		"available_args": "Available arguments",
 		"no_permissions": "許可していない",
-		"no_permissions_description": "このギルドでは ``%s`` の許可が必要です!"
+		"no_permissions_description": "このギルドでは ``%s`` の許可が必要です!",
+		"processing": "アクションの実行"
 	},
 	"stats": {
 		"title": "統計情報",
@@ -122,5 +123,20 @@
 	"musicplayer_skip": {
 		"skipped": "スキップした",
 		"skipped_last_song": "スキップした、それは最後の曲だった"
+	},
+	"settings": {
+		"title": "設定",
+		"description": "**%s**サーバでの%sの動作変更",
+		"valid_args": "``prefix`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
+	},
+	"settings_prefix": {
+		"info": "現在の接頭辞は「%s」です。",
+		"info_description": "変更する新しいプレフィックスを提供する",
+		"prefix_too_long": "プリフィックスが長すぎる",
+		"prefix_too_long_description": "そんな情報まで覚えているんですか 😆",
+		"prefix_is_mention": "プレフィックスを@メンションにすることはできません",
+		"prefix_is_mention_description": "それはもう、私を@メンションすることで可能です。心配しないでください",
+		"prefix_updated": "プレフィックスを更新",
+		"prefix_updated_description": "これ以降、私は 「``%s``」 を使って呼び出されることになります。"
 	}
 }
