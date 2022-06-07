@@ -1,62 +1,60 @@
 import { CommandInteraction, Interaction, Message } from 'discord.js';
+import { I18n } from 'i18n';
 
 import DiscordProvider from '../providers/Discord';
 import Cache from '../providers/Cache';
 
 import DiscordModule, { HybridInteractionMessage } from '../utils/DiscordModule';
 import { sendHybridInteractionMessageResponse, makeInfoEmbed } from '../utils/DiscordMessage';
+import Locale from '../services/Locale';
+import { Guild as PrismaGuild } from '@prisma/client';
 
 const EMBEDS = {
-    INFO: async (data: Message | Interaction) => {
-        let GuildCache = await Cache.getCachedGuild(data.guildId!);
-
-        // TODO: Better error handling
-        if (typeof GuildCache === 'undefined') throw new Error('Guild not found');
-
-        let prefix = GuildCache.prefix || '>';
+    INFO: async (data: HybridInteractionMessage, locale: I18n, GuildCache: PrismaGuild) => {
+        let prefix = GuildCache.prefix;
+        const bot = DiscordProvider.client.user!;
 
         let _e = makeInfoEmbed({
             icon: '💌',
-            title: `Help - ${DiscordProvider.client.user?.username}`,
-            description: `\u200b\n📰 **Info**\nYumi is currently undergoing complete rewrite, as expected, losing many of her functionality. All of the features will be re-implemented.\n\n🏷️ **Prefix**\nYou can call me using \`\`${prefix.replaceAll(
-                '`',
-                '`​'
-            )}\`\`, <@${
-                DiscordProvider.client.user?.id
-            }> or \`\`/slash command\`\`\n\n💻 **Available commands**`,
+            title: locale.__('help.title', bot.username),
+            description: `\u200b\n🏷️ **${locale.__('help.prefix_title')}**\n${locale.__(
+                'help.prefix_description',
+                prefix.replaceAll('`', '`​'),
+                `<@${bot.id}>`
+            )}\n\n💻 **${locale.__('help.available_commands')}**`,
             fields: [
                 {
-                    name: '☕ General',
+                    name: `☕ ${locale.__('help.general')}`,
                     value: `help, ping, invite, userinfo, stats`,
                     inline: true
                 },
                 {
-                    name: '🎵 Music',
+                    name: `🎵 ${locale.__('help.music')}`,
                     value: `play (p), search, skip, pause, resume, queue (q), nowplaying (np), loop, join, leave (disconnect, dc)`,
                     inline: true
                 },
                 {
-                    name: '🎮 Games',
+                    name: `🎮 ${locale.__('help.games')}`,
                     value: `osu`,
                     inline: true
                 },
                 {
-                    name: '🔐 Admin',
+                    name: `🔐 ${locale.__('help.admin')}`,
                     value: `settings, say, membershipscreening (ms)`,
                     inline: true
                 },
                 {
-                    name: '🔧 Developer',
+                    name: `🔧 ${locale.__('help.developer')}`,
                     value: 'debug, interactions, serviceannouncement',
                     inline: true
                 },
                 {
                     name: '\u200b',
-                    value: '**Made with 💖 and [open source](https://github.com/YuzuZensai/Yumi)**',
+                    value: `**${locale.__('help.footer')}(https://github.com/YuzuZensai/Yumi)**`,
                     inline: false
                 }
             ],
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
         _e.setThumbnail(`${DiscordProvider.client.user?.displayAvatarURL()}?size=4096`);
         return _e;
@@ -77,11 +75,20 @@ export default class Help extends DiscordModule {
     }
 
     async run(data: HybridInteractionMessage, args: any) {
+        const guild = data.getGuild();
+        const member = data.getMember();
+
+        if (!guild || !member) return;
+
+        const GuildCache = await Cache.getCachedGuild(guild.id);
+        if (!GuildCache) return;
+
+        const locale = await Locale.getGuildLocale(guild.id);
+
         const message = await sendHybridInteractionMessageResponse(data, {
-            embeds: [await EMBEDS.INFO(data.getRaw())]
+            embeds: [await EMBEDS.INFO(data, locale, GuildCache)]
         });
 
-        if (message && data.isMessage())
-            return new HybridInteractionMessage(message).getMessage().react('♥');
+        if (message && data.isMessage()) return new HybridInteractionMessage(message).getMessage().react('♥');
     }
 }
