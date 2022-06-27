@@ -1,4 +1,4 @@
-import { User as PrismaUser } from '@prisma/client';
+import { User as PrismaUser, Guild as PrismaGuild } from '@prisma/client';
 import {
     Message,
     Interaction,
@@ -27,7 +27,7 @@ const EMBEDS = {
             fields: [
                 {
                     name: 'Available arguments',
-                    value: '``invalidInteraction`` ``crashMusicPlayer`` ``crash`` ``activemusicplayer`` ``mydata``'
+                    value: '``InvalidInteraction`` ``CrashMusicPlayer`` ``Crash`` ``ActiveMusicPlayer`` ``MyData`` ``GuildData``'
                 }
             ],
             user: data.getUser()
@@ -60,6 +60,14 @@ const EMBEDS = {
             icon: '📃',
             title: `Your user data`,
             description: JSON.stringify(userData),
+            user: data.getUser()
+        });
+    },
+    GUILD_DATA: (data: HybridInteractionMessage, guildData?: PrismaGuild) => {
+        return makeInfoEmbed({
+            icon: '📃',
+            title: `Guild data`,
+            description: JSON.stringify(guildData),
             user: data.getUser()
         });
     },
@@ -145,6 +153,14 @@ export default class Debug extends DiscordModule {
                     ]
                 });
             },
+            guildData: async (data: HybridInteractionMessage) => {
+                const guildData = await Cache.getCachedGuild(guild.id);
+                await sendHybridInteractionMessageResponse(data, {
+                    embeds: [
+                        EMBEDS.GUILD_DATA(data, guildData)
+                    ]
+                });
+            },
             invalidInteraction: async (data: HybridInteractionMessage) => {
                 const row = new MessageActionRow().addComponents(
                     new MessageButton()
@@ -190,6 +206,8 @@ export default class Debug extends DiscordModule {
                 return await funct.activeMusicPlayer(data);
             case 'mydata':
                 return await funct.myData(data);
+            case 'guilddata':
+                return await funct.guildData(data);
         }
     }
 }
