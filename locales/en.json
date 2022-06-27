@@ -138,5 +138,11 @@
 		"prefix_is_mention_description": "You can already call me by mentioning me. I got that covered, don't worry",
 		"prefix_updated": "Prefix updated",
 		"prefix_updated_description": "From now onwards, I shall be called by using ``{{PREFIX}}``"
+	},
+	"ping": {
+		"title": "Network performance",
+		"title_processing": "Measuring network performance",
+		"running_on": "Running on {{HOST}}",
+		"development_environment": "Development Environment"
 	}
 }
