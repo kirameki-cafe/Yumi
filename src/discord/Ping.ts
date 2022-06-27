@@ -2,10 +2,12 @@ import { CommandInteraction, Message, Interaction } from 'discord.js';
 import os from 'os';
 import NodePing from 'ping';
 import { Promise } from 'bluebird';
+import { I18n } from 'i18n';
 
 import Configuration from '../providers/Configuration';
 import DiscordProvider from '../providers/Discord';
 import Environment from '../providers/Environment';
+import Locale from '../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../utils/DiscordModule';
 import {
@@ -21,19 +23,19 @@ enum MeasureType {
 }
 
 const EMBEDS = {
-    PING_INFO: (data: Message | Interaction, description: string) => {
+    PING_INFO: (data: HybridInteractionMessage, locale: I18n, description: string) => {
         return makeSuccessEmbed({
             icon: '🌎',
-            title: `Network performance`,
+            title: locale.__('ping.title'),
             description: description,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    PINGING: (data: HybridInteractionMessage) => {
+    PINGING: (data: HybridInteractionMessage, locale: I18n) => {
         return makeProcessingEmbed({
             icon: data.isMessage() ? undefined : '⌛',
-            title: `Measuring network performance`,
-            user: data.isInteraction() ? data.getInteraction().user : data.getMessage().author
+            title: locale.__('ping.title_processing'),
+            user: data.getUser()
         });
     }
 };
@@ -52,12 +54,17 @@ export default class Ping extends DiscordModule {
     }
 
     async run(data: HybridInteractionMessage, args: any) {
+        const guild = data.getGuild();
+        const member = data.getMember();
+
+        if(!guild || !member) return;
+
+        const locale = await Locale.getGuildLocale(guild.id);
+
         let placeholder: HybridInteractionMessage | undefined;
-
         let beforeEditDate = Date.now();
-
         let _placeholder = await sendHybridInteractionMessageResponse(data, {
-            embeds: [EMBEDS.PINGING(data)]
+            embeds: [EMBEDS.PINGING(data, locale)],
         });
         if (_placeholder) placeholder = new HybridInteractionMessage(_placeholder);
 
@@ -110,19 +117,19 @@ export default class Ping extends DiscordModule {
 
         finalString.push('');
         finalString.push(
-            '💻 Running on ' +
-                `${os.hostname()}${
-                    Environment.get().NODE_ENV === 'development' ? ' / Development Environment' : ''
+            `💻 ${locale.__('ping.running_on', {HOST: os.hostname()})} ` +
+                `${
+                    Environment.get().NODE_ENV === 'development' ? ` / ${locale.__('ping.development_environment')}` : ''
                 }`
         );
 
         if (data.isSlashCommand())
             return await data
                 .getMessageComponentInteraction()
-                .editReply({ embeds: [EMBEDS.PING_INFO(data.getRaw(), finalString.join('\n'))] });
+                .editReply({ embeds: [EMBEDS.PING_INFO(data, locale, finalString.join('\n'))] });
         else if (data && data.isMessage() && placeholder && placeholder.isMessage())
             return await placeholder
                 .getMessage()
-                .edit({ embeds: [EMBEDS.PING_INFO(data.getRaw(), finalString.join('\n'))] });
+                .edit({ embeds: [EMBEDS.PING_INFO(data, locale, finalString.join('\n'))] });
     }
 }
