@@ -20,7 +20,7 @@ import Users from '../../services/Users';
 import Cache from '../../providers/Cache';
 
 const EMBEDS = {
-    DEBUG_INFO: (data: Message | Interaction) => {
+    DEBUG_INFO: (data: HybridInteractionMessage) => {
         return makeInfoEmbed({
             title: 'Debug',
             description: `Test and debug something. **Should not be used on production**`,
@@ -30,44 +30,44 @@ const EMBEDS = {
                     value: '``invalidInteraction`` ``crashMusicPlayer`` ``crash`` ``activemusicplayer`` ``mydata``'
                 }
             ],
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    INVALID_TEST: (data: Message | Interaction) => {
+    INVALID_TEST: (data: HybridInteractionMessage) => {
         return makeInfoEmbed({
             title: 'Click button below to test invalid interaction',
             description: `The interaction will be failed`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    CRASHING: (data: Message | Interaction) => {
+    CRASHING: (data: HybridInteractionMessage) => {
         return makeInfoEmbed({
             icon: '💀',
             title: 'Crashing myself',
             description: `Sayonara.... cruel world`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    ACTIVE_MUSIC_PLAYERS: (data: Message | Interaction, totalplayers: Map<any, any>) => {
+    ACTIVE_MUSIC_PLAYERS: (data: HybridInteractionMessage, totalplayers: Map<any, any>) => {
         return makeInfoEmbed({
             icon: '🎵',
             title: `Total active music players: ${totalplayers.size}`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    YOUR_USER_DATA: (data: Message | Interaction, userData?: PrismaUser) => {
+    YOUR_USER_DATA: (data: HybridInteractionMessage, userData?: PrismaUser) => {
         return makeInfoEmbed({
             icon: '📃',
             title: `Your user data`,
             description: JSON.stringify(userData),
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    NOT_DEVELOPER: (data: Message | Interaction) => {
+    NOT_DEVELOPER: (data: HybridInteractionMessage) => {
         return makeErrorEmbed({
             title: 'Developer only',
             description: `This command is restricted to the developers only`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     }
 };
@@ -95,7 +95,7 @@ export default class Debug extends DiscordModule {
 
         if (!Users.isDeveloper(user.id))
             return await sendHybridInteractionMessageResponse(hybridData, {
-                embeds: [EMBEDS.NOT_DEVELOPER(hybridData.getRaw())]
+                embeds: [EMBEDS.NOT_DEVELOPER(hybridData)]
             });
 
         setTimeout(async () => {
@@ -114,13 +114,13 @@ export default class Debug extends DiscordModule {
 
         if (!Users.isDeveloper(user.id))
             return await sendHybridInteractionMessageResponse(data, {
-                embeds: [EMBEDS.NOT_DEVELOPER(data.getRaw())]
+                embeds: [EMBEDS.NOT_DEVELOPER(data)]
             });
 
         const funct = {
             crash: async (data: HybridInteractionMessage) => {
                 await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.CRASHING(data.getRaw())]
+                    embeds: [EMBEDS.CRASHING(data)]
                 });
                 throw new Error('Manually crashed by debug command');
             },
@@ -133,7 +133,7 @@ export default class Debug extends DiscordModule {
             activeMusicPlayer: async (data: HybridInteractionMessage) => {
                 await sendHybridInteractionMessageResponse(data, {
                     embeds: [
-                        EMBEDS.ACTIVE_MUSIC_PLAYERS(data.getRaw(), DiscordMusicPlayer.GuildQueue)
+                        EMBEDS.ACTIVE_MUSIC_PLAYERS(data, DiscordMusicPlayer.GuildQueue)
                     ]
                 });
             },
@@ -141,7 +141,7 @@ export default class Debug extends DiscordModule {
                 const userData = await Cache.getCachedUser(user.id);
                 await sendHybridInteractionMessageResponse(data, {
                     embeds: [
-                        EMBEDS.YOUR_USER_DATA(data.getRaw(), userData)
+                        EMBEDS.YOUR_USER_DATA(data, userData)
                     ]
                 });
             },
@@ -156,7 +156,7 @@ export default class Debug extends DiscordModule {
                         .setStyle('PRIMARY')
                 );
                 await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.INVALID_TEST(data.getRaw())],
+                    embeds: [EMBEDS.INVALID_TEST(data)],
                     components: [row]
                 });
             }
@@ -167,7 +167,7 @@ export default class Debug extends DiscordModule {
         if (data.isMessage()) {
             if (args.length === 0)
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.DEBUG_INFO(data.getRaw())]
+                    embeds: [EMBEDS.DEBUG_INFO(data)]
                 });
 
             query = args[0].toLowerCase();
@@ -178,7 +178,7 @@ export default class Debug extends DiscordModule {
         switch (query) {
             case 'info':
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.DEBUG_INFO(data.getRaw())]
+                    embeds: [EMBEDS.DEBUG_INFO(data)]
                 });
             case 'crash':
                 return await funct.crash(data);
