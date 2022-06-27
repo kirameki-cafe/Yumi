@@ -30,7 +30,7 @@ export const COMMON_EMBEDS = {
     NO_PERMISSION: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
             title: locale.__('common.no_permissions'),
-            description: locale.__('common.no_permissions_description','ADMINISTRATOR'),
+            description: locale.__('common.no_permissions_description', { PERMISSIONS: 'ADMINISTRATOR'}),
             user: data.getUser()
         });
     },
@@ -47,7 +47,10 @@ const EMBEDS = {
     SETTINGS_INFO: (data: HybridInteractionMessage, locale: I18n, guild: Guild) => {
         return makeInfoEmbed({
             title: locale.__('settings.title'),
-            description: locale.__('settings.description', DiscordProvider.client.user!.username, guild.name),
+            description: locale.__('settings.description', {
+                BOT_NAME: DiscordProvider.client.user!.username,
+                GUILD_NAME: guild.name
+            }),
             fields: [
                 {
                     name: locale.__('common.available_args'),

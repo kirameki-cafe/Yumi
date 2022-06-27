@@ -94,19 +94,19 @@ const EMBEDS = {
                     let title = '';
                     switch (activity.type) {
                         case 'PLAYING':
-                            title = `'🕹 ${locale.__('userinfo.playing_x', activity.name)}`;
+                            title = `'🕹 ${locale.__('userinfo.playing_x', {NAME: activity.name})}`;
                             break;
                         case 'STREAMING':
-                            title = `'🔴 ${locale.__('userinfo.streaming_x', activity.name)}`;
+                            title = `'🔴 ${locale.__('userinfo.streaming_x', {NAME: activity.name})}`;
                             break;
                         case 'LISTENING':
-                            title = `🎵 ${locale.__('userinfo.listening_x', activity.name)}`;
+                            title = `🎵 ${locale.__('userinfo.listening_x', {NAME: activity.name})}`;
                             break;
                         case 'WATCHING':
-                            title = `📺 ${locale.__('userinfo.watching_x', activity.name)}`;
+                            title = `📺 ${locale.__('userinfo.watching_x', {NAME: activity.name})}`;
                             break;
                         case 'COMPETING':
-                            title = `'🌠 ${locale.__('userinfo.competing_x', activity.name)}`;
+                            title = `'🌠 ${locale.__('userinfo.competing_x', {NAME: activity.name})}`;
                             break;
                     }
                     embed.addField(
@@ -126,7 +126,7 @@ const EMBEDS = {
             `${
                 user.joinedAt === null
                     ? locale.__('userinfo.join_date_unknown')
-                    : locale.__('userinfo.join_date', `<t:${Math.round(user.joinedAt.getTime() / 1000)}:R>`)
+                    : locale.__('userinfo.join_date', {TIME: `<t:${Math.round(user.joinedAt.getTime() / 1000).toString()}:R>`})
             }
             ${user.isGuildOwner ? `${locale.__('userinfo.guild_owner')}` : ''}
             `

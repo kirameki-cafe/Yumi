@@ -28,8 +28,9 @@ const EMBEDS = {
         return makeErrorEmbed({
             title: locale.__('common.no_permissions'),
             description: locale.__(
-                'common.no_permissions_description',
-                'VIEW_CHANNEL, SEND_MESSAGES and MANAGE_CHANNELS'
+                'common.no_permissions_description', {
+                    PERMISSIONS: 'VIEW_CHANNEL, SEND_MESSAGES, MANAGE_CHANNELS'
+                }
             ),
             user: data.getUser()
         });

@@ -26,7 +26,9 @@ const EMBEDS = {
     SEARCH_RESULT: (data: HybridInteractionMessage, locale: I18n, result: ValidTracks[]) => {
         return makeInfoEmbed({
             title: locale.__('musicplayer_search.title_result'),
-            description: `${locale.__('musicplayer_search.x_results_found', result.length.toString())}\n\n${result.map(track => `- [${track.title}](${track.url})`).join('\n')}`,
+            description: `${locale.__('musicplayer_search.x_results_found', {
+                COUNT: result.length.toString()
+            })}\n\n${result.map(track => `- [${track.title}](${track.url})`).join('\n')}`,
             user: data.getUser()
         });
     },

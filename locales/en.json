@@ -2,18 +2,18 @@
 	"common": {
 		"available_args": "Available arguments",
 		"no_permissions": "No permission",
-		"no_permissions_description": "You need ``%s`` permission on this guild!",
+		"no_permissions_description": "You need ``{{PERMISSIONS}}`` permission on this guild!",
 		"processing": "Performing actions"
 	},
 	"stats": {
 		"title": "Stats",
 		"info": "Current stats of the bot",
 		"users": "Users",
-		"x_servers": "%s servers",
-		"x_users": "%s users",
+		"x_servers": "{{COUNT}} servers",
+		"x_users": "{{COUNT}} users",
 		"uptime_since": "Uptime since",
-		"server_uptime_x": "Server %s",
-		"process_uptime_x": "Process %s"
+		"server_uptime_x": "Server {{{TIME}}}",
+		"process_uptime_x": "Process {{{TIME}}}"
 	},
 	"userinfo": {
 		"title": "User Information",
@@ -27,14 +27,14 @@
 		"unknown": "Offline / Unknown",
 		"user_guild_info": "Information on this guild",
 		"join_date_unknown": "Cannot determine join date",
-		"join_date": "Joined %s",
+		"join_date": "Joined {{{TIME}}}",
 		"guild_owner": "Owner of this guild",
 		"custom_status": "Custom Status",
-		"playing_x": "Playing %s",
-		"streaming_x": "Streaming %s",
-		"listening_x": "Listening to %s",
-		"watching_x": "Watching %s",
-		"competing_x": "Competing %s"
+		"playing_x": "Playing {{NAME}}",
+		"streaming_x": "Streaming {{NAME}}",
+		"listening_x": "Listening to {{NAME}}",
+		"watching_x": "Watching {{NAME}}",
+		"competing_x": "Competing {{NAME}}"
 	},
 	"say": {
 		"title": "Say",
@@ -45,13 +45,13 @@
 	},
 	"invite": {
 		"title": "Invite",
-		"info": "[Invite %s to your server!](%s)",
-		"private": "%s's invite is currently private. Only the developers can add me to another server"
+		"info": "[Invite {{BOT_NAME}} to your server!]({{{LINK}}})",
+		"private": "{{BOT_NAME}}'s invite is currently private. Only the developers can add me to another server"
 	},
 	"help": {
-		"title": "Help - %s",
+		"title": "Help - {{BOT_NAME}}",
 		"prefix_title": "Prefix",
-		"prefix_description": "You can call me using ``%s`` %s or ``/slash command``",
+		"prefix_description": "You can call me using ``{{{PREFIX}}}``, {{{PREFIX_MENTION}}} or ``/slash command``",
 		"available_commands": "Available commands",
 		"general": "General",
 		"music": "Music",
@@ -83,10 +83,10 @@
 		"success": "Successfully left the voice channel"
 	},
 	"musicplayer_loop": {
-		"info": "Current loop mode is %s",
+		"info": "Current loop mode is {{MODE}}",
 		"valid_args": "Available loop mode: ``None`` ``Current``",
 		"invalid": "Invalid loop mode",
-		"loop_set": "Loop mode is now set to %s"
+		"loop_set": "Loop mode is now set to {{MODE}}"
 	},
 	"musicplayer_pause": {
 		"paused": "Paused",
@@ -102,7 +102,7 @@
 		"valid_args": "``(Search query or Link)``",
 		"queue_added_song": "Song added to queue!",
 		"queue_added_songs": "Songs added to queue!",
-		"queue_added_songs_description": "Added %s songs to the queue",
+		"queue_added_songs_description": "Added {{COUNT}} songs to the queue",
 		"error": "Error while looking up the song"
 	},
 	"musicplayer_queue": {
@@ -111,14 +111,14 @@
 		"now_playing": "Now playing",
 		"upcoming_song": "Upcoming song",
 		"looping_current": "(Looping current)",
-		"song_x_in_queue": "There are %s song in the queue!"
+		"song_x_in_queue": "There are {{COUNT}} song in the queue!"
 	},
 	"musicplayer_search": {
 		"title": "Search",
 		"info": "Search for a song",
 		"valid_args": "``(Search query)``",
 		"title_result": "Search result",
-		"x_results_found": "%s results found"
+		"x_results_found": "{{COUNT}} results found"
 	},
 	"musicplayer_skip": {
 		"skipped": "Skipped",
@@ -126,17 +126,17 @@
 	},
 	"settings": {
 		"title": "Settings",
-		"description": "Change how %s behave on **%s**",
-		"valid_args": "``prefix`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
+		"description": "Change how {{BOT_NAME}} behave on **{{GUILD_NAME}}**",
+		"valid_args": "``Prefix`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
 	},
 	"settings_prefix": {
-		"info": "Current prefix is %s",
+		"info": "Current prefix is {{{PREFIX}}}",
 		"info_description": "Provide a new prefix to change",
 		"prefix_too_long": "Prefix too long",
 		"prefix_too_long_description": "Can you even remember that? 😆",
 		"prefix_is_mention": "Prefix cannot be mention of me",
 		"prefix_is_mention_description": "You can already call me by mentioning me. I got that covered, don't worry",
 		"prefix_updated": "Prefix updated",
-		"prefix_updated_description": "From now onwards, I shall be called by using ``%s``"
+		"prefix_updated_description": "From now onwards, I shall be called by using ``{{PREFIX}}``"
 	}
 }

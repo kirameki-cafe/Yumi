@@ -56,7 +56,9 @@ const EMBEDS = {
     ADDED_SONGS_QUEUE: (data: HybridInteractionMessage, locale: I18n, track: ValidTracks[]) => {
         let embed = makeSuccessEmbed({
             title: locale.__('musicplayer_play.queue_added_songs'),
-            description: locale.__('musicplayer_play.queue_added_songs_description', track.length.toString()),
+            description: locale.__('musicplayer_play.queue_added_songs_description', {
+                COUNT: track.length.toString()
+            }),
             user: data.getUser()
         });
         return embed;

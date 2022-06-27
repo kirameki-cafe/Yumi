@@ -18,7 +18,7 @@ import { COMMON_EMBEDS } from '.';
 const EMBEDS = {
     PREFIX_INFO: (data: HybridInteractionMessage, locale: I18n, currentPrefix: string) => {
         return makeInfoEmbed({
-            title: locale.__('settings_prefix.info', currentPrefix),
+            title: locale.__('settings_prefix.info', { PREFIX: currentPrefix}),
             description: locale.__('settings_prefix.info_description'),
             user: data.getUser()
         });

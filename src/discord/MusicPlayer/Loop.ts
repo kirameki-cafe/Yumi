@@ -15,7 +15,9 @@ const EMBEDS = {
     },
     LOOP_STATUS: (data: HybridInteractionMessage, locale: I18n, loopMode: DiscordMusicPlayerLoopMode) => {
         let embed = makeInfoEmbed({
-            title: locale.__('musicplayer_loop.info', loopMode),
+            title: locale.__('musicplayer_loop.info', {
+                MODE: loopMode
+            }),
             description: locale.__('musicplayer_loop.valid_args'),
             user: data.getUser()
         });
@@ -23,7 +25,9 @@ const EMBEDS = {
     },
     LOOP_SET: (data: HybridInteractionMessage, locale: I18n, loopMode: DiscordMusicPlayerLoopMode) => {
         let embed = makeSuccessEmbed({
-            title: locale.__('musicplayer_loop.loop_set', loopMode),
+            title: locale.__('musicplayer_loop.loop_set', {
+                MODE: loopMode
+            }),
             user: data.getUser()
         });
         return embed;

@@ -45,7 +45,7 @@ const EMBEDS = {
                     title: locale.__('musicplayer_queue.title'),
                     description: `${locale.__('musicplayer_queue.now_playing')}${nowPlayingText}
                         ${locale.__('musicplayer_queue.upcoming_song')} ${upcomingText}\n
-                        ${locale.__('musicplayer_queue.song_x_in_queue', queue.track.length.toString())}
+                        ${locale.__('musicplayer_queue.song_x_in_queue', { COUNT: queue.track.length.toString()})}
                         ${queueString}\n${queue.track.length > 10 ? `...${queue.track.length - 10} more songs` : ''}`,
                     user: data.getUser()
                 });
@@ -58,7 +58,7 @@ const EMBEDS = {
                     title: locale.__('musicplayer_queue.title'),
                     description: `${locale.__('musicplayer_queue.now_playing')}${nowPlayingText}
                         ${locale.__('musicplayer_queue.upcoming_song')} ${upcomingText}\n
-                        ${locale.__('musicplayer_queue.song_x_in_queue', queue.track.length.toString())}
+                        ${locale.__('musicplayer_queue.song_x_in_queue', { COUNT: queue.track.length.toString()})}
                         ${queueString}`,
                     user: data.getUser()
                 });
