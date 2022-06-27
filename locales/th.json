@@ -138,5 +138,11 @@
 		"prefix_is_mention_description": "คุณสามารถโทรหาฉันด้วยการพูดถึงฉัน ฉันทำได้อยู่แล้ว ไม่ต้องห่วง",
 		"prefix_updated": "อัปเดตคำนำหน้าแล้ว",
 		"prefix_updated_description": "จากนี้ไปฉันจะถูกเรียกโดยใช้ ``{{PREFIX}}``"
+	},
+	"ping": {
+		"title": "ประสิทธิภาพของเครือข่าย",
+		"title_processing": "การวัดประสิทธิภาพของเครือข่าย",
+		"running_on": "ทำงานบน {{HOST}}",
+		"development_environment": "สิ่งแวดล้อมการพัฒนา"
 	}
 }
