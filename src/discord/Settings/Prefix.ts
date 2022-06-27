@@ -40,7 +40,7 @@ const EMBEDS = {
     PREFIX_UPDATED: (data: HybridInteractionMessage, locale: I18n, newPrefix: string) => {
         return makeSuccessEmbed({
             title: locale.__('settings_prefix.prefix_updated'),
-            description: locale.__('settings_prefix.prefix_updated_description', newPrefix),
+            description: locale.__('settings_prefix.prefix_updated_description', { PREFIX: newPrefix }),
             user: data.getUser()
         });
     }
