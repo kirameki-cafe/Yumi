@@ -161,7 +161,7 @@ export async function joinVoiceChannelProcedure(
         // And, already have instance on the guild
         else {
             // And, User VoiceChannel is same as the instance
-            if (channel.id === instance.voiceChannel.id) {
+            if (memberVoiceChannel.id === instance.voiceChannel.id) {
                 if (!isAcceptableInteraction)
                     return await sendHybridInteractionMessageResponse(data, {
                         embeds: [EMBEDS.VOICECHANNEL_ALREADY_JOINED(data, locale)]
