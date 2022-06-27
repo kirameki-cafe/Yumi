@@ -16,11 +16,10 @@ const EMBEDS = {
 
         let _e = makeInfoEmbed({
             icon: '💌',
-            title: locale.__('help.title', bot.username),
+            title: locale.__('help.title', { BOT_NAME: bot.username }),
             description: `\u200b\n🏷️ **${locale.__('help.prefix_title')}**\n${locale.__(
                 'help.prefix_description',
-                prefix.replaceAll('`', '`​'),
-                `<@${bot.id}>`
+                {PREFIX: prefix.replaceAll('`', '`​'), PREFIX_MENTION: `<@${bot.id}>`}
             )}\n\n💻 **${locale.__('help.available_commands')}**`,
             fields: [
                 {
@@ -29,13 +28,13 @@ const EMBEDS = {
                     inline: true
                 },
                 {
-                    name: `🎵 ${locale.__('help.music')}`,
-                    value: `play (p), search, skip, pause, resume, queue (q), nowplaying (np), loop, join, leave (disconnect, dc)`,
+                    name: `🎮 ${locale.__('help.games')}`,
+                    value: `osu`,
                     inline: true
                 },
                 {
-                    name: `🎮 ${locale.__('help.games')}`,
-                    value: `osu`,
+                    name: `🎵 ${locale.__('help.music')}`,
+                    value: `play (p), search, skip, pause, resume, queue (q), nowplaying (np), loop, join, leave (disconnect, dc)`,
                     inline: true
                 },
                 {

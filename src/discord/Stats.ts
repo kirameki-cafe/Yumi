@@ -22,17 +22,15 @@ const EMBEDS = {
             fields: [
                 {
                     name: `🌐 ${locale.__('stats.users')}`,
-                    value: `${locale.__('stats.x_servers', totalServers.toString())}\n${locale.__(
-                        'stats.x_users',
-                        totalUsers.toString()
+                    value: `${locale.__('stats.x_servers', { COUNT: totalServers.toString() })}\n${locale.__(
+                        'stats.x_users', { COUNT: totalUsers.toString()}
                     )}`,
                     inline: true
                 },
                 {
                     name: `🟢 ${locale.__('stats.uptime_since')}`,
-                    value: `${locale.__('stats.server_uptime_x', `<t:${systemUptime.toString()}:R>`)}\n${locale.__(
-                        'stats.process_uptime_x',
-                        `<t:${processUptime.toString()}:R>`
+                    value: `${locale.__('stats.server_uptime_x', {TIME: `<t:${systemUptime.toString()}:R>`})}\n${locale.__(
+                        'stats.process_uptime_x', { TIME: `<t:${processUptime.toString()}:R>`}
                     )}`,
                     inline: true
                 }

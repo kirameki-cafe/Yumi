@@ -2,18 +2,18 @@
 	"common": {
 		"available_args": "Available arguments",
 		"no_permissions": "許可していない",
-		"no_permissions_description": "このギルドでは ``%s`` の許可が必要です!",
+		"no_permissions_description": "このギルドでは ``{{PERMISSIONS}}`` の許可が必要です!",
 		"processing": "アクションの実行"
 	},
 	"stats": {
 		"title": "統計情報",
 		"info": "現在のボットの統計情報",
 		"users": "ユーザー",
-		"x_servers": "%s サーヴァーズ",
-		"x_users": "%s ユーザー",
+		"x_servers": "{{COUNT}} サーヴァーズ",
+		"x_users": "{{COUNT}} ユーザー",
 		"uptime_since": "アップタイム",
-		"server_uptime_x": "サーヴァーズ %s",
-		"process_uptime_x": "プロセス %s"
+		"server_uptime_x": "サーヴァーズ {{{TIME}}}",
+		"process_uptime_x": "プロセス {{{TIME}}}"
 	},
 	"userinfo": {
 		"title": "ユーザー情報",
@@ -27,14 +27,14 @@
 		"unknown": "オフライン／不明",
 		"user_guild_info": "このギルドの情報",
 		"join_date_unknown": "このギルドの加入日が特定できない",
-		"join_date": "加入 %s",
+		"join_date": "加入 {{{TIME}}}",
 		"guild_owner": "このギルドのオーナー",
 		"custom_status": "カスタムステータス",
-		"playing_x": "%sをプレイ中",
-		"streaming_x": "%sをストリーミング中",
-		"listening_x": "%sを再生中",
-		"watching_x": "%s鑑賞中",
-		"competing_x": "%sに参戦中です"
+		"playing_x": "{{NAME}}をプレイ中",
+		"streaming_x": "{{NAME}}をストリーミング中",
+		"listening_x": "{{NAME}}を再生中",
+		"watching_x": "{{NAME}}鑑賞中",
+		"competing_x": "{{NAME}}に参戦中です"
 	},
 	"say": {
 		"title": "言うこと",
@@ -45,13 +45,13 @@
 	},
 	"invite": {
 		"title": "招待状リンク",
-		"info": "[あなたのサーバに%sを招待してください](%s)",
-		"private": "%sの招待は現在非公開です。開発者だけが私を別のサーバーに追加することができます"
+		"info": "[あなたのサーバに{{BOT_NAME}}を招待してください]({{{LINK}}})",
+		"private": "{{BOT_NAME}}の招待は現在非公開です。開発者だけが私を別のサーバーに追加することができます"
 	},
 	"help": {
-		"title": "ヘルプ - %s",
+		"title": "ヘルプ - {{BOT_NAME}}",
 		"prefix_title": "プリフィクス",
-		"prefix_description": "%s、%s、``/スラッシュコマンド`` で呼び出すことができます",
+		"prefix_description": "{{{PREFIX}}}、{{{PREFIX_MENTION}}}、``/スラッシュコマンド`` で呼び出すことができます",
 		"available_commands": "使用可能なコマンド",
 		"general": "一般",
 		"music": "音楽",
@@ -83,10 +83,10 @@
 		"success": "音声チャネルからの離脱に成功"
 	},
 	"musicplayer_loop": {
-		"info": "現在のループモードは「%s」です。",
+		"info": "現在のループモードは「{{MODE}}」です。",
 		"valid_args": "使用可能なループモード: ``None`` ``Current``",
 		"invalid": "ループモードが正しくない",
-		"loop_set": "ループモードが「%s」になりました。"
+		"loop_set": "ループモードが「{{MODE}}」になりました。"
 	},
 	"musicplayer_pause": {
 		"paused": "一時停止",
@@ -102,7 +102,7 @@
 		"valid_args": "``(検索クエリまたはリンク)``",
 		"queue_added_song": "キューに曲を追加しました",
 		"queue_added_songs": "たくさんの曲をキューに追加しました",
-		"queue_added_songs_description": "キューに%s曲を追加",
+		"queue_added_songs_description": "キューに{{COUNT}}曲を追加",
 		"error": "曲の検索中にエラーが発生"
 	},
 	"musicplayer_queue": {
@@ -111,14 +111,14 @@
 		"now_playing": "再生中",
 		"upcoming_song": "次の曲",
 		"looping_current": "(この曲の繰り返し)",
-		"song_x_in_queue": "%s曲も並んでいますよ。"
+		"song_x_in_queue": "{{COUNT}}曲も並んでいますよ。"
 	},
 	"musicplayer_search": {
 		"title": "検索",
 		"info": "楽曲を検索する",
 		"valid_args": "``(検索クエリ)``",
 		"title_result": "検索結果",
-		"x_results_found": "%s件見つかりました。"
+		"x_results_found": "{{COUNT}}件見つかりました。"
 	},
 	"musicplayer_skip": {
 		"skipped": "スキップした",
@@ -126,17 +126,17 @@
 	},
 	"settings": {
 		"title": "設定",
-		"description": "**%s**サーバでの%sの動作変更",
-		"valid_args": "``prefix`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
+		"description": "**{{GUILD_NAME}}**サーバでの{{BOT_NAME}}の動作変更",
+		"valid_args": "``Prefix`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
 	},
 	"settings_prefix": {
-		"info": "現在の接頭辞は「%s」です。",
+		"info": "現在の接頭辞は「{{{PREFIX}}}」です。",
 		"info_description": "変更する新しいプレフィックスを提供する",
 		"prefix_too_long": "プリフィックスが長すぎる",
 		"prefix_too_long_description": "そんな情報まで覚えているんですか 😆",
 		"prefix_is_mention": "プレフィックスを@メンションにすることはできません",
 		"prefix_is_mention_description": "それはもう、私を@メンションすることで可能です。心配しないでください",
 		"prefix_updated": "プレフィックスを更新",
-		"prefix_updated_description": "これ以降、私は 「``%s``」 を使って呼び出されることになります。"
+		"prefix_updated_description": "これ以降、私は 「``{{PREFIX}}``」 を使って呼び出されることになります。"
 	}
 }
