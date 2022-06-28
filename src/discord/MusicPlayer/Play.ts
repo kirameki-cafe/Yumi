@@ -286,7 +286,7 @@ export default class Play extends DiscordModule {
 
             query = args.join(' ');
         } else if (data.isSlashCommand()) {
-            query = args.getSubcommand();
+            query = data.getSlashCommand().options.getString('query');
         }
 
         if (!query) return;
