@@ -268,7 +268,7 @@ export async function joinVoiceChannelProcedure(
 
 export default class Join extends DiscordModule {
     public id = 'Discord_MusicPlayer_Join';
-    public commands = ['join'];
+    public commands = ['join', 'summon'];
     public commandInteractionName = 'join';
 
     async GuildOnModuleCommand(args: any, message: Message) {
