@@ -1,32 +1,33 @@
 {
 	"common": {
 		"available_args": "Available arguments",
-		"no_permissions": "No permission",
-		"no_permissions_description": "You need ``{{PERMISSIONS}}`` permission on this guild!",
-		"processing": "Performing actions"
+		"no_permissions": "Access denied (O_O;)",
+		"no_permissions_description": "You need ``{{PERMISSIONS}}`` permission on this guild",
+		"processing": "Please wait a moment~",
+		"processing_description": "Getting it done right now! (งᓀ‸ᓂ)ง"
 	},
 	"stats": {
 		"title": "Stats",
-		"info": "Current stats of the bot",
+		"info": "Statistical data of me",
 		"users": "Users",
 		"x_servers": "{{COUNT}} servers",
 		"x_users": "{{COUNT}} users",
 		"uptime_since": "Uptime since",
-		"server_uptime_x": "Server {{{TIME}}}",
-		"process_uptime_x": "Process {{{TIME}}}"
+		"server_uptime_x": "Server | {{{TIME}}}",
+		"process_uptime_x": "Process | {{{TIME}}}"
 	},
 	"userinfo": {
 		"title": "User Information",
-		"info": "Show user information",
+		"info": "Show information of a specific user, such as status, activities, and more",
 		"valid_args": "(``@Mention or User ID``)",
-		"user_not_found": "Unable to find any matching user",
+		"user_not_found": "I cannot find that user, is your information correct?",
 		"online": "Online",
 		"idle": "Idle",
 		"dnd": "Do not disturb",
 		"offline": "Recently Offline",
 		"unknown": "Offline / Unknown",
 		"user_guild_info": "Information on this guild",
-		"join_date_unknown": "Cannot determine join date",
+		"join_date_unknown": "Unknown join date",
 		"join_date": "Joined {{{TIME}}}",
 		"guild_owner": "Owner of this guild",
 		"custom_status": "Custom Status",
@@ -38,10 +39,10 @@
 	},
 	"say": {
 		"title": "Say",
-		"info": "Send a message as the bot",
+		"info": "Make me say something that you want~",
 		"valid_args": "``(Text message)``",
-		"success": "Successfully sent a message",
-		"error": "Unable to send the message"
+		"success": "Done~, I posted a message with your content!",
+		"error": "An error occurred while trying to post the message with your content!"
 	},
 	"invite": {
 		"title": "Invite",
@@ -63,24 +64,24 @@
 	"musicplayer": {
 		"now_playing": "Now playing",
 		"now_playing_repeating": "Now playing (Repeating)",
-		"no_music_playing": "There are no music playing",
-		"not_in_voice": "You need to be in the voice channel first!",
-		"different_voice_channel": "You are not in the same voice channel!",
+		"no_music_playing": "There are no music playing (ᴗ˳ᴗ);",
+		"not_in_voice": "You need to be in the voice channel first~",
+		"different_voice_channel": "You are not in the same voice channel as me!",
 		"track_error": "Error while playing music, skipping this track"
 	},
 	"musicplayer_join": {
-		"success": "Successfully joined the voice channel",
+		"success": "Successfully joined the voice channel, I'm here now~",
 		"error": "Unable to join the voice channel",
 		"disconnected": "Disconnected",
 		"disconnected_reason_disconnected": "I got disconnected from the voice channel",
 		"in_use": "I can't join mutiple voice channel on the same guild.\n There are also somebody listening to the music in the voice channel I'm currently in.",
 		"in_use_wait": "Wait until I finish playing there or I'm alone there. Better yet, join them!",
 		"can_force_move": "\n\n**Or... just (ab)use your admin permissions and move me to where you want!**",
-		"already_joined_title": "I'm already here",
+		"already_joined_title": "I'm already here~ (* ^ ω ^)",
 		"already_joined_description": "Already in the voice channel you are currently connected to"
 	},
 	"musicplayer_leave": {
-		"success": "Successfully left the voice channel"
+		"success": "Successfully left the voice channel, see ya!"
 	},
 	"musicplayer_loop": {
 		"info": "Current loop mode is {{MODE}}",
@@ -90,24 +91,24 @@
 	},
 	"musicplayer_pause": {
 		"paused": "Paused",
-		"already_paused": "Already paused"
+		"already_paused": "Already paused (´｡• ω •｡`)"
 	},
 	"musicplayer_resume": {
 		"resumed": "Resumed",
-		"not_paused": "The music is not paused"
+		"not_paused": "The music is already playing (´｡• ᵕ •｡`)"
 	},
 	"musicplayer_play": {
 		"title": "Play",
 		"info": "Play a song",
 		"valid_args": "``(Search query or Link)``",
-		"queue_added_song": "Song added to queue!",
-		"queue_added_songs": "Songs added to queue!",
+		"queue_added_song": "Song added to queue! ヽ(>∀<☆)ノ",
+		"queue_added_songs": "Songs added to queue! ヽ(>∀<☆)ノ",
 		"queue_added_songs_description": "Added {{COUNT}} songs to the queue",
 		"error": "Error while looking up the song"
 	},
 	"musicplayer_queue": {
 		"title": "Queue",
-		"empty": "The queue is empty!",
+		"empty": "The queue is empty! (っ˘ω˘ς )",
 		"now_playing": "Now playing",
 		"upcoming_song": "Upcoming song",
 		"looping_current": "(Looping current)",
@@ -134,14 +135,14 @@
 		"info_description": "Provide a new prefix to change",
 		"prefix_too_long": "Prefix too long",
 		"prefix_too_long_description": "Can you even remember that? 😆",
-		"prefix_is_mention": "Prefix cannot be mention of me",
+		"prefix_is_mention": "Prefix cannot be @Mention of me",
 		"prefix_is_mention_description": "You can already call me by mentioning me. I got that covered, don't worry",
 		"prefix_updated": "Prefix updated",
 		"prefix_updated_description": "From now onwards, I shall be called by using ``{{PREFIX}}``"
 	},
 	"ping": {
 		"title": "Network performance",
-		"title_processing": "Measuring network performance",
+		"title_processing": "Measuring network performance ( ◕▿◕ )",
 		"running_on": "Running on {{HOST}}",
 		"development_environment": "Development Environment"
 	}
