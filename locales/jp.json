@@ -1,9 +1,10 @@
 {
 	"common": {
 		"available_args": "Available arguments",
-		"no_permissions": "許可していない",
+		"no_permissions": "許可していない (O_O;)",
 		"no_permissions_description": "このギルドでは ``{{PERMISSIONS}}`` の許可が必要です!",
-		"processing": "アクションの実行"
+		"processing": "アクションの実行",
+		"processing_description": "今これを成し遂げています (งᓀ‸ᓂ)ง"
 	},
 	"stats": {
 		"title": "統計情報",
@@ -12,14 +13,14 @@
 		"x_servers": "{{COUNT}} サーヴァーズ",
 		"x_users": "{{COUNT}} ユーザー",
 		"uptime_since": "アップタイム",
-		"server_uptime_x": "サーヴァーズ {{{TIME}}}",
-		"process_uptime_x": "プロセス {{{TIME}}}"
+		"server_uptime_x": "サーヴァーズ | {{{TIME}}}",
+		"process_uptime_x": "プロセス | {{{TIME}}}"
 	},
 	"userinfo": {
 		"title": "ユーザー情報",
-		"info": "ユーザー情報を表示する",
+		"info": "ステータス、アクティビティなど、特定のユーザーの情報を表示します",
 		"valid_args": "(``@メンションまたはユーザーID``)",
-		"user_not_found": "一致するユーザーを見つけることができません",
+		"user_not_found": "ユーザーが見つかりません。あなたの情報は正しいですか？",
 		"online": "オンライン",
 		"idle": "アイドル",
 		"dnd": "起こさないで",
@@ -63,7 +64,7 @@
 	"musicplayer": {
 		"now_playing": "再生中",
 		"now_playing_repeating": "再生中（リピート再生）",
-		"no_music_playing": "音楽が流れていない",
+		"no_music_playing": "音楽が流れていない (ᴗ˳ᴗ);",
 		"not_in_voice": "まず音声チャンネルに入る必要がある!",
 		"different_voice_channel": "音声チャンネルが違うぞ！",
 		"track_error": "音楽再生中にエラーが発生し、このトラックをスキップしています。"
@@ -77,7 +78,7 @@
 		"in_use_wait": "そこで遊び終わるか、そこで一人になるまで待ってください。いっそのこと、参加しちゃいましょう",
 		"can_force_move": "\n\n**もしくは...管理者権限を悪用して、私を好きな場所に移動させてください!**",
 		"already_joined_title": "もうここにいる",
-		"already_joined_description": "現在接続している音声チャンネルですでに"
+		"already_joined_description": "現在接続している音声チャンネルですでに (* ^ ω ^)"
 	},
 	"musicplayer_leave": {
 		"success": "音声チャネルからの離脱に成功"
@@ -90,24 +91,24 @@
 	},
 	"musicplayer_pause": {
 		"paused": "一時停止",
-		"already_paused": "すでに一時停止中"
+		"already_paused": "すでに一時停止中 (´｡• ω •｡`)"
 	},
 	"musicplayer_resume": {
 		"resumed": "再開しました",
-		"not_paused": "現在、音楽は一時停止していません"
+		"not_paused": "現在、音楽は一時停止していません (´｡• ᵕ •｡`)"
 	},
 	"musicplayer_play": {
 		"title": "プレイ",
 		"info": "曲を再生する",
 		"valid_args": "``(検索クエリまたはリンク)``",
-		"queue_added_song": "キューに曲を追加しました",
-		"queue_added_songs": "たくさんの曲をキューに追加しました",
+		"queue_added_song": "キューに曲を追加しました ヽ(>∀<☆)ノ",
+		"queue_added_songs": "たくさんの曲をキューに追加しました ヽ(>∀<☆)ノ",
 		"queue_added_songs_description": "キューに{{COUNT}}曲を追加",
 		"error": "曲の検索中にエラーが発生"
 	},
 	"musicplayer_queue": {
 		"title": "キュー",
-		"empty": "キューは空です!",
+		"empty": "キューは空です! (っ˘ω˘ς )",
 		"now_playing": "再生中",
 		"upcoming_song": "次の曲",
 		"looping_current": "(この曲の繰り返し)",
@@ -141,7 +142,7 @@
 	},
 	"ping": {
 		"title": "ネットワークパフォーマンス",
-		"title_processing": "ネットワーク性能の測定",
+		"title_processing": "ネットワーク性能の測定 ( ◕▿◕ )",
 		"running_on": "{{HOST}}で実行中",
 		"development_environment": "開発環境"
 	}
