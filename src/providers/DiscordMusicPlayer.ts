@@ -182,7 +182,7 @@ export class DiscordMusicPlayerInstance {
                     ) {
                         this.events.emit('disconnect', new VoiceDisconnectedEvent(this));
                     }
-                }, 1000);
+                }, 2000);
             }
         );
     }
