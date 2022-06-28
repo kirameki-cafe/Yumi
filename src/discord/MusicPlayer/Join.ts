@@ -45,7 +45,7 @@ const EMBEDS = {
         return makeSuccessEmbed({
             title: locale.__('musicplayer_join.disconnected'),
             description: locale.__('musicplayer_join.disconnected_reason_disconnected'),
-            user: data.getUser()
+            user: DiscordProvider.client.user
         });
     },
     VOICECHANNEL_INUSE: (data: HybridInteractionMessage, locale: I18n, haveForceMove: boolean) => {
