@@ -54,7 +54,7 @@ const EMBEDS = {
 export default class Loop extends DiscordModule {
 
     public id = "Discord_MusicPlayer_Loop";
-    public commands = ["loop"];
+    public commands = ["loop", "repeat"];
     public commandInteractionName = "loop";
 
     async GuildOnModuleCommand(args: any, message: Message) {
