@@ -97,7 +97,7 @@ export default class Search extends DiscordModule {
             query = args.join(' ');
         }
         else if (data.isSlashCommand())
-            query = args.getSubcommand();
+            query = data.getSlashCommand().options.getString('query');
         else if (data.isButton())
             query = args;
 

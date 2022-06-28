@@ -7,40 +7,6 @@ export const GLOBAL_COMMANDS: Object[] = [
     new SlashCommandBuilder().setName('help').setDescription('Show help menu'),
     new SlashCommandBuilder().setName('ping').setDescription('Measure network latency'),
     new SlashCommandBuilder().setName('invite').setDescription('Invite me to your server!'),
-    new SlashCommandBuilder().setName('stats').setDescription('Show the bot stats'),
-    new SlashCommandBuilder().setName('skip').setDescription('Skip the current song'),
-    new SlashCommandBuilder()
-        .setName('nowplaying')
-        .setDescription('Show the current song information'),
-    new SlashCommandBuilder().setName('join').setDescription('Join the voice channel'),
-    new SlashCommandBuilder().setName('leave').setDescription('Leave the voice channel'),
-    new SlashCommandBuilder().setName('resume').setDescription('Resume paused music'),
-    new SlashCommandBuilder().setName('pause').setDescription('Pause the current music'),
-    new SlashCommandBuilder()
-        .setName('say')
-        .setDescription('Make me say something')
-        .addStringOption((option) =>
-            option.setName('message').setDescription('Message you want me to say').setRequired(true)
-        ),
-    new SlashCommandBuilder()
-        .setName('osu')
-        .setDescription('Interact with the game osu!')
-        .addSubcommand((user) =>
-            user
-                .setName('user')
-                .setDescription('Get user information on osu!')
-                .addStringOption((user) =>
-                    user.setName('user').setDescription('Username or User id').setRequired(true)
-                )
-        )
-        .addSubcommand((beatmap) =>
-            beatmap
-                .setName('beatmap')
-                .setDescription('Get beatmap information on osu!')
-                .addStringOption((user) =>
-                    user.setName('beatmap').setDescription('Beatmap id').setRequired(true)
-                )
-        ),
     new SlashCommandBuilder()
         .setName('userinfo')
         .setDescription('Lookup discord user information')
@@ -51,6 +17,46 @@ export const GLOBAL_COMMANDS: Object[] = [
                 .addUserOption((user) =>
                     user.setName('user').setDescription('Discord user to lookup').setRequired(true)
                 )
+        ),
+    new SlashCommandBuilder().setName('stats').setDescription('Show the bot stats'),
+
+    new SlashCommandBuilder()
+        .setName('play')
+        .setDescription('Play music')
+        .addStringOption((option) => option.setName('query').setDescription('Search query or link').setRequired(true)),
+    new SlashCommandBuilder()
+        .setName('search')
+        .setDescription('Search for music')
+        .addStringOption((option) => option.setName('query').setDescription('Search query').setRequired(true)),
+    new SlashCommandBuilder().setName('skip').setDescription('Skip the current song'),
+    new SlashCommandBuilder().setName('pause').setDescription('Pause the current music'),
+    new SlashCommandBuilder().setName('resume').setDescription('Resume paused music'),
+    new SlashCommandBuilder().setName('queue').setDescription('View the music queue'),
+    new SlashCommandBuilder().setName('nowplaying').setDescription('Show the current song information'),
+    new SlashCommandBuilder().setName('join').setDescription('Join the voice channel'),
+    new SlashCommandBuilder().setName('leave').setDescription('Leave the voice channel'),
+
+    new SlashCommandBuilder()
+        .setName('say')
+        .setDescription('Make me say something')
+        .addStringOption((option) =>
+            option.setName('message').setDescription('Message you want me to say').setRequired(true)
+        ),
+
+    new SlashCommandBuilder()
+        .setName('osu')
+        .setDescription('Interact with the game osu!')
+        .addSubcommand((user) =>
+            user
+                .setName('user')
+                .setDescription('Get user information on osu!')
+                .addStringOption((user) => user.setName('user').setDescription('Username or User id').setRequired(true))
+        )
+        .addSubcommand((beatmap) =>
+            beatmap
+                .setName('beatmap')
+                .setDescription('Get beatmap information on osu!')
+                .addStringOption((user) => user.setName('beatmap').setDescription('Beatmap id').setRequired(true))
         )
 ];
 export const GUILD_COMMANDS: Object[] = [];
@@ -148,9 +154,7 @@ GUILD_COMMANDS.push(
 
 export const registerAllGlobalCommands = async () => {
     Logger.log('info', `Registering all global interaction commands`);
-    await DiscordProvider.client.application?.commands.set(
-        JSON.parse(JSON.stringify(GLOBAL_COMMANDS))
-    );
+    await DiscordProvider.client.application?.commands.set(JSON.parse(JSON.stringify(GLOBAL_COMMANDS)));
 };
 
 export const unregisterAllGlobalCommands = async () => {
@@ -174,10 +178,7 @@ export const registerAllGuildsCommands = async () => {
 
         if (!guildObject) continue;
 
-        Logger.log(
-            'info',
-            `Registering all interaction commands on guild ${guildObject.name} (${guildObject.id})`
-        );
+        Logger.log('info', `Registering all interaction commands on guild ${guildObject.name} (${guildObject.id})`);
         await DiscordProvider.client.guilds.cache
             .get(guildObject.id)
             ?.commands.set(JSON.parse(JSON.stringify(GUILD_COMMANDS)));
@@ -192,10 +193,7 @@ export const unregisterAllGuildsCommands = async () => {
 
         if (!guildObject) continue;
 
-        Logger.log(
-            'info',
-            `Unregistering all interaction commands on guild ${guildObject.name} (${guildObject.id})`
-        );
+        Logger.log('info', `Unregistering all interaction commands on guild ${guildObject.name} (${guildObject.id})`);
         await DiscordProvider.client.guilds.cache.get(guildObject.id)?.commands.set([]);
 
         //const commands = await guildObject.commands.fetch();
