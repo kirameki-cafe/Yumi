@@ -38,6 +38,7 @@ export const COMMON_EMBEDS = {
         return makeProcessingEmbed({
             icon: data.isMessage() ? undefined : '⌛',
             title: locale.__('common.processing'),
+            description: locale.__('common.processing_description'),
             user: data.getUser()
         });
     }
