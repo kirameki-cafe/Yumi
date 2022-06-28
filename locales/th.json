@@ -122,7 +122,7 @@
 		"x_results_found": "พบผลลัพธ์ {{COUNT}} เพลง"
 	},
 	"musicplayer_skip": {
-		"skipped": "ข้าม",
+		"skipped": "ข้ามเพลงเรียบร้อยละ",
 		"skipped_last_song": "ข้ามละ แล้วนั่นก็เป็นเพลงสุดท้ายด้วยนะ"
 	},
 	"settings": {
