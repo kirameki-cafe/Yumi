@@ -6,7 +6,8 @@ import {
     MessageActionRow,
     MessageButton,
     SelectMenuInteraction,
-    ButtonInteraction
+    ButtonInteraction,
+    StageChannel
 } from 'discord.js';
 import { I18n } from 'i18n';
 
@@ -221,7 +222,7 @@ export default class Play extends DiscordModule {
             const voiceChannel = DiscordProvider.client.guilds.cache.get(guild.id)?.channels.cache.get(payload.d.v);
             //let member = DiscordProvider.client.guilds.cache.get(guild.id)?.members.cache.get(user.id);
 
-            if (!voiceChannel || !(voiceChannel instanceof VoiceChannel)) return;
+            if (!voiceChannel || !(voiceChannel instanceof VoiceChannel || voiceChannel instanceof StageChannel)) return;
 
             if (!member.voice.channel)
                 return await sendHybridInteractionMessageResponse(
