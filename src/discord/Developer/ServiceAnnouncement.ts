@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder, Interaction, CommandInteraction, TextChannel, BaseInteraction } from 'discord.js';
+import { Message, EmbedBuilder, Interaction, CommandInteraction, TextChannel, BaseInteraction, EmbedData, EmbedFieldData, EmbedProviderData } from 'discord.js';
 import { Promise } from 'bluebird';
 import fs from 'fs';
 import path from 'path';
@@ -21,6 +21,8 @@ import DiscordProvider from '../../providers/Discord';
 import Prisma from '../../providers/Prisma';
 import Users from '../../services/Users';
 
+const hexToDecimal = (hex: string) => parseInt(hex.replace('#', ''), 16);
+
 const EMBEDS = {
     ANNOUNCEMENT_INFO: (data: Message | BaseInteraction) => {
         return makeInfoEmbed({
@@ -42,14 +44,14 @@ const EMBEDS = {
             user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    MAKE_PAYLOAD: (payload: any) => {
+    MAKE_PAYLOAD: (payload: EmbedData) => {
         const user = DiscordProvider.client.user;
         payload.footer = {
             text: `${user?.username}`,
             iconURL: `${user?.displayAvatarURL()}?size=4096`
         };
 
-        if (!payload.timestamp) payload.timestamp = new Date();
+        if (!payload.timestamp) payload.timestamp = new Date().getTime() / 1000;
 
         if (payload.thumbnail?.url === 'bot_avatar')
             payload.thumbnail.url = `${user?.displayAvatarURL()}?size=4096`;
@@ -58,7 +60,10 @@ const EMBEDS = {
             payload.image.url = `${user?.displayAvatarURL()}?size=4096`;
 
         if (payload.description)
-            payload.description = payload.description.replaceAll('{bot_username}', user?.username);
+            payload.description = payload.description.replaceAll('{bot_username}', user?.username!);
+
+        if (payload.color && isNaN(payload.color))
+            payload.color = hexToDecimal(payload.color.toString());
 
         return new EmbedBuilder(payload);
     },
@@ -100,7 +105,7 @@ const EMBEDS = {
 
 let Announcements = {
     News: {
-        color: '#FAEDF0',
+        color: hexToDecimal('#FAEDF0'),
         title: '📰 Newsletter',
         description: 'Some description here',
         thumbnail: {
@@ -108,7 +113,7 @@ let Announcements = {
         }
     },
     Maintenance: {
-        color: '#383b80',
+        color: hexToDecimal('#383b80'),
         title: '🔧 Maintenance',
         description: 'The bot is going offline for maintenance.',
         thumbnail: {
@@ -116,7 +121,7 @@ let Announcements = {
         }
     },
     Message: {
-        color: '#A1DE93',
+        color: hexToDecimal('#A1DE93'),
         title: '✉️ Message',
         description: 'Some description here',
         thumbnail: {
@@ -124,7 +129,7 @@ let Announcements = {
         }
     },
     Alert: {
-        color: '#EC255A',
+        color: hexToDecimal('#EC255A'),
         title: '🚨 Alert',
         description: 'Some description here',
         thumbnail: {
