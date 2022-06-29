@@ -130,7 +130,7 @@
 	"settings": {
 		"title": "設定",
 		"description": "**{{GUILD_NAME}}**サーバでの{{BOT_NAME}}の動作変更",
-		"valid_args": "``Prefix`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
+		"valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
 	},
 	"settings_prefix": {
 		"info": "現在の接頭辞は「{{{PREFIX}}}」です。",
@@ -141,6 +141,14 @@
 		"prefix_is_mention_description": "それはもう、私を@メンションすることで可能です。心配しないでください",
 		"prefix_updated": "プレフィックスを更新",
 		"prefix_updated_description": "これ以降、私は 「``{{PREFIX}}``」 を使って呼び出されることになります。"
+	},
+	"settings_language": {
+		"info": "現在の言語は{{LANGUAGE}}です",
+		"info_description": "変更する新しい言語を提供する\n**利用可能な言語**: ``{{LANGUAGES}}``",
+		"language_invalid": "無効な言語",
+		"language_invalid_description": "言語コードが無効であるか、まだサポートされていません",
+		"language_updated": "言語が変更されました",
+		"language_updated_description": "これからは{{LANGUAGE}}を使います"
 	},
 	"ping": {
 		"title": "ネットワークパフォーマンス",
