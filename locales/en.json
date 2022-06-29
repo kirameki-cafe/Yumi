@@ -35,7 +35,9 @@
 		"streaming_x": "Streaming {{NAME}}",
 		"listening_x": "Listening to {{NAME}}",
 		"watching_x": "Watching {{NAME}}",
-		"competing_x": "Competing {{NAME}}"
+		"competing_x": "Competing {{NAME}}",
+		"since": "Since {{{TIME}}}",
+		"end": "Ending {{{TIME}}}"
 	},
 	"say": {
 		"title": "Say",

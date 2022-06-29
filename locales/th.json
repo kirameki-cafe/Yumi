@@ -35,7 +35,9 @@
 		"streaming_x": "กำลังสตรีม {{NAME}}",
 		"listening_x": "กำลังฟัง {{NAME}}",
 		"watching_x": "กำลังดู {{NAME}}",
-		"competing_x": "กำลังแข่งขัน {{NAME}}"
+		"competing_x": "กำลังแข่งขัน {{NAME}}",
+		"since": "ตั้งแต่ {{{TIME}}}",
+		"end": "สิ้นสุดใน {{{TIME}}}"
 	},
 	"say": {
 		"title": "สั่งพูด",

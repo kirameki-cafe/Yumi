@@ -35,7 +35,9 @@
 		"streaming_x": "{{NAME}}をストリーミング中",
 		"listening_x": "{{NAME}}を再生中",
 		"watching_x": "{{NAME}}鑑賞中",
-		"competing_x": "{{NAME}}に参戦中です"
+		"competing_x": "{{NAME}}に参戦中です",
+		"since": "{{{TIME}}}から",
+		"end": "{{{TIME}}}で終了"
 	},
 	"say": {
 		"title": "言うこと",

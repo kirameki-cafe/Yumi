@@ -117,11 +117,11 @@ const EMBEDS = {
                         ${activity.state === null ? '' : activity.state}
                         ${
                             startTime
-                                ? `Since <t:${Math.round(startTime.getTime() / 1000)}:R>`
+                                ? `${locale.__('userinfo.since', {TIME: `<t:${Math.round(startTime.getTime() / 1000)}:R>` })}`
                                 : ''
                         }${
                             endTime
-                                ? `\nEnd <t:${Math.round(endTime.getTime() / 1000)}:R>`
+                                ? `\n${locale.__('userinfo.end', {TIME: `<t:${Math.round(endTime.getTime() / 1000)}:R>` })}`
                                 : ''
                         }
                         \u200b`,
