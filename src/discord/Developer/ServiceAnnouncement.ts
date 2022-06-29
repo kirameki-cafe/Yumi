@@ -51,7 +51,7 @@ const EMBEDS = {
             iconURL: `${user?.displayAvatarURL()}?size=4096`
         };
 
-        if (!payload.timestamp) payload.timestamp = new Date().getTime() / 1000;
+        if (!payload.timestamp) payload.timestamp = Date.now();
 
         if (payload.thumbnail?.url === 'bot_avatar')
             payload.thumbnail.url = `${user?.displayAvatarURL()}?size=4096`;
