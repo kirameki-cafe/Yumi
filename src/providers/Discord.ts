@@ -14,6 +14,7 @@ import Discord_MembershipScreening from '../discord/MembershipScreening';
 import Discord_osu from '../discord/osu';
 import Discord_UserInfo from '../discord/UserInfo';
 import Discord_Stats from '../discord/Stats';
+import Discord_Support from '../discord/Support';
 
 import Discord_MusicPlayer_Play from '../discord/MusicPlayer/Play';
 import Discord_MusicPlayer_Skip from '../discord/MusicPlayer/Skip';
@@ -64,6 +65,7 @@ class Discord {
             new Discord_InteractionManager(),
             new Discord_osu(),
             new Discord_Settings(),
+            new Discord_Support(),
 
             new Discord_MusicPlayer_Play(),
             new Discord_MusicPlayer_NowPlaying(),

@@ -1,4 +1,4 @@
-import { CommandInteraction, Interaction, Message } from 'discord.js';
+import { CommandInteraction, Message } from 'discord.js';
 import { I18n } from 'i18n';
 
 import DiscordProvider from '../providers/Discord';
@@ -24,7 +24,7 @@ const EMBEDS = {
             fields: [
                 {
                     name: `☕ ${locale.__('help.general')}`,
-                    value: `help, ping, invite, userinfo, stats`,
+                    value: `help, ping, invite, userinfo, stats, support`,
                     inline: true
                 },
                 {

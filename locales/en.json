@@ -145,5 +145,10 @@
 		"title_processing": "Measuring network performance ( ◕▿◕ )",
 		"running_on": "Running on {{HOST}}",
 		"development_environment": "Development Environment"
+	},
+	"support": {
+		"title": "Support",
+		"info": "[Join {{BOT_NAME}}'s support server]({{{LINK}}})",
+		"not_available": "{{BOT_NAME}}'s support server is currently unavailable"
 	}
 }
