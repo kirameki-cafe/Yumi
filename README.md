@@ -22,7 +22,7 @@ The output will be at ``/dist``, use ``node index.js`` to start
 1. Clone this repository
 2. Run ``yarn docker-build`` for yarn, or ``npm run docker-build`` for npm to build the image
 
-The output will be at ``/dist``, use ``node index.js`` to start
+Image will be tagged as ``ghcr.io/yuzuzensai/yumi:latest``
 
 ## 🔧 Debugging for development
 
