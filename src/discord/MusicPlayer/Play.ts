@@ -158,6 +158,7 @@ export default class Play extends DiscordModule {
                 await joinVoiceChannelProcedure(new HybridInteractionMessage(interaction), null, voiceChannel);
 
             let instance = DiscordMusicPlayer.getGuildInstance(guild.id);
+            if(!instance) return;
 
             if (instance!.voiceChannel.id !== member.voice.channel.id)
                 return await sendHybridInteractionMessageResponse(
@@ -235,6 +236,7 @@ export default class Play extends DiscordModule {
                 await joinVoiceChannelProcedure(new HybridInteractionMessage(interaction), null, voiceChannel);
 
             let instance = DiscordMusicPlayer.getGuildInstance(guild.id);
+            if(!instance) return;
 
             if (instance!.voiceChannel.id !== member.voice.channel.id)
                 return await sendHybridInteractionMessageResponse(
@@ -304,6 +306,7 @@ export default class Play extends DiscordModule {
         }
 
         let instance = DiscordMusicPlayer.getGuildInstance(guild.id);
+        if(!instance) return;
 
         if (instance!.voiceChannel.id !== member.voice.channel.id)
             return await sendHybridInteractionMessageResponse(
