@@ -123,7 +123,7 @@ export default class Ping extends DiscordModule {
                 }`
         );
 
-        if (data.isSlashCommand())
+        if (data.isApplicationCommand())
             return await data
                 .getMessageComponentInteraction()
                 .editReply({ embeds: [EMBEDS.PING_INFO(data, locale, finalString.join('\n'))] });

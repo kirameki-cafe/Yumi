@@ -1,4 +1,4 @@
-import { Message, CommandInteraction, Interaction, MessageActionRow, ButtonInteraction, MessageSelectMenu, MessageSelectOptionData } from "discord.js";
+import { Message, CommandInteraction, BaseInteraction, ActionRowBuilder, ButtonInteraction, SelectMenuBuilder, SelectMenuComponentOptionData } from "discord.js";
 import { I18n } from "i18n";
 
 import { joinVoiceChannelProcedure } from "./Join";
@@ -96,8 +96,8 @@ export default class Search extends DiscordModule {
 
             query = args.join(' ');
         }
-        else if (data.isSlashCommand())
-            query = data.getSlashCommand().options.getString('query');
+        else if (data.isApplicationCommand())
+            query = data.getSlashCommand().options.get('query', true).value?.toString();
         else if (data.isButton())
             query = args;
 
@@ -126,9 +126,9 @@ export default class Search extends DiscordModule {
         let result = await DiscordMusicPlayer.searchYouTubeByQuery(query);
         if (!result) return; // TODO: Handle when search returned nothing
 
-        const menuOptions: MessageSelectOptionData[] = [];
+        const menuOptions: SelectMenuComponentOptionData[] = [];
 
-        const messageSelectMenu = new MessageSelectMenu();
+        const messageSelectMenu = new SelectMenuBuilder();
         /*
             Discord have 100 char custom id char limit
             So we need to shorten our json.
@@ -157,7 +157,7 @@ export default class Search extends DiscordModule {
 
         messageSelectMenu.addOptions(menuOptions);
 
-        const row = new MessageActionRow();
+        const row = new ActionRowBuilder<SelectMenuBuilder>();
         row.addComponents(messageSelectMenu);
 
         return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SEARCH_RESULT(data, locale, result)], components: [row] });

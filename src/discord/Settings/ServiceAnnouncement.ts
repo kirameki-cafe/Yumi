@@ -1,4 +1,4 @@
-import { Permissions, Guild, GuildChannel, ThreadChannel, Message } from 'discord.js';
+import { Permissions, Guild, GuildChannel, ThreadChannel, Message, PermissionsBitField } from 'discord.js';
 import { I18n } from 'i18n';
 
 import DiscordProvider from '../../providers/Discord';
@@ -104,7 +104,7 @@ export const setEnableServiceAnnouncement = async (
     let member = data.getMember();
     if (!member) return;
 
-    if (!member.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
+    if (!member.permissions.has([PermissionsBitField.Flags.Administrator]))
         return await sendHybridInteractionMessageResponse(data, {
             embeds: [COMMON_EMBEDS.NO_PERMISSION(data, locale)]
         });
@@ -124,7 +124,7 @@ export const setEnableServiceAnnouncement = async (
         __name.shift();
         _name = __name.join(' ');
         newStatus = _name;
-    } else if (data.isSlashCommand()) newStatus = data.getSlashCommand().options.getString('status')!;
+    } else if (data.isApplicationCommand()) newStatus = data.getSlashCommand().options.get('status', true).value?.toString();
 
     if (!newStatus)
         return await sendHybridInteractionMessageResponse(data, {
@@ -165,7 +165,7 @@ export const setEnableServiceAnnouncement = async (
         return await (placeholder as Message).edit({
             embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_STATUS_UPDATED(data, locale, newStatusBool)]
         });
-    else if (data.isSlashCommand())
+    else if (data.isApplicationCommand())
         return await sendHybridInteractionMessageResponse(
             data,
             {
@@ -184,7 +184,7 @@ export const setServiceAnnouncementChannel = async (
     let member = data.getMember();
     if (!member) return;
 
-    if (!member.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
+    if (!member.permissions.has([PermissionsBitField.Flags.Administrator]))
         return await sendHybridInteractionMessageResponse(data, {
             embeds: [COMMON_EMBEDS.NO_PERMISSION(data, locale)]
         });
@@ -196,7 +196,7 @@ export const setServiceAnnouncementChannel = async (
                 embeds: [EMBEDS.NO_CHANNEL_MENTIONED(data, locale)]
             });
         channel = data.getMessage().mentions.channels.first();
-    } else if (data.isSlashCommand()) channel = data.getSlashCommand().options.getChannel('channel');
+    } else if (data.isApplicationCommand()) channel = data.getSlashCommand().options.get('channel', true).channel;
 
     if (!channel)
         return await sendHybridInteractionMessageResponse(data, {
@@ -211,16 +211,14 @@ export const setServiceAnnouncementChannel = async (
             embeds: [EMBEDS.INVALID_CHANNEL_THREAD(data, locale, TargetChannel)]
         });
 
-    if (!TargetChannel.isText())
+    if (!TargetChannel.isTextBased())
         return await sendHybridInteractionMessageResponse(data, {
             embeds: [EMBEDS.INVALID_CHANNEL(data, locale, TargetChannel)]
         });
 
     if (
-        !data
-            .getGuild()!
-            .me?.permissionsIn(TargetChannel)
-            .has([Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.VIEW_CHANNEL])
+        !data.getGuild()?.members.me?.permissionsIn(TargetChannel)
+            .has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ViewChannel])
     )
         return await sendHybridInteractionMessageResponse(data, {
             embeds: [EMBEDS.BOT_NO_PERMISSION(data, locale, TargetChannel)]
@@ -239,7 +237,7 @@ export const setServiceAnnouncementChannel = async (
         return await (placeholder as Message).edit({
             embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_CONFIGURED_CHANNEL(data, locale, TargetChannel)]
         });
-    else if (data.isSlashCommand())
+    else if (data.isApplicationCommand())
         return await sendHybridInteractionMessageResponse(
             data,
             {

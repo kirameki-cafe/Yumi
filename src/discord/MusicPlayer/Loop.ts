@@ -1,5 +1,5 @@
 import { I18n } from "i18n";
-import { Message, CommandInteraction, Interaction, MessageActionRow, ButtonInteraction, MessageSelectMenu, MessageSelectOptionData } from "discord.js";
+import { Message, CommandInteraction } from "discord.js";
 
 import DiscordMusicPlayer, { DiscordMusicPlayerLoopMode } from "../../providers/DiscordMusicPlayer";
 import Locale from "../../services/Locale";
@@ -81,7 +81,7 @@ export default class Loop extends DiscordModule {
             if (args.length !== 0)
                 query = args.join(' ');
         }
-        else if (data.isSlashCommand())
+        else if (data.isApplicationCommand())
             query = args.getSubcommand();
 
         const voiceChannel = member.voice.channel;

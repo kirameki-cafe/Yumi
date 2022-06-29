@@ -1,4 +1,4 @@
-import { Guild } from 'discord.js';
+import { ActivityType, Guild } from 'discord.js';
 
 import DiscordModule from '../utils/DiscordModule';
 import DiscordProvider from '../providers/Discord';
@@ -48,7 +48,7 @@ export default class Core extends DiscordModule {
 
     private setActivity() {
         DiscordProvider.client.user!.setActivity('for your heart 💖', {
-            type: 'COMPETING'
+            type: ActivityType.Competing
         });
     }
 }

@@ -1,4 +1,4 @@
-import { Permissions, Guild } from 'discord.js';
+import { Permissions, Guild, PermissionFlagsBits, PermissionsBitField } from 'discord.js';
 import { I18n } from 'i18n';
 
 import DiscordProvider from '../../providers/Discord';
@@ -54,7 +54,7 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
         if (!GuildCache) return;
     const prefix = GuildCache.prefix;
 
-    if (!member.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
+    if (!member.permissions.has([PermissionsBitField.Flags.Administrator]))
         return await sendHybridInteractionMessageResponse(data, {
             embeds: [COMMON_EMBEDS.NO_PERMISSION(data, locale)]
         });
@@ -71,7 +71,7 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
         __name.shift();
         _name = __name.join(' ');
         newPrefix = _name;
-    } else if (data.isSlashCommand()) newPrefix = data.getSlashCommand().options.getString('prefix');
+    } else if (data.isApplicationCommand()) newPrefix = data.getSlashCommand().options.get('prefix', true).value?.toString();
 
     if (!newPrefix)
         return await sendHybridInteractionMessageResponse(data, {
@@ -103,7 +103,7 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
 
     if (data && data.isMessage() && placeholder && placeholder.isMessage())
         return placeholder.getMessage().edit({ embeds: [EMBEDS.PREFIX_UPDATED(data, locale, newPrefix)] });
-    else if (data.isSlashCommand())
+    else if (data.isApplicationCommand())
         return await sendHybridInteractionMessageResponse(
             data,
             { embeds: [EMBEDS.PREFIX_UPDATED(data, locale, newPrefix)] },

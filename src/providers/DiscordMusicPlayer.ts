@@ -1,4 +1,12 @@
-import { VoiceChannel, Snowflake, TextChannel, StageChannel, Guild } from 'discord.js';
+import {
+    VoiceChannel,
+    Snowflake,
+    TextChannel,
+    StageChannel,
+    Guild,
+    PermissionsBitField,
+    BaseGuildVoiceChannel
+} from 'discord.js';
 import {
     AudioPlayer,
     VoiceConnection,
@@ -98,10 +106,7 @@ export class DiscordMusicPlayerInstance {
 
         this.player.on(AudioPlayerStatus.Idle, async (oldStage, newStage) => {
             //The player stopped
-            if (
-                newStage.status === AudioPlayerStatus.Idle &&
-                oldStage.status !== AudioPlayerStatus.Idle
-            ) {
+            if (newStage.status === AudioPlayerStatus.Idle && oldStage.status !== AudioPlayerStatus.Idle) {
                 // Loop mode is set to current song
                 if (this.loopMode === DiscordMusicPlayerLoopMode.Current) {
                     if (this.queue.track.length !== 0) {
@@ -149,7 +154,7 @@ export class DiscordMusicPlayerInstance {
     public joinVoiceChannel(voiceChannel: VoiceChannel | StageChannel, textChannel?: TextChannel) {
         const permissions = voiceChannel.permissionsFor(DiscordProvider.client.user!);
 
-        if (!permissions || !voiceChannel.joinable || !permissions.has('CONNECT'))
+        if (!permissions || !voiceChannel.joinable || !permissions.has(PermissionsBitField.Flags.Connect))
             throw new Error('No permissions');
 
         if (textChannel) this.textChannel = textChannel;
@@ -157,17 +162,18 @@ export class DiscordMusicPlayerInstance {
         this.voiceConnection = joinVoiceChannel({
             channelId: this.voiceChannel.id,
             guildId: this.voiceChannel.guild.id,
-            adapterCreator: this.voiceChannel.guild
-                .voiceAdapterCreator as DiscordGatewayAdapterCreator
+            adapterCreator: this.voiceChannel.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator
         });
 
         this.voiceConnection.on(
             VoiceConnectionStatus.Ready,
-            (oldState: VoiceConnectionState, newState: VoiceConnectionState) => {
-                let currentVC = DiscordProvider.client.guilds.cache.get(voiceChannel.guild.id)?.me
-                    ?.voice.channel;
-                if (currentVC && currentVC.id !== this.voiceChannel.id) {
-                    this.voiceChannel = currentVC;
+            async (oldState: VoiceConnectionState, newState: VoiceConnectionState) => {
+                let guild = DiscordProvider.client.guilds.cache.get(voiceChannel.guild.id);
+                if (guild) {
+                    let currentVC = guild?.members.me?.voice.channel;
+                    if (currentVC && currentVC.id !== this.voiceChannel.id) {
+                        this.voiceChannel = currentVC;
+                    }
                 }
             }
         );
@@ -175,12 +181,12 @@ export class DiscordMusicPlayerInstance {
         this.voiceConnection.on(
             VoiceConnectionStatus.Disconnected,
             (oldState: VoiceConnectionState, newState: VoiceConnectionState) => {
-                setTimeout(() => {
-                    if (
-                        !DiscordProvider.client.guilds.cache.get(voiceChannel.guildId!)!.me!.voice
-                            .channelId
-                    ) {
-                        this.events.emit('disconnect', new VoiceDisconnectedEvent(this));
+                setTimeout(async () => {
+                    let guild = DiscordProvider.client.guilds.cache.get(voiceChannel.guildId);
+                    if(guild) {
+                        if (!guild?.members.me?.voice.channelId) {
+                            this.events.emit('disconnect', new VoiceDisconnectedEvent(this));
+                        }
                     }
                 }, 2000);
             }
@@ -190,9 +196,10 @@ export class DiscordMusicPlayerInstance {
     public async leaveVoiceChannel() {
         if (this.player) this.player.pause();
 
-        if (DiscordProvider.client.guilds.cache.get(this.voiceChannel.guild.id)?.me?.voice) {
-            this.voiceConnection?.disconnect();
-        }
+        const guild = DiscordProvider.client.guilds.cache.get(this.voiceChannel.guild.id);
+        if (!guild) return;
+
+        if (guild.members.me?.voice) this.voiceConnection?.disconnect();
     }
 
     public async pausePlayer() {
@@ -286,10 +293,7 @@ export class DiscordMusicPlayerInstance {
         const stream = 'https://fakestream:42069/fake/stream/fake/audio/fake.mp3';
         const resource = createAudioResource(stream);
         this.player.play(resource);
-        this.player.emit(
-            'error',
-            new AudioPlayerError(new Error('Music player was manually crashed'), null!)
-        );
+        this.player.emit('error', new AudioPlayerError(new Error('Music player was manually crashed'), null!));
     }
 }
 
@@ -328,10 +332,9 @@ class DiscordMusicPlayer {
 
     public async searchYouTubeByYouTubeLink(youtubeLink: YouTubeLink) {
         // Search the url
-        const searched: YouTubeVideo[] = await playdl.search(
-            'https://www.youtube.com/watch?v=' + youtubeLink.videoId,
-            { source: { youtube: 'video' } }
-        );
+        const searched: YouTubeVideo[] = await playdl.search('https://www.youtube.com/watch?v=' + youtubeLink.videoId, {
+            source: { youtube: 'video' }
+        });
         for (let video of searched) {
             if (video.id === youtubeLink.videoId) return video;
         }
@@ -345,9 +348,7 @@ class DiscordMusicPlayer {
         }
 
         // Last resort, search the title
-        const videoInfo = await playdl.video_basic_info(
-            'https://www.youtube.com/watch?v=' + youtubeLink.videoId
-        );
+        const videoInfo = await playdl.video_basic_info('https://www.youtube.com/watch?v=' + youtubeLink.videoId);
         if (videoInfo?.video_details?.title) {
             const searched: YouTubeVideo[] = await playdl.search(videoInfo.video_details.title, {
                 source: { youtube: 'video' }
@@ -357,9 +358,7 @@ class DiscordMusicPlayer {
             }
         }
 
-        let yt_info = await playdl.video_info(
-            'https://www.youtube.com/watch?v=' + youtubeLink.videoId
-        );
+        let yt_info = await playdl.video_info('https://www.youtube.com/watch?v=' + youtubeLink.videoId);
         if (yt_info) {
             return new YouTubeVideo({
                 id: yt_info.video_details.id,

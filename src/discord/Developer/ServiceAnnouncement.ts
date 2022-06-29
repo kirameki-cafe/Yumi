@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, Interaction, CommandInteraction, TextChannel } from 'discord.js';
+import { Message, EmbedBuilder, Interaction, CommandInteraction, TextChannel, BaseInteraction } from 'discord.js';
 import { Promise } from 'bluebird';
 import fs from 'fs';
 import path from 'path';
@@ -22,7 +22,7 @@ import Prisma from '../../providers/Prisma';
 import Users from '../../services/Users';
 
 const EMBEDS = {
-    ANNOUNCEMENT_INFO: (data: Message | Interaction) => {
+    ANNOUNCEMENT_INFO: (data: Message | BaseInteraction) => {
         return makeInfoEmbed({
             title: 'Service Announcement',
             description: `This module contains management tool for announcement feed\n The announcement message is located in \`\`configs/ServiceAnnouncement.json\`\``,
@@ -32,14 +32,14 @@ const EMBEDS = {
                     value: '``reload`` ``previewNews`` ``sendNews`` ``previewMaintenance`` ``sendMaintenance`` ``previewMessage`` ``sendMessage`` ``previewAlert`` ``sendAlert``'
                 }
             ],
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    NOT_DEVELOPER: (data: Message | Interaction) => {
+    NOT_DEVELOPER: (data: Message | BaseInteraction) => {
         return makeErrorEmbed({
             title: 'Developer only',
             description: `This command is restricted to the developers only`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
     MAKE_PAYLOAD: (payload: any) => {
@@ -60,40 +60,40 @@ const EMBEDS = {
         if (payload.description)
             payload.description = payload.description.replaceAll('{bot_username}', user?.username);
 
-        return new MessageEmbed(payload);
+        return new EmbedBuilder(payload);
     },
-    RELOADED: (data: Message | Interaction) => {
+    RELOADED: (data: Message | BaseInteraction) => {
         return makeSuccessEmbed({
             title: 'Service Announcement Configuration Reloaded',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    RELOAD_ERROR: (data: Message | Interaction, error: string) => {
+    RELOAD_ERROR: (data: Message | BaseInteraction, error: string) => {
         return makeErrorEmbed({
             title: 'Unable to reload Service Announcement Configuration',
             description: `\`\`\`${error}\`\`\``,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    SENDING_SERVICE_ANNOUNCEMENT: (data: Message | Interaction) => {
+    SENDING_SERVICE_ANNOUNCEMENT: (data: Message | BaseInteraction) => {
         return makeProcessingEmbed({
             title: 'Service Announcement',
             description: `Broadcasting Service Announcement`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    SERVICE_ANNOUNCEMENT_SENT: (data: Message | Interaction) => {
+    SERVICE_ANNOUNCEMENT_SENT: (data: Message | BaseInteraction) => {
         return makeSuccessEmbed({
             title: 'Service Announcement',
             description: `Broadcasted Service Announcement`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS: (data: Message | Interaction) => {
+    SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS: (data: Message | BaseInteraction) => {
         return makeWarningEmbed({
             title: 'Service Announcement',
             description: `Broadcasted Service Announcement with errors, check console for more info`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     }
 };
@@ -298,7 +298,7 @@ export default class ServiceAnnouncement extends DiscordModule {
                                     EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data.getRaw())
                                 ]
                             });
-                    else if (data.isSlashCommand())
+                    else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
                             {
@@ -313,7 +313,7 @@ export default class ServiceAnnouncement extends DiscordModule {
                         return placeholder
                             .getMessage()
                             .edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data.getRaw())] });
-                    else if (data.isSlashCommand())
+                    else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
                             { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data.getRaw())] },
@@ -331,7 +331,7 @@ export default class ServiceAnnouncement extends DiscordModule {
                     embeds: [EMBEDS.ANNOUNCEMENT_INFO(data.getRaw())]
                 });
             query = args[0].toLowerCase();
-        } else if (data.isSlashCommand()) {
+        } else if (data.isApplicationCommand()) {
             query = args.getSubcommand();
         }
 
