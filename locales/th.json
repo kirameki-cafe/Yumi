@@ -130,7 +130,7 @@
 	"settings": {
 		"title": "การตั้งค่า",
 		"description": "เปลี่ยนพฤติกรรมของ {{BOT_NAME}} บน **{{GUILD_NAME}}**",
-		"valid_args": "``Prefix`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
+		"valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
 	},
 	"settings_prefix": {
 		"info": "คำนำหน้าปัจจุบันคือ {{{PREFIX}}}",
@@ -141,6 +141,14 @@
 		"prefix_is_mention_description": "คุณสามารถเรียกฉันด้วยการ @กล่าวถึง ฉันได้อยู่แล้วไม่ต้องห่วง",
 		"prefix_updated": "อัปเดตคำนำหน้าแล้ว",
 		"prefix_updated_description": "จากนี้ไป คุณสามารถเรียกฉันโดยใช้ ``{{PREFIX}}`` นะ"
+	},
+	"settings_language": {
+		"info": "ภาษาปัจจุบันตอนนี้คือ {{LANGUAGE}}",
+		"info_description": "ระบุภาษาใหม่เพื่อเปลี่ยน\n**ภาษาที่ใช้ได้**: ``{{LANGUAGES}}``",
+		"language_invalid": "ภาษาไม่ถูกต้อง",
+		"language_invalid_description": "รหัสภาษาไม่ถูกต้องหรือยังไม่รองรับ",
+		"language_updated": "เปลี่ยนภาษาเรียบร้อย",
+		"language_updated_description": "ตั้งแต่นี้ไปฉันจะใช้ภาษา {{LANGUAGE}}"
 	},
 	"ping": {
 		"title": "ประสิทธิภาพของเครือข่าย",

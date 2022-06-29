@@ -130,7 +130,7 @@
 	"settings": {
 		"title": "Settings",
 		"description": "Change how {{BOT_NAME}} behave on **{{GUILD_NAME}}**",
-		"valid_args": "``Prefix`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
+		"valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
 	},
 	"settings_prefix": {
 		"info": "Current prefix is {{{PREFIX}}}",
@@ -141,6 +141,14 @@
 		"prefix_is_mention_description": "You can already call me by mentioning me. I got that covered, don't worry",
 		"prefix_updated": "Prefix updated",
 		"prefix_updated_description": "From now onwards, I shall be called by using ``{{PREFIX}}``"
+	},
+	"settings_language": {
+		"info": "Current language is {{LANGUAGE}}",
+		"info_description": "Provide a new language to change\n**Available languages**: ``{{LANGUAGES}}``",
+		"language_invalid": "Invalid language",
+		"language_invalid_description": "The language code is invalid or not supported yet",
+		"language_updated": "Language updated",
+		"language_updated_description": "I will be using {{LANGUAGE}} from now on"
 	},
 	"ping": {
 		"title": "Network performance",
