@@ -1,11 +1,11 @@
 import { User as PrismaUser, Guild as PrismaGuild } from '@prisma/client';
 import {
     Message,
-    Interaction,
+    ActionRowBuilder,
     CommandInteraction,
-    MessageActionRow,
-    MessageButton,
-    ButtonInteraction
+    ButtonInteraction,
+    ButtonBuilder,
+    ButtonStyle
 } from 'discord.js';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
@@ -162,14 +162,14 @@ export default class Debug extends DiscordModule {
                 });
             },
             invalidInteraction: async (data: HybridInteractionMessage) => {
-                const row = new MessageActionRow().addComponents(
-                    new MessageButton()
+                const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+                    new ButtonBuilder()
                         .setEmoji('😥')
                         .setLabel(
                             ' Make invalid interaction (Wait 7 seconds, check error in console or logs)'
                         )
                         .setCustomId('dev_make_invalid_interaction')
-                        .setStyle('PRIMARY')
+                        .setStyle(ButtonStyle.Primary)
                 );
                 await sendHybridInteractionMessageResponse(data, {
                     embeds: [EMBEDS.INVALID_TEST(data)],
@@ -187,7 +187,7 @@ export default class Debug extends DiscordModule {
                 });
 
             query = args[0].toLowerCase();
-        } else if (data.isSlashCommand()) {
+        } else if (data.isApplicationCommand()) {
             query = args.getSubcommand();
         }
 

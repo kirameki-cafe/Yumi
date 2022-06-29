@@ -1,13 +1,13 @@
 import {
     Message,
     CommandInteraction,
-    Interaction,
     VoiceChannel,
-    MessageActionRow,
-    MessageButton,
+    ActionRowBuilder,
+    ButtonBuilder,
     SelectMenuInteraction,
     ButtonInteraction,
-    StageChannel
+    StageChannel,
+    ButtonStyle
 } from 'discord.js';
 import { I18n } from 'i18n';
 
@@ -286,8 +286,8 @@ export default class Play extends DiscordModule {
                 return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.PLAY_INFO(data, locale)] });
 
             query = args.join(' ');
-        } else if (data.isSlashCommand()) {
-            query = data.getSlashCommand().options.getString('query');
+        } else if (data.isApplicationCommand()) {
+            query = data.getSlashCommand().options.get('query', true).value?.toString();
         }
 
         if (!query) return;
@@ -350,8 +350,8 @@ export default class Play extends DiscordModule {
             instance.addTrackToQueue(result);
 
             if (linkData.list) {
-                const row = new MessageActionRow().addComponents(
-                    new MessageButton()
+                const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+                    new ButtonBuilder()
                         .setEmoji('✅')
                         .setCustomId(
                             JSON.stringify({
@@ -361,7 +361,7 @@ export default class Play extends DiscordModule {
                             })
                         )
                         .setLabel('  Add the remaining songs in the playlist')
-                        .setStyle('PRIMARY')
+                        .setStyle(ButtonStyle.Primary)
                 );
 
                 return await sendHybridInteractionMessageResponse(data, {
@@ -387,8 +387,8 @@ export default class Play extends DiscordModule {
                 // The query length is too long to fit in json
                 if (query.length > 100 - 51) return;
 
-                const row = new MessageActionRow().addComponents(
-                    new MessageButton()
+                const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+                    new ButtonBuilder()
                         .setEmoji('🔎')
                         .setCustomId(
                             JSON.stringify({
@@ -400,7 +400,7 @@ export default class Play extends DiscordModule {
                             })
                         )
                         .setLabel('  Not this? Search!')
-                        .setStyle('PRIMARY')
+                        .setStyle(ButtonStyle.Primary)
                 );
 
                 return await sendHybridInteractionMessageResponse(data, {

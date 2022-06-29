@@ -3,15 +3,20 @@ import {
     GuildChannel,
     GuildMember,
     Message,
-    Permissions,
     TextChannel,
-    MessageActionRow,
-    MessageButton,
-    Interaction,
+    ButtonBuilder,
     CommandInteraction,
     Role,
     ThreadChannel,
-    ButtonInteraction
+    ButtonInteraction,
+    BaseInteraction,
+    PermissionsBitField,
+    EmbedBuilder,
+    ButtonStyle,
+    ActionRowBuilder,
+    ActionRowData,
+    ActionRowComponent,
+    MessageActionRowComponentBuilder
 } from 'discord.js';
 
 import DiscordProvider from '../providers/Discord';
@@ -27,44 +32,44 @@ import {
 import DiscordModule, { HybridInteractionMessage } from '../utils/DiscordModule';
 
 const EMBEDS = {
-    NO_PERMISSION: (data: Message | Interaction) => {
+    NO_PERMISSION: (data: Message | BaseInteraction) => {
         return makeErrorEmbed({
             title: 'You need ``ADMINISTRATOR`` permission on this guild!',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    NO_PARAMETER: (data: Message | Interaction) => {
+    NO_PARAMETER: (data: Message | BaseInteraction) => {
         return makeErrorEmbed({
             title: 'Missing parameter',
             description: `You must define membership screening channel and role to enable this feature`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    NO_ROLE_MENTIONED: (data: Message | Interaction) => {
+    NO_ROLE_MENTIONED: (data: Message | BaseInteraction) => {
         return makeErrorEmbed({
             title: 'No role mentioned',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    NO_ROLE_FOUND: (data: Message | Interaction) => {
+    NO_ROLE_FOUND: (data: Message | BaseInteraction) => {
         return makeErrorEmbed({
             title: 'Cannot find that role',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    NO_CHANNEL_MENTIONED: (data: Message | Interaction) => {
+    NO_CHANNEL_MENTIONED: (data: Message | BaseInteraction) => {
         return makeErrorEmbed({
             title: 'No channel mentioned',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    NO_CHANNEL_FOUND: (data: Message | Interaction) => {
+    NO_CHANNEL_FOUND: (data: Message | BaseInteraction) => {
         return makeErrorEmbed({
             title: 'Cannot find that channel',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    MSINFO: (data: Message | Interaction) => {
+    MSINFO: (data: Message | BaseInteraction) => {
         return makeInfoEmbed({
             title: 'Membership Screening',
             description: `Membership Screening is a feature to prevent unwanted people to join your guild, similar to whitelist feature. Moderators can approve or deny join request`,
@@ -74,58 +79,58 @@ const EMBEDS = {
                     value: '``setRole`` ``setChannel`` ``createMessage``'
                 }
             ],
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    ALREADY_ENABLED: (data: Message | Interaction) => {
+    ALREADY_ENABLED: (data: Message | BaseInteraction) => {
         return makeInfoEmbed({
             title: 'Membership Screening is already enabled',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    MESSAGE_CREATED: (data: Message | Interaction) => {
+    MESSAGE_CREATED: (data: Message | BaseInteraction) => {
         return makeSuccessEmbed({
             title: 'Membership Screening message created',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    ALREADY_DISABLED: (data: Message | Interaction) => {
+    ALREADY_DISABLED: (data: Message | BaseInteraction) => {
         return makeInfoEmbed({
             title: 'Membership Screening is already disabled',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    ENABLED: (data: Message | Interaction) => {
+    ENABLED: (data: Message | BaseInteraction) => {
         return makeSuccessEmbed({
             title: 'Enabled Membership Screening',
             description: `All new member join request will be sent in your defined channel`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    DISABLED: (data: Message | Interaction) => {
+    DISABLED: (data: Message | BaseInteraction) => {
         return makeSuccessEmbed({
             title: 'Disabled Membership Screening',
             description: `No longer accepting request, all new member can join directly`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    MANAGED_ROLE: (data: Message | Interaction, role: Role) => {
+    MANAGED_ROLE: (data: Message | BaseInteraction, role: Role) => {
         return makeErrorEmbed({
             title: 'You cannot use this role',
             description:
                 '``' + role.name + '``' + ' is managed by external service and cannot be used',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    CONFIGURED_ROLE: (data: Message | Interaction, role: Role) => {
+    CONFIGURED_ROLE: (data: Message | BaseInteraction, role: Role) => {
         return makeSuccessEmbed({
             title: 'Configured Membership Screening Role',
             description:
                 'New member will be given a ' + '``' + role.name + '``' + ' role after approval',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    CONFIGURED_CHANNEL: (data: Message | Interaction, channel: GuildChannel) => {
+    CONFIGURED_CHANNEL: (data: Message | BaseInteraction, channel: GuildChannel) => {
         return makeSuccessEmbed({
             title: 'Configured Membership Screening Channel',
             description:
@@ -134,18 +139,18 @@ const EMBEDS = {
                 channel.name +
                 '``' +
                 ' can approve or deny request',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    INVALID_CHANNEL: (data: Message | Interaction, channel: GuildChannel) => {
+    INVALID_CHANNEL: (data: Message | BaseInteraction, channel: GuildChannel) => {
         return makeErrorEmbed({
             title: 'Invalid channel type, only TextChannel is supported',
             description: '``' + channel.name + '``' + ' is not a text channel',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
     INVALID_CHANNEL_THREAD: (
-        data: Message | Interaction,
+        data: Message | BaseInteraction,
         channel: GuildChannel | ThreadChannel
     ) => {
         return makeErrorEmbed({
@@ -155,38 +160,38 @@ const EMBEDS = {
                 channel.name +
                 '``' +
                 ' is a thread channel. Please use a regular text channel',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    BOT_NO_PERMISSION: (data: Message | Interaction, channel: GuildChannel) => {
+    BOT_NO_PERMISSION: (data: Message | BaseInteraction, channel: GuildChannel) => {
         return makeErrorEmbed({
             title: `I don't have permission`,
             description: 'I cannot access/send message in ' + '``' + channel.name + '``',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    NO_LONGER_VALID_ROLE: (data: Message | Interaction) => {
+    NO_LONGER_VALID_ROLE: (data: Message | BaseInteraction) => {
         return makeErrorEmbed({
             title: 'The configured role is no longer valid. Please update the role in configuration',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    CANNOT_PERFORM_ASSIGN_ROLE: (data: Message | Interaction) => {
+    CANNOT_PERFORM_ASSIGN_ROLE: (data: Message | BaseInteraction) => {
         return makeErrorEmbed({
             title: 'Cannot grant the role to user, make sure I have permission to do that',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    CANNOT_PERFORM_ASSIGN_KICK: (data: Message | Interaction) => {
+    CANNOT_PERFORM_ASSIGN_KICK: (data: Message | BaseInteraction) => {
         return makeErrorEmbed({
             title: 'Cannot kick the user, make sure I have permission to do that',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    CANNOT_PERFORM_ASSIGN_BAN: (data: Message | Interaction) => {
+    CANNOT_PERFORM_ASSIGN_BAN: (data: Message | BaseInteraction) => {
         return makeErrorEmbed({
             title: 'Cannot ban the user, make sure I have permission to do that',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
     CREATE_MESSAGE: () => {
@@ -246,10 +251,12 @@ export default class MembershipScreening extends DiscordModule {
         )
             return;
 
-        embed[0].footer = {
+        const newEmbed = new EmbedBuilder(embed[0].data);
+
+        newEmbed.setFooter({
             text: `${interaction.user.username}  |  v${App.version}`,
             iconURL: `${interaction.user.displayAvatarURL()}?size=4096`
-        };
+        });
 
         if (['approve', 'deny', 'ban'].includes(payload.a)) {
             if (!payload.d.requester) return;
@@ -268,26 +275,29 @@ export default class MembershipScreening extends DiscordModule {
                 });
 
             if (!requesterMember) {
-                embed[0].addField('❌ Invalid', `Unable to find the user. User left already?`);
-                return await message.edit({ components: [], embeds: embed });
+                newEmbed.addFields({
+                    name: '❌ Invalid',
+                    value: `Unable to find the user. User left already?`
+                });
+                return await message.edit({ components: [], embeds: [newEmbed] });
             }
 
             if (requesterMember.roles.cache.has(PrismaGuild.MembershipScreening_GivenRole)) {
-                embed[0].addField(
-                    '✅ Approved',
-                    `By: Unknown (User already obtained the role by other means)`
-                );
-                return await message.edit({ components: [], embeds: embed });
+                newEmbed.addFields({
+                    name: '✅ Approved',
+                    value: `By: Unknown (User already obtained the role by other means)`
+                });
+                return await message.edit({ components: [], embeds: [newEmbed] });
             }
 
             if (payload.a === 'approve') {
                 try {
                     await requesterMember.roles.add(role);
-                    embed[0].addField(
-                        '✅ Approved',
-                        `By: ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
-                    );
-                    await message.edit({ components: [], embeds: embed });
+                    newEmbed.addFields({
+                        name: '✅ Approved',
+                        value: `By: ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
+                    });
+                    await message.edit({ components: [], embeds: [newEmbed] });
                 } catch (err) {
                     return interaction.reply({
                         ephemeral: true,
@@ -297,11 +307,11 @@ export default class MembershipScreening extends DiscordModule {
             } else if (payload.a === 'deny') {
                 try {
                     await requesterMember.kick();
-                    embed[0].addField(
-                        '❌ Denied',
-                        `By: ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
-                    );
-                    await message.edit({ components: [], embeds: embed });
+                    newEmbed.addFields({
+                        name: '❌ Denied',
+                        value: `By: ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
+                    });
+                    await message.edit({ components: [], embeds: [newEmbed] });
                 } catch (err) {
                     return interaction.reply({
                         ephemeral: true,
@@ -313,11 +323,11 @@ export default class MembershipScreening extends DiscordModule {
                     await requesterMember.ban({
                         reason: `Membership Screening, action issued by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
                     });
-                    embed[0].addField(
-                        '🔪 Banned',
-                        `By: ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
-                    );
-                    await message.edit({ components: [], embeds: embed });
+                    newEmbed.addFields({
+                        name: '🔪 Banned',
+                        value: `By: ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
+                    });
+                    await message.edit({ components: [], embeds: [newEmbed] });
                 } catch (err) {
                     return interaction.reply({
                         ephemeral: true,
@@ -395,9 +405,9 @@ export default class MembershipScreening extends DiscordModule {
                     role =
                         data.getMessage().mentions.roles.first() ||
                         guild.roles.cache.find((role) => role.name === _name);
-                } else if (data.isSlashCommand())
+                } else if (data.isApplicationCommand())
                     role = guild.roles.cache.find(
-                        (role) => role.id === data.getSlashCommand().options.getRole('role')?.id
+                        (role) => role.id === data.getSlashCommand().options.get('role')?.role?.id
                     );
 
                 if (!role)
@@ -427,8 +437,8 @@ export default class MembershipScreening extends DiscordModule {
                             embeds: [EMBEDS.NO_CHANNEL_MENTIONED(data.getRaw())]
                         });
                     mentionChannel = data.getMessage().mentions.channels.first();
-                } else if (data.isSlashCommand())
-                    mentionChannel = data.getSlashCommand().options.getChannel('channel');
+                } else if (data.isApplicationCommand())
+                    mentionChannel = data.getSlashCommand().options.get('channel', true).channel;
 
                 if (!mentionChannel)
                     return await sendHybridInteractionMessageResponse(data, {
@@ -443,15 +453,14 @@ export default class MembershipScreening extends DiscordModule {
                         embeds: [EMBEDS.INVALID_CHANNEL_THREAD(data.getRaw(), TargetChannel)]
                     });
 
-                if (!TargetChannel.isText())
+                if (!TargetChannel.isTextBased())
                     return await sendHybridInteractionMessageResponse(data, {
                         embeds: [EMBEDS.INVALID_CHANNEL(data.getRaw(), TargetChannel)]
                     });
 
                 if (
-                    !guild
-                        .me!.permissionsIn(TargetChannel)
-                        .has([Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.VIEW_CHANNEL])
+                    !guild.members.me?.permissionsIn(TargetChannel)
+                        .has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ViewChannel])
                 )
                     return await sendHybridInteractionMessageResponse(data, {
                         embeds: [EMBEDS.BOT_NO_PERMISSION(data.getRaw(), TargetChannel)]
@@ -470,7 +479,7 @@ export default class MembershipScreening extends DiscordModule {
                     return await sendMessage(channel, undefined, {
                         embeds: [EMBEDS.CREATE_MESSAGE()]
                     });
-                else if (data.isSlashCommand()) {
+                else if (data.isApplicationCommand()) {
                     await sendHybridInteractionMessageResponse(data, {
                         embeds: [EMBEDS.MESSAGE_CREATED(data.getRaw())]
                     });
@@ -483,7 +492,7 @@ export default class MembershipScreening extends DiscordModule {
 
         let query;
 
-        if (!member.permissions.has([Permissions.FLAGS.ADMINISTRATOR]))
+        if (!member.permissions.has([PermissionsBitField.Flags.Administrator]))
             return await sendHybridInteractionMessageResponse(data, {
                 embeds: [EMBEDS.NO_PERMISSION(data.getRaw())]
             });
@@ -495,7 +504,7 @@ export default class MembershipScreening extends DiscordModule {
                 });
 
             query = args[0].toLowerCase();
-        } else if (data.isSlashCommand()) query = args.getSubcommand();
+        } else if (data.isApplicationCommand()) query = args.getSubcommand();
 
         switch (query) {
             case 'enable':
@@ -549,9 +558,9 @@ export default class MembershipScreening extends DiscordModule {
 
         embed.setThumbnail(`${member.user.displayAvatarURL()}?size=4096`);
 
-        const row = new MessageActionRow()
+        const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
-                new MessageButton()
+                new ButtonBuilder()
                     .setCustomId(
                         JSON.stringify({
                             m: 'MembershipScreening',
@@ -563,10 +572,10 @@ export default class MembershipScreening extends DiscordModule {
                     )
                     .setEmoji('✅')
                     .setLabel('  Approve')
-                    .setStyle('SUCCESS')
+                    .setStyle(ButtonStyle.Success)
             )
             .addComponents(
-                new MessageButton()
+                new ButtonBuilder()
                     .setCustomId(
                         JSON.stringify({
                             m: 'MembershipScreening',
@@ -578,10 +587,10 @@ export default class MembershipScreening extends DiscordModule {
                     )
                     .setEmoji('⛔')
                     .setLabel('  Deny and kick')
-                    .setStyle('DANGER')
+                    .setStyle(ButtonStyle.Danger)
             )
             .addComponents(
-                new MessageButton()
+                new ButtonBuilder()
                     .setCustomId(
                         JSON.stringify({
                             m: 'MembershipScreening',
@@ -593,7 +602,7 @@ export default class MembershipScreening extends DiscordModule {
                     )
                     .setEmoji('🔪')
                     .setLabel('  Vision Hunt Decree (Ban)')
-                    .setStyle('DANGER')
+                    .setStyle(ButtonStyle.Danger)
             );
 
         await channel.send({ content: '\u200b', embeds: [embed], components: [row] });

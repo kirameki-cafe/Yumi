@@ -91,7 +91,7 @@ export default class Settings extends DiscordModule {
                 });
 
             query = args[0].toLowerCase();
-        } else if (data.isSlashCommand()) {
+        } else if (data.isApplicationCommand()) {
             query = args.getSubcommand();
         }
 

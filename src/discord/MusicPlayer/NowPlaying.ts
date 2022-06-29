@@ -1,4 +1,4 @@
-import { Message, CommandInteraction, MessageActionRow, MessageButton } from "discord.js";
+import { Message, CommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import { I18n } from "i18n";
 
 import DiscordProvider from "../../providers/Discord";
@@ -55,13 +55,13 @@ export default class NowPlaying extends DiscordModule {
         const instance = DiscordMusicPlayer.getGuildInstance(guild.id);
         if(!instance || !instance.queue.track[0]) return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)] });
 
-        const row = new MessageActionRow()
+        const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
-                new MessageButton()
+                new ButtonBuilder()
                     .setEmoji('▶️')
                     .setLabel(' Open on YouTube')
                     .setURL(encodeURI(`https://www.youtube.com/watch?v=${instance.queue.track[0].id}`))
-                    .setStyle('LINK'),
+                    .setStyle(ButtonStyle.Link),
             )
 
         return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NOW_PLAYING(data, locale, instance.queue.track[0])], components: [row] });

@@ -7,10 +7,12 @@ import {
     GuildMember,
     DMChannel,
     StageChannel,
-    MessageActionRow,
-    MessageButton,
+    ActionRowBuilder,
+    ButtonBuilder,
     TextChannel,
-    VoiceBasedChannel
+    VoiceBasedChannel,
+    PermissionsBitField,
+    ButtonStyle
 } from 'discord.js';
 import { I18n } from 'i18n';
 
@@ -116,7 +118,7 @@ export async function joinVoiceChannelProcedure(
     instance: DiscordMusicPlayerInstance | null,
     voiceChannel: VoiceChannel | StageChannel
 ) {
-    const isSlashCommand = data.isSlashCommand();
+    const isSlashCommand = data.isApplicationCommand();
     const isAcceptableInteraction = data.isSelectMenu() || data.isButton();
     const isMessage = data.isMessage();
     if (!isSlashCommand && !isAcceptableInteraction && !isMessage) return;
@@ -133,7 +135,7 @@ export async function joinVoiceChannelProcedure(
     const memberVoiceChannel = member.voice.channel; //isMessage ? member.voice.channel : DiscordProvider.client.guilds.cache.get(guild.id)!.members.cache.get((data as Interaction).user.id)?.voice.channel;
     if (!memberVoiceChannel) return;
 
-    const bot = guild.me;
+    const bot = guild.members.me;
     if (!bot) return;
 
     const locale = await Locale.getGuildLocale(guild.id);
@@ -179,7 +181,7 @@ export async function joinVoiceChannelProcedure(
                                 EMBEDS.VOICECHANNEL_INUSE(
                                     data,
                                     locale,
-                                    member.permissions.has([Permissions.FLAGS.MOVE_MEMBERS])
+                                    member.permissions.has([PermissionsBitField.Flags.MoveMembers])
                                 )
                             ]
                         });
@@ -223,12 +225,12 @@ export async function joinVoiceChannelProcedure(
         if (event.instance.queue.track[0] !== previousTrack) isLoopMessageSent = false;
         else if (event.instance.queue.track[0] === previousTrack && isLoopMessageSent) return;
 
-        const row = new MessageActionRow().addComponents(
-            new MessageButton()
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
                 .setEmoji('▶️')
                 .setLabel(' Open on YouTube')
                 .setURL(encodeURI(`https://www.youtube.com/watch?v=${event.instance.queue.track[0].id}`))
-                .setStyle('LINK')
+                .setStyle(ButtonStyle.Link)
         );
 
         if (event.instance.textChannel) {

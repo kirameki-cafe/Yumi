@@ -1,4 +1,4 @@
-import { Message, CommandInteraction, Presence, PresenceStatus } from 'discord.js';
+import { Message, CommandInteraction, Presence, PresenceStatus, ActivityType } from 'discord.js';
 import { getColorFromURL, Palette } from 'color-thief-node';
 import { I18n } from 'i18n';
 
@@ -73,10 +73,10 @@ const EMBEDS = {
 
         if (user.presence?.activities) {
             for (let activity of user.presence?.activities) {
-                if (activity.type === 'CUSTOM')
-                    embed.addField(
-                        `✨  ${locale.__('userinfo.custom_status')}`,
-                        `${
+                if (activity.type === ActivityType.Custom)
+                    embed.addFields({
+                        name: `✨  ${locale.__('userinfo.custom_status')}`,
+                        value: `${
                             !activity.emoji
                                 ? ''
                                 : `${
@@ -88,49 +88,51 @@ const EMBEDS = {
                                   }`
                         }  ${activity.state === null ? '' : activity.state}
                      \u200b`,
-                        false
-                    );
+                        inline: false
+                    });
                 else {
                     let title = '';
                     switch (activity.type) {
-                        case 'PLAYING':
-                            title = `'🕹 ${locale.__('userinfo.playing_x', {NAME: activity.name})}`;
+                        case ActivityType.Playing:
+                            title = `'🕹 ${locale.__('userinfo.playing_x', { NAME: activity.name })}`;
                             break;
-                        case 'STREAMING':
-                            title = `'🔴 ${locale.__('userinfo.streaming_x', {NAME: activity.name})}`;
+                        case ActivityType.Streaming:
+                            title = `'🔴 ${locale.__('userinfo.streaming_x', { NAME: activity.name })}`;
                             break;
-                        case 'LISTENING':
-                            title = `🎵 ${locale.__('userinfo.listening_x', {NAME: activity.name})}`;
+                        case ActivityType.Listening:
+                            title = `🎵 ${locale.__('userinfo.listening_x', { NAME: activity.name })}`;
                             break;
-                        case 'WATCHING':
-                            title = `📺 ${locale.__('userinfo.watching_x', {NAME: activity.name})}`;
+                        case ActivityType.Watching:
+                            title = `📺 ${locale.__('userinfo.watching_x', { NAME: activity.name })}`;
                             break;
-                        case 'COMPETING':
-                            title = `'🌠 ${locale.__('userinfo.competing_x', {NAME: activity.name})}`;
+                        case ActivityType.Competing:
+                            title = `'🌠 ${locale.__('userinfo.competing_x', { NAME: activity.name })}`;
                             break;
                     }
-                    embed.addField(
-                        `${title}`,
-                        `${activity.details === null ? '' : activity.details}
+                    embed.addFields({
+                        name: `${title}`,
+                        value: `${activity.details === null ? '' : activity.details}
                     ${activity.state === null ? '' : activity.state}
                     Since <t:${Math.round(new Date(activity.createdAt).getTime() / 1000)}:R>
                     \u200b`,
-                        false
-                    );
+                        inline: false
+                    });
                 }
             }
         }
 
-        embed.addField(
-            `📰 ${locale.__('userinfo.user_guild_info')}`,
-            `${
+        embed.addFields({
+            name: `📰 ${locale.__('userinfo.user_guild_info')}`,
+            value: `${
                 user.joinedAt === null
                     ? locale.__('userinfo.join_date_unknown')
-                    : locale.__('userinfo.join_date', {TIME: `<t:${Math.round(user.joinedAt.getTime() / 1000).toString()}:R>`})
+                    : locale.__('userinfo.join_date', {
+                          TIME: `<t:${Math.round(user.joinedAt.getTime() / 1000).toString()}:R>`
+                      })
             }
             ${user.isGuildOwner ? `${locale.__('userinfo.guild_owner')}` : ''}
             `
-        );
+        });
 
         embed.setThumbnail(user.displayAvatarURL + '?size=4096');
         embed.setAuthor({
@@ -172,7 +174,7 @@ export default class UserInfo extends DiscordModule {
             if (typeof data.getMessage().mentions.users.first() !== 'undefined')
                 query = data.getMessage().mentions.users.first()?.id;
             else query = args[0];
-        } else if (data.isSlashCommand()) query = data.getSlashCommand().options.getUser('user')?.id;
+        } else if (data.isApplicationCommand()) query = data.getSlashCommand().options.getUser('user')?.id;
 
         // Find the user want to look up
         let TargetMember = (await guild.members.fetch()).get(query);
@@ -181,7 +183,7 @@ export default class UserInfo extends DiscordModule {
                 embeds: [EMBEDS.USER_NOT_FOUND(data, locale)]
             });
 
-        if (data.isSlashCommand()) await data.getMessageComponentInteraction().deferReply();
+        if (data.isApplicationCommand()) await data.getMessageComponentInteraction().deferReply();
 
         let colorthief = null;
         try {
