@@ -5,7 +5,8 @@ import {
     StageChannel,
     Guild,
     PermissionsBitField,
-    BaseGuildVoiceChannel
+    BaseGuildVoiceChannel,
+    BaseGuildTextChannel
 } from 'discord.js';
 import {
     AudioPlayer,
@@ -83,7 +84,7 @@ export enum DiscordMusicPlayerLoopMode {
 export class DiscordMusicPlayerInstance {
     public queue: Queue;
     public player: AudioPlayer;
-    public textChannel?: TextChannel;
+    public textChannel?: BaseGuildTextChannel | BaseGuildVoiceChannel;
     public voiceChannel: VoiceChannel | StageChannel;
     public voiceConnection?: VoiceConnection;
     public previousTrack?: ValidTracks;
@@ -151,7 +152,7 @@ export class DiscordMusicPlayerInstance {
         return true;
     }
 
-    public joinVoiceChannel(voiceChannel: VoiceChannel | StageChannel, textChannel?: TextChannel) {
+    public joinVoiceChannel(voiceChannel: VoiceChannel | StageChannel, textChannel?: BaseGuildTextChannel | BaseGuildVoiceChannel) {
         const permissions = voiceChannel.permissionsFor(DiscordProvider.client.user!);
 
         if (!permissions || !voiceChannel.joinable || !permissions.has(PermissionsBitField.Flags.Connect))
