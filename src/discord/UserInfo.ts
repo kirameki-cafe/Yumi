@@ -106,15 +106,25 @@ const EMBEDS = {
                             title = `📺 ${locale.__('userinfo.watching_x', { NAME: activity.name })}`;
                             break;
                         case ActivityType.Competing:
-                            title = `'🌠 ${locale.__('userinfo.competing_x', { NAME: activity.name })}`;
+                            title = `🌠 ${locale.__('userinfo.competing_x', { NAME: activity.name })}`;
                             break;
                     }
+                    const startTime = activity.timestamps?.start;
+                    const endTime = activity.timestamps?.end;
                     embed.addFields({
                         name: `${title}`,
                         value: `${activity.details === null ? '' : activity.details}
-                    ${activity.state === null ? '' : activity.state}
-                    Since <t:${Math.round(new Date(activity.createdAt).getTime() / 1000)}:R>
-                    \u200b`,
+                        ${activity.state === null ? '' : activity.state}
+                        ${
+                            startTime
+                                ? `Since <t:${Math.round(startTime.getTime() / 1000)}:R>`
+                                : ''
+                        }${
+                            endTime
+                                ? `\nEnd <t:${Math.round(endTime.getTime() / 1000)}:R>`
+                                : ''
+                        }
+                        \u200b`,
                         inline: false
                     });
                 }
