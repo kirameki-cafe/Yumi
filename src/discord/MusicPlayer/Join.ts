@@ -12,7 +12,9 @@ import {
     TextChannel,
     VoiceBasedChannel,
     PermissionsBitField,
-    ButtonStyle
+    ButtonStyle,
+    BaseGuildTextChannel,
+    BaseGuildVoiceChannel
 } from 'discord.js';
 import { I18n } from 'i18n';
 
@@ -130,7 +132,7 @@ export async function joinVoiceChannelProcedure(
     if (!member || !channel || !guild) return;
 
     if (channel instanceof DMChannel) return;
-    if (!(channel instanceof TextChannel)) return;
+    if (!(channel instanceof BaseGuildTextChannel || channel instanceof BaseGuildVoiceChannel)) return;
 
     const memberVoiceChannel = member.voice.channel; //isMessage ? member.voice.channel : DiscordProvider.client.guilds.cache.get(guild.id)!.members.cache.get((data as Interaction).user.id)?.voice.channel;
     if (!memberVoiceChannel) return;

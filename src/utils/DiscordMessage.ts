@@ -12,7 +12,9 @@ import {
     ColorResolvable,
     Interaction,
     InteractionReplyOptions,
-    BaseInteraction
+    BaseInteraction,
+    BaseGuildVoiceChannel,
+    VoiceChannel
 } from 'discord.js';
 
 import App from '..';
@@ -130,14 +132,17 @@ export function makeProcessingEmbed(data: EmbedDataPresets) {
 }
 
 export async function sendMessage(
-    channel: TextChannel | DMChannel | BaseGuildTextChannel | GuildTextBasedChannel | PartialDMChannel,
+    channel: TextChannel | DMChannel | BaseGuildTextChannel | GuildTextBasedChannel | PartialDMChannel | BaseGuildTextChannel | BaseGuildVoiceChannel,
     user: User | undefined,
     options: string | MessagePayload | MessageOptions
 ) {
     let message;
 
     try {
-        message = await channel.send(options);
+        if(channel instanceof BaseGuildVoiceChannel)
+            message = await (channel as VoiceChannel).send(options);
+        else
+            message = await channel.send(options);
     } catch (error) {
         if (typeof user === 'undefined') {
             return Logger.error(

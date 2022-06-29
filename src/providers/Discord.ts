@@ -261,7 +261,7 @@ class Discord {
         // Handling mentions
         this.client.on('messageCreate', async (message: Message) => {
             // TODO: Handle DMs commands soon
-            if (!(message.channel instanceof TextChannel)) return;
+            if (!(message.channel instanceof BaseGuildTextChannel || message.channel instanceof BaseGuildVoiceChannel)) return;
             if (message.author.bot) return;
 
             if (typeof message.guild?.id === 'undefined') return;
