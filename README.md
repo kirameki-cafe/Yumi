@@ -39,6 +39,7 @@ Take a look inside [.env.example](https://github.com/YuzuZensai/Yumi/blob/main/.
 - ``DISCORD_TOKEN`` Your discord bot token
 - ``DEVELOPER_IDS`` List of Discord Snowflake User ID that can access developer only modules, separated by ``,``
 - ``PRIVATE_BOT`` Should the bot invite be public? ``true`` or ``false``
+- ``SUPPORT_URL`` URL to your support server (If not set, support module will show not available message)
 - ``OSU_API_KEY`` [osu! API v1 key](https://github.com/ppy/osu-api/wiki)
 - ``YOUTUBE_COOKIE_BASE64`` YouTube cookies encoded in base64 [How to get cookies?](https://github.com/play-dl/play-dl/tree/main/instructions#youtube-cookies=)*
 
