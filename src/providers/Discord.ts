@@ -1,4 +1,4 @@
-import { Guild, Client, GuildMember, Intents, Interaction, Message, TextChannel } from 'discord.js';
+import { Guild, Client, GuildMember, Intents, Interaction, Message, TextChannel, BaseGuildTextChannel } from 'discord.js';
 
 import Logger from '../libs/Logger';
 import Environment from './Environment';
@@ -160,7 +160,7 @@ class Discord {
 
         // Handling guild commands
         this.client.on('messageCreate', async (message: Message) => {
-            if (!(message.channel instanceof TextChannel)) return;
+            if (!(message.channel instanceof BaseGuildTextChannel)) return;
             if (message.author.bot) return;
             if (typeof message.guild?.id === 'undefined') return;
 
