@@ -145,5 +145,10 @@
 		"title_processing": "ネットワーク性能の測定 ( ◕▿◕ )",
 		"running_on": "{{HOST}}で実行中",
 		"development_environment": "開発環境"
+	},
+	"support": {
+		"title": "サポート",
+		"info": "[{{BOT_NAME}}のサポートサーバーに参加する]({{{LINK}}})",
+		"not_available": "{{BOT_NAME}}のサポートサーバーは現在利用できません"
 	}
 }

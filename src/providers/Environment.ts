@@ -29,6 +29,7 @@ class Environment {
         const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
         const DEVELOPER_IDS = process.env.DEVELOPER_IDS;
         const PRIVATE_BOT = process.env.PRIVATE_BOT;
+        const SUPPORT_URL = process.env.SUPPORT_URL;
 
         const OSU_API_KEY = process.env.OSU_API_KEY;
         const YOUTUBE_COOKIE_BASE64 = process.env.YOUTUBE_COOKIE_BASE64;
@@ -39,6 +40,7 @@ class Environment {
             DISCORD_TOKEN,
             DEVELOPER_IDS,
             PRIVATE_BOT,
+            SUPPORT_URL,
 
             OSU_API_KEY,
             YOUTUBE_COOKIE_BASE64
