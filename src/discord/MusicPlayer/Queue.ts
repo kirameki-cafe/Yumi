@@ -3,7 +3,8 @@ import { I18n } from 'i18n';
 
 import DiscordMusicPlayer, {
     DiscordMusicPlayerInstance,
-    DiscordMusicPlayerLoopMode
+    DiscordMusicPlayerLoopMode,
+    TrackUtils
 } from '../../providers/DiscordMusicPlayer';
 import Locale from '../../services/Locale';
 
@@ -21,14 +22,15 @@ const EMBEDS = {
                 user: data.getUser()
             });
         else {
+
             const nowPlayingText = `${
                 instance.getLoopMode() === DiscordMusicPlayerLoopMode.Current
                     ? ` ${locale.__('musicplayer_queue.looping_current')}`
                     : ''
-            }: [${queue.track[0].title}](${queue.track[0].url})`;
+            }: [${TrackUtils.getTitle(queue.track[0])}](${queue.track[0].url})`;
 
             if (queue.track.length == 1) {
-                let queueString = `1. [${queue.track[0].title}](${queue.track[0].url})`;
+                let queueString = `1. [${TrackUtils.getTitle(queue.track[0])}](${queue.track[0].url})`;
                 return makeInfoEmbed({
                     title: locale.__('musicplayer_queue.title'),
                     description: `${locale.__('musicplayer_queue.now_playing')}${nowPlayingText}\n
@@ -36,10 +38,10 @@ const EMBEDS = {
                     user: data.getUser()
                 });
             } else if (queue.track.length >= 10) {
-                const upcomingText = `[${queue.track[1].title}](${queue.track[1].url})`;
+                const upcomingText = `[${TrackUtils.getTitle(queue.track[1])}](${queue.track[1].url})`;
                 const first10 = queue.track.slice(0, 10);
                 let queueString = first10
-                    .map((track, index) => `${index + 1}. [${track.title}](${track.url})`)
+                    .map((track, index) => `${index + 1}. [${TrackUtils.getTitle(track)}](${track.url})`)
                     .join('\n');
                 return makeInfoEmbed({
                     title: locale.__('musicplayer_queue.title'),
@@ -50,9 +52,9 @@ const EMBEDS = {
                     user: data.getUser()
                 });
             } else {
-                const upcomingText = `[${queue.track[1].title}](${queue.track[1].url})`;
+                const upcomingText = `[${TrackUtils.getTitle(queue.track[1])}](${queue.track[1].url})`;
                 const queueString = queue.track
-                    .map((track, index) => `${index + 1}. [${track.title}](${track.url})`)
+                    .map((track, index) => `${index + 1}. [${TrackUtils.getTitle(track)}](${track.url})`)
                     .join('\n');
                 return makeInfoEmbed({
                     title: locale.__('musicplayer_queue.title'),

@@ -1,26 +1,29 @@
 import { Message, CommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import { I18n } from "i18n";
+import { SpotifyTrack, YouTubeVideo } from "play-dl";
 
 import DiscordProvider from "../../providers/Discord";
-import DiscordMusicPlayer, { ValidTracks } from "../../providers/DiscordMusicPlayer";
+import DiscordMusicPlayer, { TrackUtils, ValidTracks } from "../../providers/DiscordMusicPlayer";
 import Locale from "../../services/Locale";
 
 import { makeErrorEmbed, makeInfoEmbed, sendHybridInteractionMessageResponse } from "../../utils/DiscordMessage";
 import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
 
 const EMBEDS = {
-    NOW_PLAYING: (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
+    NOW_PLAYING: async (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
+
+        const title = TrackUtils.getTitle(track);
+        const thumbnails = await TrackUtils.getThumbnails(track);
+
         const embed = makeInfoEmbed({
             title: locale.__('musicplayer.now_playing'),
             icon: '🎵 ',
-            description: track.title,
+            description: title,
             user: DiscordProvider.client.user
         });
 
-        const highestResolutionThumbnail = track.thumbnails.reduce((prev, current) => (prev.height * prev.width > current.height * current.width) ? prev : current)
-
-        if(highestResolutionThumbnail)
-            embed.setImage(highestResolutionThumbnail.url);
+        if (TrackUtils.getHighestResolutionThumbnail(thumbnails))
+            embed.setImage(TrackUtils.getHighestResolutionThumbnail(thumbnails).url);
         
         return embed;
     },
@@ -55,15 +58,27 @@ export default class NowPlaying extends DiscordModule {
         const instance = DiscordMusicPlayer.getGuildInstance(guild.id);
         if(!instance || !instance.queue.track[0]) return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)] });
 
-        const row = new ActionRowBuilder<ButtonBuilder>()
-            .addComponents(
+        const row = new ActionRowBuilder<ButtonBuilder>();
+
+        if(instance.queue.track[0] instanceof SpotifyTrack)
+            row.addComponents(
                 new ButtonBuilder()
-                    .setEmoji('▶️')
-                    .setLabel(' Open on YouTube')
-                    .setURL(encodeURI(`https://www.youtube.com/watch?v=${instance.queue.track[0].id}`))
+                    .setEmoji('🟢')
+                    .setLabel(' Open on Spotify')
+                    .setURL(encodeURI(`https://open.spotify.com/track/${instance.queue.track[0].id}`))
                     .setStyle(ButtonStyle.Link),
             )
-
-        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NOW_PLAYING(data, locale, instance.queue.track[0])], components: [row] });
+        if(instance.queue.track[0] instanceof YouTubeVideo || instance.queue.track[0] instanceof SpotifyTrack) {
+                const actualPlaybackURL = instance.getActualPlaybackURL();
+                if(instance.queue.track[0] instanceof SpotifyTrack && !actualPlaybackURL) return;
+                row.addComponents(
+                    new ButtonBuilder()
+                        .setEmoji('🔴')
+                        .setLabel(' Open on YouTube')
+                        .setURL(instance.queue.track[0] instanceof YouTubeVideo ? encodeURI(`https://www.youtube.com/watch?v=${instance.queue.track[0].id}`) : encodeURI(instance.getActualPlaybackURL()!))
+                        .setStyle(ButtonStyle.Link),
+                )
+            }
+        return await sendHybridInteractionMessageResponse(data, { embeds: [await EMBEDS.NOW_PLAYING(data, locale, instance.queue.track[0])], components: [row] });
     }
 }
