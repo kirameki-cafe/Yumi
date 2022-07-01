@@ -5,9 +5,9 @@ Multipurpose Discord Bot
 ## 👜 Prerequisites
 
 - [NodeJS](https://nodejs.org/)
-- [Python2](https://www.python.org/downloads/)
 - [FFmpeg](https://ffmpeg.org/)
-- C++ compiler
+- [Python2](https://www.python.org/downloads/) (For building dependencies)
+- C++ compiler (For building dependencies)
 
 ## 🔧 Building for production
 
