@@ -3,7 +3,7 @@ import { I18n } from "i18n";
 
 import { joinVoiceChannelProcedure } from "./Join";
 
-import DiscordMusicPlayer, { ValidTracks } from "../../providers/DiscordMusicPlayer";
+import DiscordMusicPlayer, { TrackUtils, ValidTracks } from "../../providers/DiscordMusicPlayer";
 import Locale from "../../services/Locale";
 
 import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
@@ -28,7 +28,7 @@ const EMBEDS = {
             title: locale.__('musicplayer_search.title_result'),
             description: `${locale.__('musicplayer_search.x_results_found', {
                 COUNT: result.length.toString()
-            })}\n\n${result.map(track => `- [${track.title}](${track.url})`).join('\n')}`,
+            })}\n\n${result.map(track => `- [${TrackUtils.getTitle(track)}](${track.url})`).join('\n')}`,
             user: data.getUser()
         });
     },

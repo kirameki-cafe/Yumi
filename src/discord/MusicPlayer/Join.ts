@@ -32,11 +32,13 @@ import DiscordMusicPlayer, {
     VoiceDisconnectedEvent,
     ValidTracks,
     DiscordMusicPlayerInstance,
-    DiscordMusicPlayerLoopMode
+    DiscordMusicPlayerLoopMode,
+    TrackUtils
 } from '../../providers/DiscordMusicPlayer';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
 import Locale from '../../services/Locale';
+import { SpotifyTrack, YouTubeVideo } from 'play-dl';
 
 const EMBEDS = {
     VOICECHANNEL_JOINED: (data: HybridInteractionMessage, locale: I18n) => {
@@ -81,35 +83,37 @@ const EMBEDS = {
             user: data.getUser()
         });
     },
-    NOW_PLAYING: (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
+    NOW_PLAYING: async (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
+
+        const title = TrackUtils.getTitle(track);
+        const thumbnails = await TrackUtils.getThumbnails(track);
+
         const embed = makeInfoEmbed({
             title: locale.__('musicplayer.now_playing'),
             icon: '🎵 ',
-            description: track.title,
+            description: title,
             user: DiscordProvider.client.user
         });
 
-        const highestResolutionThumbnail = track.thumbnails.reduce((prev, current) =>
-            prev.height * prev.width > current.height * current.width ? prev : current
-        );
-
-        if (highestResolutionThumbnail) embed.setImage(highestResolutionThumbnail.url);
+        if (TrackUtils.getHighestResolutionThumbnail(thumbnails))
+            embed.setImage(TrackUtils.getHighestResolutionThumbnail(thumbnails).url);
 
         return embed;
     },
-    NOW_REPEATING: (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
+    NOW_REPEATING: async (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
+
+        const title = TrackUtils.getTitle(track);
+        const thumbnails = await TrackUtils.getThumbnails(track);
+
         const embed = makeInfoEmbed({
             title: locale.__('musicplayer.now_playing_repeating'),
             icon: '🎵 ',
-            description: `${track.title}`,
+            description: title,
             user: DiscordProvider.client.user
         });
 
-        const highestResolutionThumbnail = track.thumbnails.reduce((prev, current) =>
-            prev.height * prev.width > current.height * current.width ? prev : current
-        );
-
-        if (highestResolutionThumbnail) embed.setImage(highestResolutionThumbnail.url);
+        if (TrackUtils.getHighestResolutionThumbnail(thumbnails))
+            embed.setImage(TrackUtils.getHighestResolutionThumbnail(thumbnails).url);
 
         return embed;
     }
@@ -227,24 +231,37 @@ export async function joinVoiceChannelProcedure(
         if (event.instance.queue.track[0] !== previousTrack) isLoopMessageSent = false;
         else if (event.instance.queue.track[0] === previousTrack && isLoopMessageSent) return;
 
-        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder()
-                .setEmoji('▶️')
-                .setLabel(' Open on YouTube')
-                .setURL(encodeURI(`https://www.youtube.com/watch?v=${event.instance.queue.track[0].id}`))
-                .setStyle(ButtonStyle.Link)
-        );
+        const row = new ActionRowBuilder<ButtonBuilder>();
+        if(event.instance.queue.track[0] instanceof SpotifyTrack)
+            row.addComponents(
+                new ButtonBuilder()
+                    .setEmoji('🟢')
+                    .setLabel(' Open on Spotify')
+                    .setURL(encodeURI(`https://open.spotify.com/track/${event.instance.queue.track[0].id}`))
+                    .setStyle(ButtonStyle.Link),
+            )
+        if(event.instance.queue.track[0] instanceof YouTubeVideo || event.instance.queue.track[0] instanceof SpotifyTrack) {
+            const actualPlaybackURL = event.instance.getActualPlaybackURL();
+            if(event.instance.queue.track[0] instanceof SpotifyTrack && !actualPlaybackURL) return;
+            row.addComponents(
+                new ButtonBuilder()
+                    .setEmoji('🔴')
+                    .setLabel(' Open on YouTube')
+                    .setURL(event.instance.queue.track[0] instanceof YouTubeVideo ? encodeURI(`https://www.youtube.com/watch?v=${event.instance.queue.track[0].id}`) : encodeURI(event.instance.getActualPlaybackURL()!))
+                    .setStyle(ButtonStyle.Link),
+            )
+        }
 
         if (event.instance.textChannel) {
             if (event.instance.getLoopMode() === DiscordMusicPlayerLoopMode.Current) {
                 isLoopMessageSent = true;
                 await sendMessage(event.instance.textChannel, undefined, {
-                    embeds: [EMBEDS.NOW_REPEATING(data, locale, event.instance.queue.track[0])],
+                    embeds: [await EMBEDS.NOW_REPEATING(data, locale, event.instance.queue.track[0])],
                     components: [row]
                 });
             } else {
                 await sendMessage(event.instance.textChannel, undefined, {
-                    embeds: [EMBEDS.NOW_PLAYING(data, locale, event.instance.queue.track[0])],
+                    embeds: [await EMBEDS.NOW_PLAYING(data, locale, event.instance.queue.track[0])],
                     components: [row]
                 });
             }
