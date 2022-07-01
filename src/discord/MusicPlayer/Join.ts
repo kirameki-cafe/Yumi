@@ -236,7 +236,7 @@ export async function joinVoiceChannelProcedure(
             row.addComponents(
                 new ButtonBuilder()
                     .setEmoji('🟢')
-                    .setLabel(' Open on Spotify')
+                    .setLabel(' Open in Spotify')
                     .setURL(encodeURI(`https://open.spotify.com/track/${event.instance.queue.track[0].id}`))
                     .setStyle(ButtonStyle.Link),
             )
@@ -246,7 +246,7 @@ export async function joinVoiceChannelProcedure(
             row.addComponents(
                 new ButtonBuilder()
                     .setEmoji('🔴')
-                    .setLabel(' Open on YouTube')
+                    .setLabel(' Open in YouTube')
                     .setURL(event.instance.queue.track[0] instanceof YouTubeVideo ? encodeURI(`https://www.youtube.com/watch?v=${event.instance.queue.track[0].id}`) : encodeURI(event.instance.getActualPlaybackURL()!))
                     .setStyle(ButtonStyle.Link),
             )
