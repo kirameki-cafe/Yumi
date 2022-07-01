@@ -64,7 +64,7 @@ export default class NowPlaying extends DiscordModule {
             row.addComponents(
                 new ButtonBuilder()
                     .setEmoji('🟢')
-                    .setLabel(' Open on Spotify')
+                    .setLabel(' Open in Spotify')
                     .setURL(encodeURI(`https://open.spotify.com/track/${instance.queue.track[0].id}`))
                     .setStyle(ButtonStyle.Link),
             )
@@ -74,7 +74,7 @@ export default class NowPlaying extends DiscordModule {
                 row.addComponents(
                     new ButtonBuilder()
                         .setEmoji('🔴')
-                        .setLabel(' Open on YouTube')
+                        .setLabel(' Open in YouTube')
                         .setURL(instance.queue.track[0] instanceof YouTubeVideo ? encodeURI(`https://www.youtube.com/watch?v=${instance.queue.track[0].id}`) : encodeURI(instance.getActualPlaybackURL()!))
                         .setStyle(ButtonStyle.Link),
                 )
