@@ -225,6 +225,7 @@ export async function joinVoiceChannelProcedure(
 
     // Register Event Listeners
     instance.events.on('playing', async (event: PlayerPlayingEvent) => {
+        const locale = await Locale.getGuildLocale(guild.id);
         if (!event.instance.queue || !event.instance.queue.track || event.instance.queue.track.length === 0) return;
         previousTrack = event.instance.getPreviousTrack();
 
