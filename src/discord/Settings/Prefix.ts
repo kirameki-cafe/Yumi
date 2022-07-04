@@ -54,9 +54,11 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
         if (!GuildCache) return;
     const prefix = GuildCache.prefix;
 
-    if (!member.permissions.has([PermissionsBitField.Flags.Administrator]))
+    const requiredPermissions = [PermissionsBitField.Flags.ManageGuild];
+
+    if (!member.permissions.has(requiredPermissions))
         return await sendHybridInteractionMessageResponse(data, {
-            embeds: [COMMON_EMBEDS.NO_PERMISSION(data, locale)]
+            embeds: [COMMON_EMBEDS.NO_PERMISSION(data, locale, requiredPermissions)]
         });
 
     let newPrefix: string | null | undefined;
