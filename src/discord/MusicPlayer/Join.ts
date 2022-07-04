@@ -138,7 +138,7 @@ export async function joinVoiceChannelProcedure(
     if (channel instanceof DMChannel) return;
     if (!(channel instanceof BaseGuildTextChannel || channel instanceof BaseGuildVoiceChannel)) return;
 
-    const memberVoiceChannel = member.voice.channel; //isMessage ? member.voice.channel : DiscordProvider.client.guilds.cache.get(guild.id)!.members.cache.get((data as Interaction).user.id)?.voice.channel;
+    const memberVoiceChannel = member.voice.channel;
     if (!memberVoiceChannel) return;
 
     const bot = guild.members.me;
