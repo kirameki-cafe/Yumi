@@ -186,7 +186,7 @@ export const setServiceAnnouncementChannel = async (
     let member = data.getMember();
     if (!member) return;
 
-    const requiredPermissions: PermissionResolvable[] = [PermissionsBitField.Flags.Administrator];
+    const requiredPermissions = [PermissionsBitField.Flags.Administrator];
 
     if (!member.permissions.has(requiredPermissions))
         return await sendHybridInteractionMessageResponse(data, {
