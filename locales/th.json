@@ -129,7 +129,7 @@
 	},
 	"settings": {
 		"title": "การตั้งค่า",
-		"description": "เปลี่ยนพฤติกรรมของ {{BOT_NAME}} บน **{{GUILD_NAME}}**",
+		"description": "เปลี่ยนพฤติกรรมของ {{BOT_NAME}} บน **{{{GUILD_NAME}}}**",
 		"valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
 	},
 	"settings_prefix": {
