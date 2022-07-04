@@ -129,7 +129,7 @@
 	},
 	"settings": {
 		"title": "Settings",
-		"description": "Change how {{BOT_NAME}} behave on **{{GUILD_NAME}}**",
+		"description": "Change how {{BOT_NAME}} behave on **{{{GUILD_NAME}}}**",
 		"valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
 	},
 	"settings_prefix": {
