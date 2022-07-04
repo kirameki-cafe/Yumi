@@ -1,4 +1,4 @@
-import { Permissions, Guild, GuildChannel, ThreadChannel, Message, PermissionsBitField } from 'discord.js';
+import { Permissions, Guild, GuildChannel, ThreadChannel, Message, PermissionsBitField, PermissionFlags, PermissionFlagsBits, PermissionResolvable } from 'discord.js';
 import { I18n } from 'i18n';
 
 import DiscordProvider from '../../providers/Discord';
@@ -104,9 +104,11 @@ export const setEnableServiceAnnouncement = async (
     let member = data.getMember();
     if (!member) return;
 
-    if (!member.permissions.has([PermissionsBitField.Flags.Administrator]))
+    const requiredPermissions = [PermissionsBitField.Flags.Administrator];
+
+    if (!member.permissions.has(requiredPermissions))
         return await sendHybridInteractionMessageResponse(data, {
-            embeds: [COMMON_EMBEDS.NO_PERMISSION(data, locale)]
+            embeds: [COMMON_EMBEDS.NO_PERMISSION(data, locale, requiredPermissions)]
         });
 
     let GuildCache = await Cache.getCachedGuild(guild.id);
@@ -184,9 +186,11 @@ export const setServiceAnnouncementChannel = async (
     let member = data.getMember();
     if (!member) return;
 
-    if (!member.permissions.has([PermissionsBitField.Flags.Administrator]))
+    const requiredPermissions: PermissionResolvable[] = [PermissionsBitField.Flags.Administrator];
+
+    if (!member.permissions.has(requiredPermissions))
         return await sendHybridInteractionMessageResponse(data, {
-            embeds: [COMMON_EMBEDS.NO_PERMISSION(data, locale)]
+            embeds: [COMMON_EMBEDS.NO_PERMISSION(data, locale, requiredPermissions)]
         });
 
     let channel;
