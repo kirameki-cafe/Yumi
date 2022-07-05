@@ -4,7 +4,7 @@ import { COMMON_EMBEDS } from '../discord/Settings';
 import { sendHybridInteractionMessageResponse } from './DiscordMessage';
 import { HybridInteractionMessage } from './DiscordModule';
 
-export async function checkMemberPermissions({
+export async function checkMemberPermissionsInGuild({
     member,
     permissions,
     data,
@@ -25,7 +25,7 @@ export async function checkMemberPermissions({
     return hasPermissions;
 }
 
-export async function checkBotPermissions({
+export async function checkBotPermissionsInGuild({
     guild,
     permissions,
     data,
