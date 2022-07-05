@@ -13,6 +13,7 @@ import {
 } from '../../utils/DiscordMessage';
 
 import { COMMON_EMBEDS } from '.';
+import { checkMemberPermissions } from '../../utils/DiscordPermission';
 
 const EMBEDS = {
     SERVICE_ANNOUNCEMENT_INVALID_STATUS: (data: HybridInteractionMessage, locale: I18n) => {
@@ -103,12 +104,8 @@ export const setEnableServiceAnnouncement = async (
     let member = data.getMember();
     if (!member) return;
 
-    const requiredPermissions = [PermissionsBitField.Flags.Administrator];
-
-    if (!member.permissions.has(requiredPermissions))
-        return await sendHybridInteractionMessageResponse(data, {
-            embeds: [COMMON_EMBEDS.NO_PERMISSION(data, locale, requiredPermissions)]
-        });
+    if (!(await checkMemberPermissions({ member, data, locale, permissions: [PermissionsBitField.Flags.Administrator] })))
+        return;
 
     let GuildCache = await Cache.getCachedGuild(guild.id);
     if(!GuildCache) return;
@@ -185,12 +182,8 @@ export const setServiceAnnouncementChannel = async (
     let member = data.getMember();
     if (!member) return;
 
-    const requiredPermissions = [PermissionsBitField.Flags.Administrator];
-
-    if (!member.permissions.has(requiredPermissions))
-        return await sendHybridInteractionMessageResponse(data, {
-            embeds: [COMMON_EMBEDS.NO_PERMISSION(data, locale, requiredPermissions)]
-        });
+    if (!(await checkMemberPermissions({ member, data, locale, permissions: [PermissionsBitField.Flags.Administrator] })))
+        return;
 
     let channel;
     if (data.isMessage()) {
