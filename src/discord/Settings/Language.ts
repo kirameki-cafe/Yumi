@@ -14,12 +14,15 @@ import {
 
 import { COMMON_EMBEDS } from '.';
 import Locale from '../../providers/Locale';
+import { checkMemberPermissions } from '../../utils/DiscordPermission';
 
 const EMBEDS = {
     LANGUAGE_INFO: (data: HybridInteractionMessage, locale: I18n, currentLocale: string) => {
         return makeInfoEmbed({
-            title: locale.__('settings_language.info', { LANGUAGE: currentLocale}),
-            description: locale.__('settings_language.info_description', { LANGUAGES: Locale.getLocaleProvider('en').getLocales().join(', ') }),
+            title: locale.__('settings_language.info', { LANGUAGE: currentLocale }),
+            description: locale.__('settings_language.info_description', {
+                LANGUAGES: Locale.getLocaleProvider('en').getLocales().join(', ')
+            }),
             user: data.getUser()
         });
     },
@@ -33,7 +36,10 @@ const EMBEDS = {
     LANGUAGE_UPDATED: (data: HybridInteractionMessage, locale: I18n, newLanguage: string) => {
         return makeSuccessEmbed({
             title: locale.__({ phrase: 'settings_language.language_updated', locale: newLanguage }),
-            description: locale.__({ phrase: 'settings_language.language_updated_description', locale: newLanguage }, { LANGUAGE: newLanguage }),
+            description: locale.__(
+                { phrase: 'settings_language.language_updated_description', locale: newLanguage },
+                { LANGUAGE: newLanguage }
+            ),
             user: data.getUser()
         });
     }
@@ -44,15 +50,11 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
     if (!member) return;
 
     const GuildCache = await Cache.getCachedGuild(guild.id);
-        if (!GuildCache) return;
+    if (!GuildCache) return;
     const language = GuildCache.locale;
 
-    const requiredPermissions = [PermissionsBitField.Flags.ManageGuild];
-
-    if (!member.permissions.has(requiredPermissions))
-        return await sendHybridInteractionMessageResponse(data, {
-            embeds: [COMMON_EMBEDS.NO_PERMISSION(data, locale, requiredPermissions)]
-        });
+    if (!(await checkMemberPermissions({ member, data, locale, permissions: [PermissionsBitField.Flags.ManageGuild] })))
+        return;
 
     let newLanguage: string | null | undefined;
     if (data.isMessage()) {
@@ -66,7 +68,8 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
         __name.shift();
         _name = __name.join(' ');
         newLanguage = _name;
-    } else if (data.isApplicationCommand()) newLanguage = data.getSlashCommand().options.get('language', true).value?.toString();
+    } else if (data.isApplicationCommand())
+        newLanguage = data.getSlashCommand().options.get('language', true).value?.toString();
 
     if (!newLanguage)
         return await sendHybridInteractionMessageResponse(data, {
