@@ -14,7 +14,6 @@ import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModu
 import {
     makeInfoEmbed,
     makeErrorEmbed,
-    makeSuccessEmbed,
     makeProcessingEmbed,
     sendHybridInteractionMessageResponse
 } from '../../utils/DiscordMessage';

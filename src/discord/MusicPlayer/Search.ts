@@ -1,4 +1,4 @@
-import { Message, CommandInteraction, BaseInteraction, ActionRowBuilder, ButtonInteraction, SelectMenuBuilder, SelectMenuComponentOptionData } from "discord.js";
+import { Message, CommandInteraction, ActionRowBuilder, ButtonInteraction, SelectMenuBuilder, SelectMenuComponentOptionData } from "discord.js";
 import { I18n } from "i18n";
 
 import { joinVoiceChannelProcedure } from "./Join";
@@ -7,7 +7,7 @@ import DiscordMusicPlayer, { TrackUtils, ValidTracks } from "../../providers/Dis
 import Locale from "../../services/Locale";
 
 import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
-import { makeErrorEmbed, makeSuccessEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+import { makeErrorEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 
 const EMBEDS = {
     SEARCH_INFO: (data: HybridInteractionMessage, locale: I18n) => {

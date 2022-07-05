@@ -1,8 +1,8 @@
 import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
 
-import { Message, CommandInteraction, Interaction } from "discord.js";
+import { Message, CommandInteraction } from "discord.js";
 import { makeSuccessEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from "../../utils/DiscordMessage";
-import DiscordProvider from "../../providers/Discord";
+
 import DiscordMusicPlayer from "../../providers/DiscordMusicPlayer";
 import { I18n } from "i18n";
 import Locale from "../../services/Locale";

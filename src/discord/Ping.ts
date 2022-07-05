@@ -1,4 +1,4 @@
-import { CommandInteraction, Message, Interaction } from 'discord.js';
+import { CommandInteraction, Message } from 'discord.js';
 import os from 'os';
 import NodePing from 'ping';
 import { Promise } from 'bluebird';

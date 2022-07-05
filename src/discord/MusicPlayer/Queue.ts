@@ -1,4 +1,4 @@
-import { Message, CommandInteraction, Interaction, TextChannel } from 'discord.js';
+import { Message, CommandInteraction } from 'discord.js';
 import { I18n } from 'i18n';
 
 import DiscordMusicPlayer, {

@@ -14,9 +14,6 @@ import {
     EmbedBuilder,
     ButtonStyle,
     ActionRowBuilder,
-    ActionRowData,
-    ActionRowComponent,
-    MessageActionRowComponentBuilder
 } from 'discord.js';
 
 import DiscordProvider from '../providers/Discord';
