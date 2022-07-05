@@ -398,13 +398,6 @@ export default class Play extends DiscordModule {
                     { embeds: [EMBEDS.ADDED_SONGS_QUEUE(data, locale, songs)] },
                     true
                 );
-            } else if (false) {
-                sendHybridInteractionMessageResponse(
-                    data,
-                    { embeds: [EMBEDS.LOOKUP_ERROR(data, locale, new Error('Album not supported for now'))] },
-                    true
-                );
-                return null;
             }
 
             let result = await DiscordMusicPlayer.searchSpotifyBySpotifyLink(linkData).catch((err) => {
