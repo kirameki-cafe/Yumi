@@ -94,10 +94,10 @@ const EMBEDS = {
                     let title = '';
                     switch (activity.type) {
                         case ActivityType.Playing:
-                            title = `'🕹 ${locale.__('userinfo.playing_x', { NAME: activity.name })}`;
+                            title = `🕹 ${locale.__('userinfo.playing_x', { NAME: activity.name })}`;
                             break;
                         case ActivityType.Streaming:
-                            title = `'🔴 ${locale.__('userinfo.streaming_x', { NAME: activity.name })}`;
+                            title = `🔴 ${locale.__('userinfo.streaming_x', { NAME: activity.name })}`;
                             break;
                         case ActivityType.Listening:
                             title = `🎵 ${locale.__('userinfo.listening_x', { NAME: activity.name })}`;
