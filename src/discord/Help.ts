@@ -34,7 +34,7 @@ const EMBEDS = {
                 },
                 {
                     name: `🎵 ${locale.__('help.music')}`,
-                    value: `play (p), search, skip, pause, resume, queue (q), nowplaying (np), repeat (loop), summon (join), disconnect (leave, dc)`,
+                    value: `play (p), playmy, search, skip, pause, resume, queue (q), nowplaying (np), repeat (loop), summon (join), disconnect (leave, dc)`,
                     inline: true
                 },
                 {
