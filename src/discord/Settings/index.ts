@@ -23,15 +23,27 @@ import * as LanguageModule from './Language';
 import * as ServiceAnnouncementModule from './ServiceAnnouncement';
 
 export const COMMON_EMBEDS = {
-    NO_PERMISSION: (data: HybridInteractionMessage, locale: I18n, permissions: PermissionResolvable[]) => {
+    MEMBER_NO_PERMISSION: (data: HybridInteractionMessage, locale: I18n, permissions: PermissionResolvable[]) => {
           
         let allPermissions = [];
         for(const value of permissions) {
             allPermissions.push(new PermissionsBitField(value).toArray());
         }
         return makeErrorEmbed({
-            title: locale.__('common.no_permissions'),
-            description: locale.__('common.no_permissions_description', { PERMISSIONS: allPermissions.join(', ')}),
+            title: locale.__('common.member_no_permissions'),
+            description: locale.__('common.member_no_permissions_description', { PERMISSIONS: allPermissions.join(', ')}),
+            user: data.getUser()
+        });
+    },
+    BOT_NO_PERMISSION: (data: HybridInteractionMessage, locale: I18n, permissions: PermissionResolvable[]) => {
+          
+        let allPermissions = [];
+        for(const value of permissions) {
+            allPermissions.push(new PermissionsBitField(value).toArray());
+        }
+        return makeErrorEmbed({
+            title: locale.__('common.bot_no_permissions'),
+            description: locale.__('common.bot_no_permissions_description', { PERMISSIONS: allPermissions.join(', ')}),
             user: data.getUser()
         });
     },
