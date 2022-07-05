@@ -1,4 +1,4 @@
-import { Message, Permissions, Interaction, CommandInteraction, PermissionsBitField } from 'discord.js';
+import { Message, CommandInteraction, PermissionsBitField } from 'discord.js';
 import { I18n } from 'i18n';
 
 import DiscordModule, { HybridInteractionMessage } from '../utils/DiscordModule';

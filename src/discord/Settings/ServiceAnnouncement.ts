@@ -1,7 +1,6 @@
-import { Permissions, Guild, GuildChannel, ThreadChannel, Message, PermissionsBitField, PermissionFlags, PermissionFlagsBits, PermissionResolvable } from 'discord.js';
+import { Guild, GuildChannel, ThreadChannel, Message, PermissionsBitField } from 'discord.js';
 import { I18n } from 'i18n';
 
-import DiscordProvider from '../../providers/Discord';
 import Prisma from '../../providers/Prisma';
 import Cache from '../../providers/Cache';
 

@@ -10,7 +10,6 @@ import {
     BaseGuildTextChannel,
     Message,
     ColorResolvable,
-    Interaction,
     InteractionReplyOptions,
     BaseInteraction,
     BaseGuildVoiceChannel,

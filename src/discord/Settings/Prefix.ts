@@ -1,4 +1,4 @@
-import { Permissions, Guild, PermissionFlagsBits, PermissionsBitField } from 'discord.js';
+import { Guild, PermissionsBitField } from 'discord.js';
 import { I18n } from 'i18n';
 
 import DiscordProvider from '../../providers/Discord';
