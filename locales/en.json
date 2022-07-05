@@ -108,6 +108,9 @@
 		"queue_added_songs_description": "Added {{COUNT}} songs to the queue",
 		"error": "Error while looking up the song"
 	},
+	"musicplayer_playmy": {
+		"not_detected": "You don't seem to be listening to any music currently according to your activity"
+	},
 	"musicplayer_queue": {
 		"title": "Queue",
 		"empty": "The queue is empty! (っ˘ω˘ς )",

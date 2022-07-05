@@ -108,6 +108,9 @@
 		"queue_added_songs_description": "キューに{{COUNT}}曲を追加",
 		"error": "曲の検索中にエラーが発生"
 	},
+	"musicplayer_playmy": {
+		"not_detected": "あなたの活動状況を見ると、現在、音楽を聴いていないようですね"
+	},
 	"musicplayer_queue": {
 		"title": "キュー",
 		"empty": "キューは空です! (っ˘ω˘ς )",

@@ -17,6 +17,7 @@ import Discord_Stats from '../discord/Stats';
 import Discord_Support from '../discord/Support';
 
 import Discord_MusicPlayer_Play from '../discord/MusicPlayer/Play';
+import Discord_MusicPlayer_PlayMy from '../discord/MusicPlayer/PlayMy';
 import Discord_MusicPlayer_Skip from '../discord/MusicPlayer/Skip';
 import Discord_MusicPlayer_Join from '../discord/MusicPlayer/Join';
 import Discord_MusicPlayer_Leave from '../discord/MusicPlayer/Leave';
@@ -68,6 +69,7 @@ class Discord {
             new Discord_Support(),
 
             new Discord_MusicPlayer_Play(),
+            new Discord_MusicPlayer_PlayMy(),
             new Discord_MusicPlayer_NowPlaying(),
             new Discord_MusicPlayer_Skip(),
             new Discord_MusicPlayer_Join(),
