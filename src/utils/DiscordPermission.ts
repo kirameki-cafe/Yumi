@@ -1,4 +1,4 @@
-import { BaseGuildTextChannel, BaseGuildVoiceChannel, Guild, GuildChannelResolvable, GuildMember, VoiceBasedChannel } from 'discord.js';
+import { Guild, GuildChannelResolvable, GuildMember } from 'discord.js';
 import { I18n } from 'i18n';
 import { COMMON_EMBEDS } from '../discord/Settings';
 import { sendHybridInteractionMessageResponse } from './DiscordMessage';
