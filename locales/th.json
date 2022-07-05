@@ -108,6 +108,9 @@
 		"queue_added_songs_description": "เพิ่ม {{COUNT}} เพลงในคิว",
 		"error": "เกิดข้อผิดพลาดขณะค้นหาเพลง"
 	},
+	"musicplayer_playmy": {
+		"not_detected": "เท่าที่ดูจากกิจกรรมของคุณ เหมือนว่าตอนนี้คุณไม่ได้เล่นเพลงอะไรอยู่นะ"
+	},
 	"musicplayer_queue": {
 		"title": "คิวเพลง",
 		"empty": "ตอนนี้คิวว่างนะ (っ˘ω˘ς )",
