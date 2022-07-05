@@ -48,4 +48,5 @@ Take a look inside [.env.example](https://github.com/YuzuZensai/Yumi/blob/main/.
 - ``SPOTIFY_CLIENT_MARKET`` Spotify market country code
 
 \* Encode the cookies from the request headers base64 and put it in here instead of creating new file with ``play.authorization();`` code
+
 \*\* Get refresh token from ``https://accounts.spotify.com/en/authorize?client_id=<client id>&response_type=code&redirect_uri=<redirect uri>``
