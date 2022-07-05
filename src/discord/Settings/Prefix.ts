@@ -14,7 +14,7 @@ import {
 } from '../../utils/DiscordMessage';
 
 import { COMMON_EMBEDS } from '.';
-import { checkMemberPermissions } from '../../utils/DiscordPermission';
+import { checkMemberPermissionsInGuild } from '../../utils/DiscordPermission';
 
 const EMBEDS = {
     PREFIX_INFO: (data: HybridInteractionMessage, locale: I18n, currentPrefix: string) => {
@@ -55,7 +55,7 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
         if (!GuildCache) return;
     const prefix = GuildCache.prefix;
 
-    if (!(await checkMemberPermissions({ member, data, locale, permissions: [PermissionsBitField.Flags.ManageGuild] })))
+    if (!(await checkMemberPermissionsInGuild({ member, data, locale, permissions: [PermissionsBitField.Flags.ManageGuild] })))
         return;
 
     let newPrefix: string | null | undefined;

@@ -14,7 +14,7 @@ import {
 
 import { COMMON_EMBEDS } from '.';
 import Locale from '../../providers/Locale';
-import { checkMemberPermissions } from '../../utils/DiscordPermission';
+import { checkMemberPermissionsInGuild } from '../../utils/DiscordPermission';
 
 const EMBEDS = {
     LANGUAGE_INFO: (data: HybridInteractionMessage, locale: I18n, currentLocale: string) => {
@@ -53,7 +53,7 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
     if (!GuildCache) return;
     const language = GuildCache.locale;
 
-    if (!(await checkMemberPermissions({ member, data, locale, permissions: [PermissionsBitField.Flags.ManageGuild] })))
+    if (!(await checkMemberPermissionsInGuild({ member, data, locale, permissions: [PermissionsBitField.Flags.ManageGuild] })))
         return;
 
     let newLanguage: string | null | undefined;

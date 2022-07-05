@@ -34,7 +34,7 @@ import DiscordMusicPlayer, {
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
 import Locale from '../../services/Locale';
 import { SpotifyTrack, YouTubeVideo } from 'play-dl';
-import { checkBotPermissions, checkBotPermissionsInChannel } from '../../utils/DiscordPermission';
+import { checkBotPermissionsInChannel } from '../../utils/DiscordPermission';
 
 const EMBEDS = {
     VOICECHANNEL_JOINED: (data: HybridInteractionMessage, locale: I18n) => {
