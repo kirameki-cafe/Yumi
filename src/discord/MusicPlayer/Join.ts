@@ -34,6 +34,7 @@ import DiscordMusicPlayer, {
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
 import Locale from '../../services/Locale';
 import { SpotifyTrack, YouTubeVideo } from 'play-dl';
+import { checkBotPermissions, checkBotPermissionsInChannel } from '../../utils/DiscordPermission';
 
 const EMBEDS = {
     VOICECHANNEL_JOINED: (data: HybridInteractionMessage, locale: I18n) => {
@@ -140,6 +141,8 @@ export async function joinVoiceChannelProcedure(
     if (!bot) return;
 
     const locale = await Locale.getGuildLocale(guild.id);
+    
+    if(!await checkBotPermissionsInChannel({ guild, data, locale, channel: memberVoiceChannel, permissions: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.Connect]})) return;
 
     // If already in VoiceChannel
     if (bot.voice.channelId) {
