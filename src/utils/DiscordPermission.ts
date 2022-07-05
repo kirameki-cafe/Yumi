@@ -25,6 +25,29 @@ export async function checkMemberPermissionsInGuild({
     return hasPermissions;
 }
 
+export async function checkMemberPermissionsInChannel({
+    member,
+    channel,
+    permissions,
+    data,
+    locale
+}: {
+    member: GuildMember;
+    channel: GuildChannelResolvable;
+    permissions: bigint[];
+    data?: HybridInteractionMessage;
+    locale?: I18n;
+}): Promise<boolean> {
+    const hasPermissions = member.permissionsIn(channel).has(permissions);
+
+    if (!hasPermissions && data && locale)
+        await sendHybridInteractionMessageResponse(data, {
+            embeds: [COMMON_EMBEDS.MEMBER_NO_PERMISSION(data, locale, permissions)]
+        });
+
+    return hasPermissions;
+}
+
 export async function checkBotPermissionsInGuild({
     guild,
     permissions,
