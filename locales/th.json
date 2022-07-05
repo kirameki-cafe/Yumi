@@ -1,8 +1,10 @@
 {
 	"common": {
 		"available_args": "อาร์กิวเมนต์ ตัวเลือกที่ใช้ได้",
-		"no_permissions": "คุณไม่มีสิทธิ์เข้าถึง (O_O;)",
-		"no_permissions_description": "คุณต้องมีสิทธิ์เข้าถึง ``{{PERMISSIONS}}`` ในกิลด์นี้!",
+		"member_no_permissions": "คุณไม่มีสิทธิ์เข้าถึง (O_O;)",
+		"member_no_permissions_description": "คุณต้องมีสิทธิ์เข้าถึง ``{{PERMISSIONS}}`` ในกิลด์นี้!",
+		"bot_no_permissions": "ฉันไม่มีสิทธิ์เข้าถึง (O_O;)",
+		"bot_no_permissions_description": "ฉันต้องการสิทธิ์เข้าถึง ``{{PERMISSIONS}}``",
 		"processing": "รอแปปนึงน้า",
 		"processing_description": "ฉันกำลังดำเนินการให้อยู่ (งᓀ‸ᓂ)ง"
 	},

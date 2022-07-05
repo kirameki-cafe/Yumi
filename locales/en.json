@@ -1,8 +1,10 @@
 {
 	"common": {
 		"available_args": "Available arguments",
-		"no_permissions": "Access denied (O_O;)",
-		"no_permissions_description": "You need ``{{PERMISSIONS}}`` permission on this guild",
+		"member_no_permissions": "Access denied (O_O;)",
+		"member_no_permissions_description": "You need ``{{PERMISSIONS}}`` permissions on this guild",
+		"bot_no_permissions": "I don't have permission (O_O;)",
+		"bot_no_permissions_description": "I need ``{{PERMISSIONS}}`` permissions",
 		"processing": "Please wait a moment~",
 		"processing_description": "Getting it done right now! (งᓀ‸ᓂ)ง"
 	},

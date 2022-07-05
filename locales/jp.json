@@ -1,8 +1,10 @@
 {
 	"common": {
 		"available_args": "Available arguments",
-		"no_permissions": "許可していない (O_O;)",
-		"no_permissions_description": "このギルドでは ``{{PERMISSIONS}}`` の許可が必要です!",
+		"member_no_permissions": "許可していない (O_O;)",
+		"member_no_permissions_description": "このギルドでは ``{{PERMISSIONS}}`` の許可が必要です!",
+		"bot_no_permissions": "許可がない (O_O;)",
+		"bot_no_permissions_description": "そのためには、あたしの``{{PERMISSIONS}}``の権限が必要です",
 		"processing": "アクションの実行",
 		"processing_description": "今これを成し遂げています (งᓀ‸ᓂ)ง"
 	},
