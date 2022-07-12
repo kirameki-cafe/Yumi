@@ -7,7 +7,7 @@ import osu from './osuAPI';
 import Logger from '../libs/Logger';
 import Locale from './Locale';
 class App {
-    public readonly versionNumber = `0.10`;
+    public readonly versionNumber = `0.11`;
     public readonly version = `${this.versionNumber}${
         Environment.get().NODE_ENV === 'development' ? ' / Development Build' : ''
     }`;
