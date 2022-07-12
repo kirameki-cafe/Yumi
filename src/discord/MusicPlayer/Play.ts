@@ -420,7 +420,15 @@ export default class Play extends DiscordModule {
         } else {
             let result = await DiscordMusicPlayer.searchYouTubeByQuery(query);
 
-            if (!result) return;
+            if (!result) {
+                // TODO: Send not found embed
+                await sendHybridInteractionMessageResponse(
+                    data,
+                    { embeds: [EMBEDS.LOOKUP_ERROR(data, locale, new Error('Cannot find that song'))] },
+                    true
+                );
+                return;
+            }
             instance.addTrackToQueue(result[0]);
 
             if (result.length > 1) {
