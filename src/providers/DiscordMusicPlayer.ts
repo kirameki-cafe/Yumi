@@ -554,7 +554,9 @@ class DiscordMusicPlayer {
     public parseYouTubeLink(query: string): YouTubeLink {
         if (
             query.startsWith('https://www.youtube.com/watch?v=') ||
-            query.startsWith('http://www.youtube.com/watch?v=')
+            query.startsWith('http://www.youtube.com/watch?v=') ||
+            query.startsWith('https://music.youtube.com/watch?v=') ||
+            query.startsWith('https://music.youtube.com/watch?v=')
         ) {
             let data = this.parseURLQuery(query);
             if (!data.v) throw new Error('YouTube link is invalid');
