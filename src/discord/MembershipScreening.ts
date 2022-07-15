@@ -272,28 +272,34 @@ export default class MembershipScreening extends DiscordModule {
                 });
 
             if (!requesterMember) {
-                newEmbed.addFields({
-                    name: '❌ Invalid',
-                    value: `Unable to find the user. User left already?`
-                });
+                newEmbed.addFields([
+                    {
+                        name: '❌ Invalid',
+                        value: `Unable to find the user. User left already?`
+                    }
+                ]);
                 return await message.edit({ components: [], embeds: [newEmbed] });
             }
 
             if (requesterMember.roles.cache.has(PrismaGuild.MembershipScreening_GivenRole)) {
-                newEmbed.addFields({
-                    name: '✅ Approved',
-                    value: `By: Unknown (User already obtained the role by other means)`
-                });
+                newEmbed.addFields([
+                    {
+                        name: '✅ Approved',
+                        value: `By: Unknown (User already obtained the role by other means)`
+                    }
+                ]);
                 return await message.edit({ components: [], embeds: [newEmbed] });
             }
 
             if (payload.a === 'approve') {
                 try {
                     await requesterMember.roles.add(role);
-                    newEmbed.addFields({
-                        name: '✅ Approved',
-                        value: `By: ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
-                    });
+                    newEmbed.addFields([
+                        {
+                            name: '✅ Approved',
+                            value: `By: ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
+                        }
+                    ]);
                     await message.edit({ components: [], embeds: [newEmbed] });
                 } catch (err) {
                     return interaction.reply({
@@ -304,10 +310,12 @@ export default class MembershipScreening extends DiscordModule {
             } else if (payload.a === 'deny') {
                 try {
                     await requesterMember.kick();
-                    newEmbed.addFields({
-                        name: '❌ Denied',
-                        value: `By: ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
-                    });
+                    newEmbed.addFields([
+                        {
+                            name: '❌ Denied',
+                            value: `By: ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
+                        }
+                    ]);
                     await message.edit({ components: [], embeds: [newEmbed] });
                 } catch (err) {
                     return interaction.reply({
@@ -320,10 +328,12 @@ export default class MembershipScreening extends DiscordModule {
                     await requesterMember.ban({
                         reason: `Membership Screening, action issued by ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
                     });
-                    newEmbed.addFields({
-                        name: '🔪 Banned',
-                        value: `By: ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
-                    });
+                    newEmbed.addFields([
+                        {
+                            name: '🔪 Banned',
+                            value: `By: ${interaction.user.username}#${interaction.user.discriminator} (${interaction.user.id})`
+                        }
+                    ]);
                     await message.edit({ components: [], embeds: [newEmbed] });
                 } catch (err) {
                     return interaction.reply({
@@ -556,7 +566,7 @@ export default class MembershipScreening extends DiscordModule {
         embed.setThumbnail(`${member.user.displayAvatarURL()}?size=4096`);
 
         const row = new ActionRowBuilder<ButtonBuilder>()
-            .addComponents(
+            .addComponents([
                 new ButtonBuilder()
                     .setCustomId(
                         JSON.stringify({
@@ -569,9 +579,7 @@ export default class MembershipScreening extends DiscordModule {
                     )
                     .setEmoji('✅')
                     .setLabel('  Approve')
-                    .setStyle(ButtonStyle.Success)
-            )
-            .addComponents(
+                    .setStyle(ButtonStyle.Success),
                 new ButtonBuilder()
                     .setCustomId(
                         JSON.stringify({
@@ -584,9 +592,7 @@ export default class MembershipScreening extends DiscordModule {
                     )
                     .setEmoji('⛔')
                     .setLabel('  Deny and kick')
-                    .setStyle(ButtonStyle.Danger)
-            )
-            .addComponents(
+                    .setStyle(ButtonStyle.Danger),
                 new ButtonBuilder()
                     .setCustomId(
                         JSON.stringify({
@@ -600,6 +606,7 @@ export default class MembershipScreening extends DiscordModule {
                     .setEmoji('🔪')
                     .setLabel('  Vision Hunt Decree (Ban)')
                     .setStyle(ButtonStyle.Danger)
+            ]
             );
 
         await channel.send({ content: '\u200b', embeds: [embed], components: [row] });

@@ -124,7 +124,7 @@ export default class PlayMy extends DiscordModule {
                     // The query length is too long to fit in json
                     if (query.length > 100 - 51) return;
     
-                    row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+                    row = new ActionRowBuilder<ButtonBuilder>().addComponents([
                         new ButtonBuilder()
                             .setEmoji('🔎')
                             .setCustomId(
@@ -138,7 +138,7 @@ export default class PlayMy extends DiscordModule {
                             )
                             .setLabel('  Not this? Search!')
                             .setStyle(ButtonStyle.Primary)
-                    );
+                        ]);
                 }
 
                 if(!row)

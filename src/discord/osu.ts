@@ -259,13 +259,13 @@ export default class osu extends DiscordModule {
                         'https://osu.ppy.sh/images/layout/avatar-guest.png'
                 );
 
-                const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+                const row = new ActionRowBuilder<ButtonBuilder>().addComponents([
                     new ButtonBuilder()
                         .setEmoji('🔗')
                         .setLabel('  Open Profile')
                         .setURL(`https://osu.ppy.sh/users/${result.id}`)
                         .setStyle(ButtonStyle.Link)
-                );
+                ]);
 
                 return await sendHybridInteractionMessageResponse(data, {
                     embeds: [embed],
@@ -439,31 +439,27 @@ export default class osu extends DiscordModule {
 
                 const row = new ActionRowBuilder<ButtonBuilder>();
                 if (bm_result.hasDownload)
-                    row.addComponents(
+                    row.addComponents([
                         new ButtonBuilder()
                             .setEmoji('🌎')
                             .setLabel('  Download (Beatconnect)')
                             .setURL(`https://beatconnect.io/b/${bm_result.beatmapSetId}/`)
+                            .setStyle(ButtonStyle.Link),
+                        new ButtonBuilder()
+                            .setEmoji('🔗')
+                            .setLabel('  Open listing')
+                            .setURL(
+                                `https://osu.ppy.sh/beatmapsets/${bm_result.beatmapSetId}${url_mode}/${bm_result.id}`
+                            )
+                            .setStyle(ButtonStyle.Link),
+                        new ButtonBuilder()
+                            .setEmoji('💬')
+                            .setLabel('  Open discussion')
+                            .setURL(
+                                `https://osu.ppy.sh/beatmapsets/${bm_result.beatmapSetId}/discussion`
+                            )
                             .setStyle(ButtonStyle.Link)
-                    );
-                row.addComponents(
-                    new ButtonBuilder()
-                        .setEmoji('🔗')
-                        .setLabel('  Open listing')
-                        .setURL(
-                            `https://osu.ppy.sh/beatmapsets/${bm_result.beatmapSetId}${url_mode}/${bm_result.id}`
-                        )
-                        .setStyle(ButtonStyle.Link)
-                );
-                row.addComponents(
-                    new ButtonBuilder()
-                        .setEmoji('💬')
-                        .setLabel('  Open discussion')
-                        .setURL(
-                            `https://osu.ppy.sh/beatmapsets/${bm_result.beatmapSetId}/discussion`
-                        )
-                        .setStyle(ButtonStyle.Link)
-                );
+                    ]);
 
                 return await sendHybridInteractionMessageResponse(data, {
                     embeds: [embed2],

@@ -74,7 +74,7 @@ const EMBEDS = {
         if (user.presence?.activities) {
             for (let activity of user.presence?.activities) {
                 if (activity.type === ActivityType.Custom)
-                    embed.addFields({
+                    embed.addFields([{
                         name: `✨  ${locale.__('userinfo.custom_status')}`,
                         value: `${
                             !activity.emoji
@@ -89,7 +89,7 @@ const EMBEDS = {
                         }  ${activity.state === null ? '' : activity.state}
                      \u200b`,
                         inline: false
-                    });
+                    }]);
                 else {
                     let title = '';
                     switch (activity.type) {
@@ -111,7 +111,7 @@ const EMBEDS = {
                     }
                     const startTime = activity.timestamps?.start;
                     const endTime = activity.timestamps?.end;
-                    embed.addFields({
+                    embed.addFields([{
                         name: `${title}`,
                         value: `${activity.details === null ? '' : activity.details}
                         ${activity.state === null ? '' : activity.state}
@@ -126,12 +126,12 @@ const EMBEDS = {
                         }
                         \u200b`,
                         inline: false
-                    });
+                    }]);
                 }
             }
         }
 
-        embed.addFields({
+        embed.addFields([{
             name: `📰 ${locale.__('userinfo.user_guild_info')}`,
             value: `${
                 user.joinedAt === null
@@ -142,7 +142,7 @@ const EMBEDS = {
             }
             ${user.isGuildOwner ? `${locale.__('userinfo.guild_owner')}` : ''}
             `
-        });
+        }]);
 
         embed.setThumbnail(user.displayAvatarURL + '?size=4096');
         embed.setAuthor({

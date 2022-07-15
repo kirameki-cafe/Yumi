@@ -61,23 +61,23 @@ export default class NowPlaying extends DiscordModule {
         const row = new ActionRowBuilder<ButtonBuilder>();
 
         if(instance.queue.track[0] instanceof SpotifyTrack)
-            row.addComponents(
+            row.addComponents([
                 new ButtonBuilder()
                     .setEmoji('🟢')
                     .setLabel(' Open in Spotify')
                     .setURL(encodeURI(`https://open.spotify.com/track/${instance.queue.track[0].id}`))
                     .setStyle(ButtonStyle.Link),
-            )
+            ]);
         if(instance.queue.track[0] instanceof YouTubeVideo || instance.queue.track[0] instanceof SpotifyTrack) {
                 const actualPlaybackURL = instance.getActualPlaybackURL();
                 if(instance.queue.track[0] instanceof SpotifyTrack && !actualPlaybackURL) return;
-                row.addComponents(
+                row.addComponents([
                     new ButtonBuilder()
                         .setEmoji('🔴')
                         .setLabel(' Open in YouTube')
                         .setURL(instance.queue.track[0] instanceof YouTubeVideo ? encodeURI(`https://www.youtube.com/watch?v=${instance.queue.track[0].id}`) : encodeURI(instance.getActualPlaybackURL()!))
                         .setStyle(ButtonStyle.Link),
-                )
+                ]);
             }
         return await sendHybridInteractionMessageResponse(data, { embeds: [await EMBEDS.NOW_PLAYING(data, locale, instance.queue.track[0])], components: [row] });
     }

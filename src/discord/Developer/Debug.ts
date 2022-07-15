@@ -162,7 +162,7 @@ export default class Debug extends DiscordModule {
                 });
             },
             invalidInteraction: async (data: HybridInteractionMessage) => {
-                const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+                const row = new ActionRowBuilder<ButtonBuilder>().addComponents([
                     new ButtonBuilder()
                         .setEmoji('😥')
                         .setLabel(
@@ -170,7 +170,7 @@ export default class Debug extends DiscordModule {
                         )
                         .setCustomId('dev_make_invalid_interaction')
                         .setStyle(ButtonStyle.Primary)
-                );
+                ]);
                 await sendHybridInteractionMessageResponse(data, {
                     embeds: [EMBEDS.INVALID_TEST(data)],
                     components: [row]
