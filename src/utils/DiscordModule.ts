@@ -10,7 +10,9 @@ import {
     User,
     SelectMenuInteraction,
     InteractionType,
-    BaseInteraction
+    BaseInteraction,
+    GuildBasedChannel,
+    ChannelType
 } from 'discord.js';
 
 export default class DiscordModule {
@@ -85,6 +87,13 @@ export class HybridInteractionMessage {
 
     public getChannel(): TextBasedChannel | null {
         return this.data.channel;
+    }
+
+    public getGuildChannel(): GuildBasedChannel | null {
+        if (this.data.channel && this.data.channel.type !== ChannelType.DM) {
+            return this.getChannel() as GuildBasedChannel;
+        }
+        return null;
     }
 
     public getGuild(): Guild | null {
