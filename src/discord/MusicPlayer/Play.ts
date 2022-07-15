@@ -355,7 +355,7 @@ export default class Play extends DiscordModule {
 
             if (!result) return;
 
-            if (data.isMessage() && data.getMessage().embeds.length > 0 && await checkBotPermissionsInChannel({ guild, data, locale, channel, permissions: [PermissionsBitField.Flags.ManageMessages]})) {
+            if (data.isMessage() && data.getMessage().embeds.length > 0 && await checkBotPermissionsInChannel({ guild, channel, permissions: [PermissionsBitField.Flags.ManageMessages]})) {
                 data.getMessage().suppressEmbeds(true);
             }
 
@@ -415,7 +415,7 @@ export default class Play extends DiscordModule {
 
             if (!result) return;
 
-            if (data.isMessage() && data.getMessage().embeds.length > 0 && await checkBotPermissionsInChannel({ guild, data, locale, channel, permissions: [PermissionsBitField.Flags.ManageMessages]})) {
+            if (data.isMessage() && data.getMessage().embeds.length > 0 && await checkBotPermissionsInChannel({ guild, channel, permissions: [PermissionsBitField.Flags.ManageMessages]})) {
                 data.getMessage().suppressEmbeds(true);
             }
 
