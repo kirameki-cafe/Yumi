@@ -7,7 +7,8 @@ import {
     SelectMenuInteraction,
     ButtonInteraction,
     StageChannel,
-    ButtonStyle
+    ButtonStyle,
+    PermissionsBitField
 } from 'discord.js';
 import { I18n } from 'i18n';
 
@@ -25,6 +26,7 @@ import {
     makeInfoEmbed
 } from '../../utils/DiscordMessage';
 import { SpotifyTrack, YouTubeVideo } from 'play-dl';
+import { checkBotPermissionsInChannel } from '../../utils/DiscordPermission';
 
 const EMBEDS = {
     PLAY_INFO: (data: HybridInteractionMessage, locale: I18n) => {
@@ -283,7 +285,7 @@ export default class Play extends DiscordModule {
     async run(data: HybridInteractionMessage, args: any) {
         let query;
         const guild = data.getGuild();
-        const channel = data.getChannel();
+        const channel = data.getGuildChannel();
         const member = data.getMember();
 
         if (!guild || !channel || !member) return;
@@ -353,7 +355,7 @@ export default class Play extends DiscordModule {
 
             if (!result) return;
 
-            if (data.isMessage() && data.getMessage().embeds.length > 0) {
+            if (data.isMessage() && data.getMessage().embeds.length > 0 && await checkBotPermissionsInChannel({ guild, data, locale, channel, permissions: [PermissionsBitField.Flags.ManageMessages]})) {
                 data.getMessage().suppressEmbeds(true);
             }
 
@@ -413,7 +415,7 @@ export default class Play extends DiscordModule {
 
             if (!result) return;
 
-            if (data.isMessage() && data.getMessage().embeds.length > 0) {
+            if (data.isMessage() && data.getMessage().embeds.length > 0 && await checkBotPermissionsInChannel({ guild, data, locale, channel, permissions: [PermissionsBitField.Flags.ManageMessages]})) {
                 data.getMessage().suppressEmbeds(true);
             }
 
