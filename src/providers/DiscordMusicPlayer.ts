@@ -25,6 +25,7 @@ import { EventEmitter } from 'stream';
 
 import DiscordProvider from './Discord';
 import Environment from './Environment';
+import Logger from '../libs/Logger';
 
 export type ValidTracks = YouTubeVideo | SpotifyTrack;
 declare class YouTubeThumbnail {
@@ -45,7 +46,8 @@ interface SpotifyThumbnail {
     url: string;
 }
 
-if (Environment.get().YOUTUBE_COOKIE_BASE64) {
+// TODO: Make proper check later
+if (Environment.get().YOUTUBE_COOKIE_BASE64 && Environment.get().SPOTIFY_CLIENT_ID) {
     playdl.setToken({
         youtube: {
             cookie: Buffer.from(Environment.get().YOUTUBE_COOKIE_BASE64, 'base64').toString()
@@ -445,16 +447,14 @@ class DiscordMusicPlayer {
     public async searchSpotifyBySpotifyLink(spotifyLink: SpotifyLink) {
         if(playdl.is_expired())
             await playdl.refreshToken();
-
-        if(spotifyLink.type != 'track') return;
-
-        if(playdl.is_expired())
-            await playdl.refreshToken();
         
         if(spotifyLink.type != 'track') return;
 
         // Fetch data from spotify
-        const searched: Spotify = await playdl.spotify("https://open.spotify.com/track/" + spotifyLink.id);
+        const searched: Spotify = await playdl.spotify("https://open.spotify.com/track/" + spotifyLink.id).catch((err) => {
+            Logger.error(err.message);
+            throw new Error('Error while searching on Spotify');
+        });
         if(!(searched instanceof SpotifyTrack)) return;
 
         if (!searched) return null;
@@ -525,7 +525,13 @@ class DiscordMusicPlayer {
     }
 
     public async getSpotifySongsInPlayList(spotifyLink: string) {
-        const result = await playdl.spotify(spotifyLink);
+        if(playdl.is_expired())
+            await playdl.refreshToken();
+
+        const result = await playdl.spotify(spotifyLink).catch((err) => {
+            Logger.error(err.message);
+            throw new Error('Error while searching on Spotify');
+        });
 
         if(!(result.type == 'playlist' || result.type == 'album'))
             throw new Error("Not a spotify playlist");

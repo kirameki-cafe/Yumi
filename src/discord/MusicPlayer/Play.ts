@@ -386,7 +386,12 @@ export default class Play extends DiscordModule {
             let linkData = DiscordMusicPlayer.parseSpotifyLink(query);
 
             if (linkData.type === 'playlist' || linkData.type === 'album') {
-                let playlist = await DiscordMusicPlayer.getSpotifySongsInPlayList(query);
+                let playlist = await DiscordMusicPlayer.getSpotifySongsInPlayList(query).catch((err) => {
+                    sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.LOOKUP_ERROR(data, locale, err)] }, true);
+                    return null;
+                });
+                
+                if(!playlist) return;
                 const songs = await playlist.all_tracks();
 
                 for (const song of songs) {
