@@ -232,23 +232,23 @@ export async function joinVoiceChannelProcedure(
 
         const row = new ActionRowBuilder<ButtonBuilder>();
         if(event.instance.queue.track[0] instanceof SpotifyTrack)
-            row.addComponents(
+            row.addComponents([
                 new ButtonBuilder()
                     .setEmoji('🟢')
                     .setLabel(' Open in Spotify')
                     .setURL(encodeURI(`https://open.spotify.com/track/${event.instance.queue.track[0].id}`))
-                    .setStyle(ButtonStyle.Link),
-            )
+                    .setStyle(ButtonStyle.Link)
+            ]);
         if(event.instance.queue.track[0] instanceof YouTubeVideo || event.instance.queue.track[0] instanceof SpotifyTrack) {
             const actualPlaybackURL = event.instance.getActualPlaybackURL();
             if(event.instance.queue.track[0] instanceof SpotifyTrack && !actualPlaybackURL) return;
-            row.addComponents(
+            row.addComponents([
                 new ButtonBuilder()
                     .setEmoji('🔴')
                     .setLabel(' Open in YouTube')
                     .setURL(event.instance.queue.track[0] instanceof YouTubeVideo ? encodeURI(`https://www.youtube.com/watch?v=${event.instance.queue.track[0].id}`) : encodeURI(event.instance.getActualPlaybackURL()!))
-                    .setStyle(ButtonStyle.Link),
-            )
+                    .setStyle(ButtonStyle.Link)
+            ]);
         }
 
         if (event.instance.textChannel) {

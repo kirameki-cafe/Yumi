@@ -158,7 +158,7 @@ export default class Search extends DiscordModule {
         messageSelectMenu.addOptions(menuOptions);
 
         const row = new ActionRowBuilder<SelectMenuBuilder>();
-        row.addComponents(messageSelectMenu);
+        row.addComponents([messageSelectMenu]);
 
         return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SEARCH_RESULT(data, locale, result)], components: [row] });
     }

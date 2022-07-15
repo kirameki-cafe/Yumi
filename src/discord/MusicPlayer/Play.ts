@@ -360,7 +360,7 @@ export default class Play extends DiscordModule {
             instance.addTrackToQueue(result);
 
             if (linkData.list) {
-                const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+                const row = new ActionRowBuilder<ButtonBuilder>().addComponents([
                     new ButtonBuilder()
                         .setEmoji('✅')
                         .setCustomId(
@@ -372,6 +372,7 @@ export default class Play extends DiscordModule {
                         )
                         .setLabel('  Add the remaining songs in the playlist')
                         .setStyle(ButtonStyle.Primary)
+                    ]
                 );
 
                 return await sendHybridInteractionMessageResponse(data, {
@@ -445,7 +446,7 @@ export default class Play extends DiscordModule {
                 // The query length is too long to fit in json
                 if (query.length > 100 - 51) return;
 
-                const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+                const row = new ActionRowBuilder<ButtonBuilder>().addComponents([
                     new ButtonBuilder()
                         .setEmoji('🔎')
                         .setCustomId(
@@ -459,7 +460,7 @@ export default class Play extends DiscordModule {
                         )
                         .setLabel('  Not this? Search!')
                         .setStyle(ButtonStyle.Primary)
-                );
+                    ]);
 
                 return await sendHybridInteractionMessageResponse(data, {
                     embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result[0])],
