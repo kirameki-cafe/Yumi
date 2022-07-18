@@ -46,20 +46,40 @@ interface SpotifyThumbnail {
     url: string;
 }
 
-// TODO: Make proper check later
-if (Environment.get().YOUTUBE_COOKIE_BASE64 && Environment.get().SPOTIFY_CLIENT_ID) {
-    playdl.setToken({
-        youtube: {
-            cookie: Buffer.from(Environment.get().YOUTUBE_COOKIE_BASE64, 'base64').toString()
-        },
-        spotify: {
-            client_id: Environment.get().SPOTIFY_CLIENT_ID,
-            client_secret: Environment.get().SPOTIFY_CLIENT_SECRET,
-            refresh_token: Environment.get().SPOTIFY_REFRESH_TOKEN,
-            market: Environment.get().SPOTIFY_CLIENT_MARKET,
-        }
-    });
+interface TokenOptions {
+    spotify?: {
+        client_id: string;
+        client_secret: string;
+        refresh_token: string;
+        market: string;
+    };
+    soundcloud?: {
+        client_id: string;
+    };
+    youtube?: {
+        cookie: string;
+    };
+    useragent?: string[];
 }
+
+let tokenObject: TokenOptions = {};
+
+if (Environment.get().YOUTUBE_COOKIE_BASE64) {
+    tokenObject.youtube = {
+        cookie: Buffer.from(Environment.get().YOUTUBE_COOKIE_BASE64, 'base64').toString()
+    }
+}
+
+if (Environment.get().SPOTIFY_CLIENT_ID && Environment.get().SPOTIFY_CLIENT_SECRET && Environment.get().SPOTIFY_REFRESH_TOKEN && Environment.get().SPOTIFY_CLIENT_MARKET) {
+    tokenObject.spotify = {
+        client_id: Environment.get().SPOTIFY_CLIENT_ID,
+        client_secret: Environment.get().SPOTIFY_CLIENT_SECRET,
+        refresh_token: Environment.get().SPOTIFY_REFRESH_TOKEN,
+        market: Environment.get().SPOTIFY_CLIENT_MARKET
+    }
+}
+
+playdl.setToken(tokenObject);
 
 export class TrackUtils {
     public static getTitle(track: ValidTracks) {
