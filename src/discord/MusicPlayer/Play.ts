@@ -25,7 +25,6 @@ import {
     sendHybridInteractionMessageResponse,
     makeInfoEmbed
 } from '../../utils/DiscordMessage';
-import { SpotifyTrack, YouTubeVideo } from 'play-dl';
 import { checkBotPermissionsInChannel } from '../../utils/DiscordPermission';
 
 const EMBEDS = {
