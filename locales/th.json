@@ -115,7 +115,7 @@
 	},
 	"musicplayer_queue": {
 		"title": "คิวเพลง",
-		"valid_args": "``clear`` ``shuffle``",
+		"valid_args": "``Clear`` ``Shuffle``",
 		"empty": "ตอนนี้คิวว่างนะ (っ˘ω˘ς )",
 		"now_playing": "กำลังเล่น",
 		"upcoming_song": "เพลงต่อไป",

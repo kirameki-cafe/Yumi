@@ -115,7 +115,7 @@
 	},
 	"musicplayer_queue": {
 		"title": "キュー",
-		"valid_args": "``clear`` ``shuffle``",
+		"valid_args": "``Clear`` ``Shuffle``",
 		"empty": "キューは空です! (っ˘ω˘ς )",
 		"now_playing": "再生中",
 		"upcoming_song": "次の曲",
