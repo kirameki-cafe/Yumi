@@ -217,20 +217,6 @@ export class DiscordMusicPlayerInstance {
         });
     }
 
-    public isReady() {
-        if (!this.voiceConnection) return false;
-        return this.voiceConnection.state.status === VoiceConnectionStatus.Ready;
-    }
-
-    public isConnected() {
-        if (!this.voiceConnection) return false;
-
-        if (this.voiceConnection.state.status === VoiceConnectionStatus.Destroyed) return false;
-        if (this.voiceConnection.state.status === VoiceConnectionStatus.Disconnected) return false;
-
-        return true;
-    }
-
     public joinVoiceChannel(voiceChannel: VoiceChannel | StageChannel, textChannel?: BaseGuildTextChannel | BaseGuildVoiceChannel) {
         const permissions = voiceChannel.permissionsFor(DiscordProvider.client.user!);
 
@@ -350,6 +336,13 @@ export class DiscordMusicPlayerInstance {
         }
     }
 
+    public clearQueue() {
+        if (!this.voiceConnection) throw new Error('No voice connection');
+
+        if(!this.queue.track || this.queue.track.length === 0) return;
+        this.queue.track = [this.queue.track[0]];
+    }
+
     public setLoopMode(mode: DiscordMusicPlayerLoopMode) {
         this.loopMode = mode;
     }
@@ -366,6 +359,20 @@ export class DiscordMusicPlayerInstance {
         return this.actualPlaybackURL;
     }
 
+    public isReady() {
+        if (!this.voiceConnection) return false;
+        return this.voiceConnection.state.status === VoiceConnectionStatus.Ready;
+    }
+
+    public isConnected() {
+        if (!this.voiceConnection) return false;
+
+        if (this.voiceConnection.state.status === VoiceConnectionStatus.Destroyed) return false;
+        if (this.voiceConnection.state.status === VoiceConnectionStatus.Disconnected) return false;
+
+        return true;
+    }
+    
     public isPaused() {
         return this.paused;
     }

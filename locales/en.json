@@ -119,7 +119,8 @@
 		"now_playing": "Now playing",
 		"upcoming_song": "Upcoming song",
 		"looping_current": "(Looping current)",
-		"song_x_in_queue": "There are {{COUNT}} song in the queue!"
+		"song_x_in_queue": "There are {{COUNT}} song in the queue!",
+		"cleared": "Queue cleared~ (｡•ˇ‸ˇ•｡)"
 	},
 	"musicplayer_search": {
 		"title": "Search",

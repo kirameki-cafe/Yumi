@@ -9,7 +9,7 @@ import DiscordMusicPlayer, {
 import Locale from '../../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
-import { makeErrorEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from '../../utils/DiscordMessage';
+import { makeErrorEmbed, sendHybridInteractionMessageResponse, makeSuccessEmbed, makeInfoEmbed } from '../../utils/DiscordMessage';
 
 const EMBEDS = {
     QUEUE: (data: HybridInteractionMessage, locale: I18n, instance: DiscordMusicPlayerInstance) => {
@@ -67,6 +67,12 @@ const EMBEDS = {
             }
         }
     },
+    QUEUE_CLEARED: (data: HybridInteractionMessage, locale: I18n) => {
+        return makeSuccessEmbed({
+            title: locale.__('musicplayer_queue.cleared'),
+            user: data.getUser()
+        });
+    },
     NO_MUSIC_PLAYING: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
             title: locale.__('musicplayer.no_music_playing'),
@@ -89,10 +95,11 @@ export default class QueueCommand extends DiscordModule {
     }
 
     async run(data: HybridInteractionMessage, args: any) {
-        const guild = data.getGuild();
 
+        const guild = data.getGuild();
         if (!guild) return;
 
+        let query;
         const locale = await Locale.getGuildLocale(guild.id);
 
         const instance = DiscordMusicPlayer.getGuildInstance(guild.id);
@@ -101,8 +108,20 @@ export default class QueueCommand extends DiscordModule {
                 embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)]
             });
 
-        await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.QUEUE(data, locale, instance)] });
+        if (data.isMessage()) {
+            if (args.length === 0)
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.QUEUE(data, locale, instance)] });
+    
+            query = args.join(' ');
+        } else if (data.isApplicationCommand()) {
+            //query = data.getSlashCommand().options.get('query', true).value?.toString();
+        }
+    
+        if (!query) return;
+        if(query.toLowerCase() !== 'clear') return;
 
-        return;
+        instance.clearQueue();
+
+        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.QUEUE_CLEARED(data, locale)] });
     }
 }

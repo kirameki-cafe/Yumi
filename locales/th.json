@@ -119,7 +119,8 @@
 		"now_playing": "กำลังเล่น",
 		"upcoming_song": "เพลงต่อไป",
 		"looping_current": "(กำลังวนซ้ำเพลงนี้)",
-		"song_x_in_queue": "ตอนนี้มี {{COUNT}} เพลงอยู่ในคิว!"
+		"song_x_in_queue": "ตอนนี้มี {{COUNT}} เพลงอยู่ในคิว!",
+		"cleared": "เคลียร์คิวเรียบร้อยละ~ (｡•ˇ‸ˇ•｡)"
 	},
 	"musicplayer_search": {
 		"title": "ค้นหา",
