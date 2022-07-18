@@ -29,19 +29,31 @@ class Environment {
         const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
         const DEVELOPER_IDS = process.env.DEVELOPER_IDS;
         const PRIVATE_BOT = process.env.PRIVATE_BOT;
+        const SUPPORT_URL = process.env.SUPPORT_URL;
 
         const OSU_API_KEY = process.env.OSU_API_KEY;
         const YOUTUBE_COOKIE_BASE64 = process.env.YOUTUBE_COOKIE_BASE64;
 
+        const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+        const SPOTIFY_CLIENT_SECRET= process.env.SPOTIFY_CLIENT_SECRET;
+        const SPOTIFY_REFRESH_TOKEN= process.env.SPOTIFY_REFRESH_TOKEN;
+        const SPOTIFY_CLIENT_MARKET= process.env.SPOTIFY_CLIENT_MARKET;
+        
         return {
             NODE_ENV,
 
             DISCORD_TOKEN,
             DEVELOPER_IDS,
             PRIVATE_BOT,
+            SUPPORT_URL,
 
             OSU_API_KEY,
-            YOUTUBE_COOKIE_BASE64
+            YOUTUBE_COOKIE_BASE64,
+
+            SPOTIFY_CLIENT_ID,
+            SPOTIFY_CLIENT_SECRET,
+            SPOTIFY_REFRESH_TOKEN,
+            SPOTIFY_CLIENT_MARKET
         };
     }
 

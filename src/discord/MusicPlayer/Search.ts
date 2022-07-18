@@ -1,13 +1,13 @@
-import { Message, CommandInteraction, Interaction, MessageActionRow, ButtonInteraction, MessageSelectMenu, MessageSelectOptionData } from "discord.js";
+import { Message, CommandInteraction, ActionRowBuilder, ButtonInteraction, SelectMenuBuilder, SelectMenuComponentOptionData } from "discord.js";
 import { I18n } from "i18n";
 
 import { joinVoiceChannelProcedure } from "./Join";
 
-import DiscordMusicPlayer, { ValidTracks } from "../../providers/DiscordMusicPlayer";
+import DiscordMusicPlayer, { TrackUtils, ValidTracks } from "../../providers/DiscordMusicPlayer";
 import Locale from "../../services/Locale";
 
 import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
-import { makeErrorEmbed, makeSuccessEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+import { makeErrorEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
 
 const EMBEDS = {
     SEARCH_INFO: (data: HybridInteractionMessage, locale: I18n) => {
@@ -28,7 +28,7 @@ const EMBEDS = {
             title: locale.__('musicplayer_search.title_result'),
             description: `${locale.__('musicplayer_search.x_results_found', {
                 COUNT: result.length.toString()
-            })}\n\n${result.map(track => `- [${track.title}](${track.url})`).join('\n')}`,
+            })}\n\n${result.map(track => `- [${TrackUtils.getTitle(track)}](${track.url})`).join('\n')}`,
             user: data.getUser()
         });
     },
@@ -96,8 +96,8 @@ export default class Search extends DiscordModule {
 
             query = args.join(' ');
         }
-        else if (data.isSlashCommand())
-            query = data.getSlashCommand().options.getString('query');
+        else if (data.isApplicationCommand())
+            query = data.getSlashCommand().options.get('query', true).value?.toString();
         else if (data.isButton())
             query = args;
 
@@ -126,9 +126,9 @@ export default class Search extends DiscordModule {
         let result = await DiscordMusicPlayer.searchYouTubeByQuery(query);
         if (!result) return; // TODO: Handle when search returned nothing
 
-        const menuOptions: MessageSelectOptionData[] = [];
+        const menuOptions: SelectMenuComponentOptionData[] = [];
 
-        const messageSelectMenu = new MessageSelectMenu();
+        const messageSelectMenu = new SelectMenuBuilder();
         /*
             Discord have 100 char custom id char limit
             So we need to shorten our json.
@@ -157,8 +157,8 @@ export default class Search extends DiscordModule {
 
         messageSelectMenu.addOptions(menuOptions);
 
-        const row = new MessageActionRow();
-        row.addComponents(messageSelectMenu);
+        const row = new ActionRowBuilder<SelectMenuBuilder>();
+        row.addComponents([messageSelectMenu]);
 
         return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SEARCH_RESULT(data, locale, result)], components: [row] });
     }

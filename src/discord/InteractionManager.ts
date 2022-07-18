@@ -1,4 +1,4 @@
-import { Message, Interaction, CommandInteraction } from 'discord.js';
+import { Message, CommandInteraction, BaseInteraction } from 'discord.js';
 
 import Users from '../services/Users';
 
@@ -18,7 +18,7 @@ import {
 } from '../utils/DiscordInteraction';
 
 const EMBEDS = {
-    INTERACTION_INFO: (data: Message | Interaction) => {
+    INTERACTION_INFO: (data: HybridInteractionMessage) => {
         return makeInfoEmbed({
             title: 'Interaction',
             description: `This module contains management tool for interaction based contents`,
@@ -28,47 +28,47 @@ const EMBEDS = {
                     value: '``reloadAll`` ``unloadAll`` ``reloadglobal``'
                 }
             ],
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    PROCESSING: (data: Message | Interaction) => {
+    PROCESSING: (data: HybridInteractionMessage) => {
         return makeProcessingEmbed({
             icon: data instanceof Message ? undefined : '⌛',
             title: `Performing actions`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    NOT_DEVELOPER: (data: Message | Interaction) => {
+    NOT_DEVELOPER: (data: HybridInteractionMessage) => {
         return makeErrorEmbed({
             title: 'Developer only',
             description: `This command is restricted to the developers only`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    UNLOADALL_SUCCESS: (data: Message | Interaction) => {
+    UNLOADALL_SUCCESS: (data: HybridInteractionMessage) => {
         return makeSuccessEmbed({
             title: 'Unloaded all Interaction',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    UNLOADALL_ERROR: (data: Message | Interaction, err: any) => {
+    UNLOADALL_ERROR: (data: HybridInteractionMessage, err: any) => {
         return makeErrorEmbed({
             title: 'An error occurred while trying to unload interaction',
             description: '```' + err + '```',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    RELOADALL_SUCCESS: (data: Message | Interaction) => {
+    RELOADALL_SUCCESS: (data: HybridInteractionMessage) => {
         return makeSuccessEmbed({
             title: 'Reloaded all Interaction',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    RELOADALL_ERROR: (data: Message | Interaction, err: any) => {
+    RELOADALL_ERROR: (data: HybridInteractionMessage, err: any) => {
         return makeErrorEmbed({
             title: 'An error occurred while trying to reload interaction',
             description: '```' + err + '```',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     }
 };
@@ -92,7 +92,7 @@ export default class InteractionManager extends DiscordModule {
 
         if (!Users.isDeveloper(user.id))
             return await sendHybridInteractionMessageResponse(data, {
-                embeds: [EMBEDS.NOT_DEVELOPER(data.getRaw())]
+                embeds: [EMBEDS.NOT_DEVELOPER(data)]
             });
 
         const funct = {
@@ -100,7 +100,7 @@ export default class InteractionManager extends DiscordModule {
                 let placeholder: HybridInteractionMessage | undefined;
 
                 let _placeholder = await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.PROCESSING(data.getRaw())]
+                    embeds: [EMBEDS.PROCESSING(data)]
                 });
                 if (_placeholder) placeholder = new HybridInteractionMessage(_placeholder);
 
@@ -110,22 +110,22 @@ export default class InteractionManager extends DiscordModule {
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
                         return placeholder
                             .getMessage()
-                            .edit({ embeds: [EMBEDS.UNLOADALL_SUCCESS(data.getRaw())] });
-                    else if (data.isSlashCommand())
+                            .edit({ embeds: [EMBEDS.UNLOADALL_SUCCESS(data)] });
+                    else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
-                            { embeds: [EMBEDS.UNLOADALL_SUCCESS(data.getRaw())] },
+                            { embeds: [EMBEDS.UNLOADALL_SUCCESS(data)] },
                             true
                         );
                 } catch (err) {
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
                         return placeholder
                             .getMessage()
-                            .edit({ embeds: [EMBEDS.UNLOADALL_ERROR(data.getRaw(), err)] });
-                    else if (data.isSlashCommand())
+                            .edit({ embeds: [EMBEDS.UNLOADALL_ERROR(data, err)] });
+                    else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
-                            { embeds: [EMBEDS.UNLOADALL_ERROR(data.getRaw(), err)] },
+                            { embeds: [EMBEDS.UNLOADALL_ERROR(data, err)] },
                             true
                         );
                 }
@@ -134,7 +134,7 @@ export default class InteractionManager extends DiscordModule {
                 let placeholder: HybridInteractionMessage | undefined;
 
                 let _placeholder = await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.PROCESSING(data.getRaw())]
+                    embeds: [EMBEDS.PROCESSING(data)]
                 });
                 if (_placeholder) placeholder = new HybridInteractionMessage(_placeholder);
 
@@ -145,22 +145,22 @@ export default class InteractionManager extends DiscordModule {
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
                         return placeholder
                             .getMessage()
-                            .edit({ embeds: [EMBEDS.RELOADALL_SUCCESS(data.getRaw())] });
-                    else if (data.isSlashCommand())
+                            .edit({ embeds: [EMBEDS.RELOADALL_SUCCESS(data)] });
+                    else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
-                            { embeds: [EMBEDS.RELOADALL_SUCCESS(data.getRaw())] },
+                            { embeds: [EMBEDS.RELOADALL_SUCCESS(data)] },
                             true
                         );
                 } catch (err) {
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
                         return placeholder
                             .getMessage()
-                            .edit({ embeds: [EMBEDS.RELOADALL_ERROR(data.getRaw(), err)] });
-                    else if (data.isSlashCommand())
+                            .edit({ embeds: [EMBEDS.RELOADALL_ERROR(data, err)] });
+                    else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
-                            { embeds: [EMBEDS.RELOADALL_ERROR(data.getRaw(), err)] },
+                            { embeds: [EMBEDS.RELOADALL_ERROR(data, err)] },
                             true
                         );
                 }
@@ -169,7 +169,7 @@ export default class InteractionManager extends DiscordModule {
                 let placeholder: HybridInteractionMessage | undefined;
 
                 let _placeholder = await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.PROCESSING(data.getRaw())]
+                    embeds: [EMBEDS.PROCESSING(data)]
                 });
                 if (_placeholder) placeholder = new HybridInteractionMessage(_placeholder);
 
@@ -180,22 +180,22 @@ export default class InteractionManager extends DiscordModule {
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
                         return placeholder
                             .getMessage()
-                            .edit({ embeds: [EMBEDS.RELOADALL_SUCCESS(data.getRaw())] });
-                    else if (data.isSlashCommand())
+                            .edit({ embeds: [EMBEDS.RELOADALL_SUCCESS(data)] });
+                    else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
-                            { embeds: [EMBEDS.RELOADALL_SUCCESS(data.getRaw())] },
+                            { embeds: [EMBEDS.RELOADALL_SUCCESS(data)] },
                             true
                         );
                 } catch (err) {
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
                         return placeholder
                             .getMessage()
-                            .edit({ embeds: [EMBEDS.RELOADALL_ERROR(data.getRaw(), err)] });
-                    else if (data.isSlashCommand())
+                            .edit({ embeds: [EMBEDS.RELOADALL_ERROR(data, err)] });
+                    else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
-                            { embeds: [EMBEDS.RELOADALL_ERROR(data.getRaw(), err)] },
+                            { embeds: [EMBEDS.RELOADALL_ERROR(data, err)] },
                             true
                         );
                 }
@@ -207,18 +207,18 @@ export default class InteractionManager extends DiscordModule {
         if (data.isMessage()) {
             if (args.length === 0)
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.INTERACTION_INFO(data.getRaw())]
+                    embeds: [EMBEDS.INTERACTION_INFO(data)]
                 });
 
             query = args[0].toLowerCase();
-        } else if (data.isSlashCommand()) {
+        } else if (data.isApplicationCommand()) {
             query = args.getSubcommand();
         }
 
         switch (query) {
             case 'info':
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.INTERACTION_INFO(data.getRaw())]
+                    embeds: [EMBEDS.INTERACTION_INFO(data)]
                 });
             case 'reloadall':
                 return await funct.reloadAll(data);

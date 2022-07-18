@@ -39,7 +39,14 @@ Take a look inside [.env.example](https://github.com/YuzuZensai/Yumi/blob/main/.
 - ``DISCORD_TOKEN`` Your discord bot token
 - ``DEVELOPER_IDS`` List of Discord Snowflake User ID that can access developer only modules, separated by ``,``
 - ``PRIVATE_BOT`` Should the bot invite be public? ``true`` or ``false``
+- ``SUPPORT_URL`` (Optional) URL to your support server (If not set, support module will show not available message)
 - ``OSU_API_KEY`` [osu! API v1 key](https://github.com/ppy/osu-api/wiki)
-- ``YOUTUBE_COOKIE_BASE64`` YouTube cookies encoded in base64 [How to get cookies?](https://github.com/play-dl/play-dl/tree/main/instructions#youtube-cookies=)*
+- ``YOUTUBE_COOKIE_BASE64`` YouTube cookies encoded in base64 [How to get cookies?](https://github.com/play-dl/play-dl/tree/main/instructions#youtube-cookies=) *
+- ``SPOTIFY_CLIENT_ID`` Spotify client ID
+- ``SPOTIFY_CLIENT_SECRET`` Spotify client secret
+- ``SPOTIFY_REFRESH_TOKEN`` Spotify refresh token **
+- ``SPOTIFY_CLIENT_MARKET`` Spotify market country code
 
 \* Encode the cookies from the request headers base64 and put it in here instead of creating new file with ``play.authorization();`` code
+
+\*\* Get refresh token from ``https://accounts.spotify.com/en/authorize?client_id=<client id>&response_type=code&redirect_uri=<redirect uri>``

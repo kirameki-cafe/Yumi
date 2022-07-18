@@ -1,4 +1,4 @@
-import { Guild, Client, GuildMember, Intents, Interaction, Message, TextChannel, BaseGuildTextChannel } from 'discord.js';
+import { Guild, Client, GuildMember, IntentsBitField, Interaction, Message, TextChannel, BaseGuildTextChannel, TextBasedChannelMixin, ChannelType, BaseGuildVoiceChannel, InteractionType } from 'discord.js';
 
 import Logger from '../libs/Logger';
 import Environment from './Environment';
@@ -14,8 +14,10 @@ import Discord_MembershipScreening from '../discord/MembershipScreening';
 import Discord_osu from '../discord/osu';
 import Discord_UserInfo from '../discord/UserInfo';
 import Discord_Stats from '../discord/Stats';
+import Discord_Support from '../discord/Support';
 
 import Discord_MusicPlayer_Play from '../discord/MusicPlayer/Play';
+import Discord_MusicPlayer_PlayMy from '../discord/MusicPlayer/PlayMy';
 import Discord_MusicPlayer_Skip from '../discord/MusicPlayer/Skip';
 import Discord_MusicPlayer_Join from '../discord/MusicPlayer/Join';
 import Discord_MusicPlayer_Leave from '../discord/MusicPlayer/Leave';
@@ -38,13 +40,13 @@ class Discord {
 
     constructor() {
         this.client = new Client({
-            //partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
             intents: [
-                Intents.FLAGS.GUILDS,
-                Intents.FLAGS.GUILD_MESSAGES,
-                Intents.FLAGS.GUILD_MEMBERS,
-                Intents.FLAGS.GUILD_PRESENCES,
-                Intents.FLAGS.GUILD_VOICE_STATES
+                IntentsBitField.Flags.MessageContent,
+                IntentsBitField.Flags.Guilds,
+                IntentsBitField.Flags.GuildMessages,
+                IntentsBitField.Flags.GuildMembers,
+                IntentsBitField.Flags.GuildPresences,
+                IntentsBitField.Flags.GuildVoiceStates
             ]
         });
     }
@@ -64,8 +66,10 @@ class Discord {
             new Discord_InteractionManager(),
             new Discord_osu(),
             new Discord_Settings(),
+            new Discord_Support(),
 
             new Discord_MusicPlayer_Play(),
+            new Discord_MusicPlayer_PlayMy(),
             new Discord_MusicPlayer_NowPlaying(),
             new Discord_MusicPlayer_Skip(),
             new Discord_MusicPlayer_Join(),
@@ -127,7 +131,7 @@ class Discord {
                 if (interaction.guild) {
                     thisModule.GuildInteractionCreate(interaction);
 
-                    if (interaction.isCommand() && interaction.commandName && thisModule.commandInteractionName) {
+                    if (interaction.type === InteractionType.ApplicationCommand && interaction.commandName && thisModule.commandInteractionName) {
                         thisModule.GuildCommandInteractionCreate(interaction);
                         if (interaction.commandName.toLowerCase() === thisModule.commandInteractionName)
                             thisModule.GuildModuleCommandInteractionCreate(interaction);
@@ -160,7 +164,7 @@ class Discord {
 
         // Handling guild commands
         this.client.on('messageCreate', async (message: Message) => {
-            if (!(message.channel instanceof BaseGuildTextChannel)) return;
+            if (!(message.channel instanceof BaseGuildTextChannel || message.channel instanceof BaseGuildVoiceChannel)) return;
             if (message.author.bot) return;
             if (typeof message.guild?.id === 'undefined') return;
 
@@ -261,7 +265,7 @@ class Discord {
         // Handling mentions
         this.client.on('messageCreate', async (message: Message) => {
             // TODO: Handle DMs commands soon
-            if (!(message.channel instanceof TextChannel)) return;
+            if (!(message.channel instanceof BaseGuildTextChannel || message.channel instanceof BaseGuildVoiceChannel)) return;
             if (message.author.bot) return;
 
             if (typeof message.guild?.id === 'undefined') return;

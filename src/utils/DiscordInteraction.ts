@@ -28,6 +28,7 @@ export const GLOBAL_COMMANDS: Object[] = [
         .setName('search')
         .setDescription('Search for music')
         .addStringOption((option) => option.setName('query').setDescription('Search query').setRequired(true)),
+    new SlashCommandBuilder().setName('playmy').setDescription('Play the detected songs you are listening to'),
     new SlashCommandBuilder().setName('skip').setDescription('Skip the current song'),
     new SlashCommandBuilder().setName('pause').setDescription('Pause the current music'),
     new SlashCommandBuilder().setName('resume').setDescription('Resume paused music'),

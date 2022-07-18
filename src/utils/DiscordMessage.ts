@@ -1,5 +1,5 @@
 import {
-    MessageEmbed,
+    EmbedBuilder,
     User,
     MessagePayload,
     MessageOptions,
@@ -10,8 +10,10 @@ import {
     BaseGuildTextChannel,
     Message,
     ColorResolvable,
-    Interaction,
-    InteractionReplyOptions
+    InteractionReplyOptions,
+    BaseInteraction,
+    BaseGuildVoiceChannel,
+    VoiceChannel
 } from 'discord.js';
 
 import App from '..';
@@ -43,7 +45,7 @@ interface EmbedDataPresets {
 }
 
 export function makeEmbed(data: EmbedData) {
-    const embed = new MessageEmbed();
+    const embed = new EmbedBuilder();
     embed.setColor(data.color || '#FFFFFF');
 
     if (!data.icon) embed.setTitle(data.title);
@@ -54,14 +56,14 @@ export function makeEmbed(data: EmbedData) {
     if (data.setTimestamp) embed.setTimestamp();
 
     if (data.user)
-        embed.footer = {
+        embed.setFooter({
             text: `${data.user.username}  |  v${App.version}`,
             iconURL: `${data.user.displayAvatarURL()}?size=4096`
-        };
+        });
     else
-        embed.footer = {
+        embed.setFooter({
             text: `v${App.version}`
-        };
+        });
 
     if (data.fields) embed.addFields(data.fields);
 
@@ -129,14 +131,17 @@ export function makeProcessingEmbed(data: EmbedDataPresets) {
 }
 
 export async function sendMessage(
-    channel: TextChannel | DMChannel | BaseGuildTextChannel | GuildTextBasedChannel | PartialDMChannel,
+    channel: TextChannel | DMChannel | BaseGuildTextChannel | GuildTextBasedChannel | PartialDMChannel | BaseGuildTextChannel | BaseGuildVoiceChannel,
     user: User | undefined,
     options: string | MessagePayload | MessageOptions
 ) {
     let message;
 
     try {
-        message = await channel.send(options);
+        if(channel instanceof BaseGuildVoiceChannel)
+            message = await (channel as VoiceChannel).send(options);
+        else
+            message = await channel.send(options);
     } catch (error) {
         if (typeof user === 'undefined') {
             return Logger.error(
@@ -160,8 +165,8 @@ export async function sendHybridInteractionMessageResponse(
     data: HybridInteractionMessage,
     payload: MessageOptions | InteractionReplyOptions,
     replace = false
-): Promise<Message | Interaction | undefined> {
-    if (data.isSlashCommand() || data.isButton() || data.isSelectMenu()) {
+): Promise<Message | BaseInteraction | undefined> {
+    if (data.isApplicationCommand() || data.isButton() || data.isSelectMenu()) {
         const messageComponent = data.getMessageComponentInteraction();
 
         if (!messageComponent.replied) {

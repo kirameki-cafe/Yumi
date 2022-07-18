@@ -1,8 +1,10 @@
 {
 	"common": {
 		"available_args": "อาร์กิวเมนต์ ตัวเลือกที่ใช้ได้",
-		"no_permissions": "คุณไม่มีสิทธิ์เข้าถึง (O_O;)",
-		"no_permissions_description": "คุณต้องมีสิทธิ์เข้าถึง ``{{PERMISSIONS}}`` ในกิลด์นี้!",
+		"member_no_permissions": "คุณไม่มีสิทธิ์เข้าถึง (O_O;)",
+		"member_no_permissions_description": "คุณต้องมีสิทธิ์เข้าถึง ``{{PERMISSIONS}}`` ในกิลด์นี้!",
+		"bot_no_permissions": "ฉันไม่มีสิทธิ์เข้าถึง (O_O;)",
+		"bot_no_permissions_description": "ฉันต้องการสิทธิ์เข้าถึง ``{{PERMISSIONS}}``",
 		"processing": "รอแปปนึงน้า",
 		"processing_description": "ฉันกำลังดำเนินการให้อยู่ (งᓀ‸ᓂ)ง"
 	},
@@ -35,7 +37,9 @@
 		"streaming_x": "กำลังสตรีม {{NAME}}",
 		"listening_x": "กำลังฟัง {{NAME}}",
 		"watching_x": "กำลังดู {{NAME}}",
-		"competing_x": "กำลังแข่งขัน {{NAME}}"
+		"competing_x": "กำลังแข่งขัน {{NAME}}",
+		"since": "ตั้งแต่ {{{TIME}}}",
+		"end": "สิ้นสุดใน {{{TIME}}}"
 	},
 	"say": {
 		"title": "สั่งพูด",
@@ -106,13 +110,19 @@
 		"queue_added_songs_description": "เพิ่ม {{COUNT}} เพลงในคิว",
 		"error": "เกิดข้อผิดพลาดขณะค้นหาเพลง"
 	},
+	"musicplayer_playmy": {
+		"not_detected": "เท่าที่ดูจากกิจกรรมของคุณ เหมือนว่าตอนนี้คุณไม่ได้เล่นเพลงอะไรอยู่นะ"
+	},
 	"musicplayer_queue": {
 		"title": "คิวเพลง",
+		"valid_args": "``Clear`` ``Shuffle``",
 		"empty": "ตอนนี้คิวว่างนะ (っ˘ω˘ς )",
 		"now_playing": "กำลังเล่น",
 		"upcoming_song": "เพลงต่อไป",
 		"looping_current": "(กำลังวนซ้ำเพลงนี้)",
-		"song_x_in_queue": "ตอนนี้มี {{COUNT}} เพลงอยู่ในคิว!"
+		"song_x_in_queue": "ตอนนี้มี {{COUNT}} เพลงอยู่ในคิว!",
+		"cleared": "เคลียร์คิวเรียบร้อยละ~ (｡•ˇ‸ˇ•｡)",
+		"shuffled": "สุ่มคิวเรียบร้อยละ"
 	},
 	"musicplayer_search": {
 		"title": "ค้นหา",
@@ -127,8 +137,8 @@
 	},
 	"settings": {
 		"title": "การตั้งค่า",
-		"description": "เปลี่ยนพฤติกรรมของ {{BOT_NAME}} บน **{{GUILD_NAME}}**",
-		"valid_args": "``Prefix`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
+		"description": "เปลี่ยนพฤติกรรมของ {{BOT_NAME}} บน **{{{GUILD_NAME}}}**",
+		"valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
 	},
 	"settings_prefix": {
 		"info": "คำนำหน้าปัจจุบันคือ {{{PREFIX}}}",
@@ -140,10 +150,23 @@
 		"prefix_updated": "อัปเดตคำนำหน้าแล้ว",
 		"prefix_updated_description": "จากนี้ไป คุณสามารถเรียกฉันโดยใช้ ``{{PREFIX}}`` นะ"
 	},
+	"settings_language": {
+		"info": "ภาษาปัจจุบันตอนนี้คือ {{LANGUAGE}}",
+		"info_description": "ระบุภาษาใหม่เพื่อเปลี่ยน\n**ภาษาที่ใช้ได้**: ``{{LANGUAGES}}``",
+		"language_invalid": "ภาษาไม่ถูกต้อง",
+		"language_invalid_description": "รหัสภาษาไม่ถูกต้องหรือยังไม่รองรับ",
+		"language_updated": "เปลี่ยนภาษาเรียบร้อย",
+		"language_updated_description": "ตั้งแต่นี้ไปฉันจะใช้ภาษา {{LANGUAGE}}"
+	},
 	"ping": {
 		"title": "ประสิทธิภาพของเครือข่าย",
 		"title_processing": "กำลังวัดประสิทธิภาพของเครือข่าย ( ◕▿◕ )",
 		"running_on": "ทำงานอยู่บน {{HOST}}",
 		"development_environment": "โหมดกำลังพัฒนา"
+	},
+	"support": {
+		"title": "ติดต่อฝ่ายสนับสนุน",
+		"info": "[เข้าร่วมเซิร์ฟเวอร์สนับสนุนของ {{BOT_NAME}}]({{{LINK}}})",
+		"not_available": "เซิร์ฟเวอร์สนับสนุนของ {{BOT_NAME}} ไม่พร้อมใช้งานในขณะนี้"
 	}
 }

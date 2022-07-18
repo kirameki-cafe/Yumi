@@ -1,4 +1,4 @@
-import { CommandInteraction, Interaction, Message } from 'discord.js';
+import { CommandInteraction, Message } from 'discord.js';
 import { I18n } from 'i18n';
 
 import DiscordProvider from '../providers/Discord';
@@ -24,7 +24,7 @@ const EMBEDS = {
             fields: [
                 {
                     name: `☕ ${locale.__('help.general')}`,
-                    value: `help, ping, invite, userinfo, stats`,
+                    value: `help, ping, invite, userinfo, stats, support`,
                     inline: true
                 },
                 {
@@ -34,7 +34,7 @@ const EMBEDS = {
                 },
                 {
                     name: `🎵 ${locale.__('help.music')}`,
-                    value: `play (p), search, skip, pause, resume, queue (q), nowplaying (np), repeat (loop), summon (join), disconnect (leave, dc)`,
+                    value: `play (p), playmy, search, skip, pause, resume, queue (q), nowplaying (np), repeat (loop), summon (join), disconnect (leave, dc)`,
                     inline: true
                 },
                 {

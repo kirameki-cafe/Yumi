@@ -8,7 +8,11 @@ import {
     TextBasedChannel,
     MessageComponentInteraction,
     User,
-    SelectMenuInteraction
+    SelectMenuInteraction,
+    InteractionType,
+    BaseInteraction,
+    GuildBasedChannel,
+    ChannelType
 } from 'discord.js';
 
 export default class DiscordModule {
@@ -56,17 +60,17 @@ export default class DiscordModule {
 }
 
 export class HybridInteractionMessage {
-    public data: Interaction | Message;
-    constructor(data: Interaction | Message) {
+    public data: BaseInteraction | Message;
+    constructor(data: BaseInteraction | Message) {
         this.data = data;
     }
 
     public isInteraction(): boolean {
-        return this.data instanceof Interaction;
+        return this.data instanceof BaseInteraction;
     }
 
-    public isSlashCommand(): boolean {
-        return this.data instanceof CommandInteraction && this.data.isCommand();
+    public isApplicationCommand(): boolean {
+        return this.data instanceof CommandInteraction && this.data.type === InteractionType.ApplicationCommand;
     }
 
     public isButton(): boolean {
@@ -83,6 +87,13 @@ export class HybridInteractionMessage {
 
     public getChannel(): TextBasedChannel | null {
         return this.data.channel;
+    }
+
+    public getGuildChannel(): GuildBasedChannel | null {
+        if (this.data.channel && this.data.channel.type !== ChannelType.DM) {
+            return this.getChannel() as GuildBasedChannel;
+        }
+        return null;
     }
 
     public getGuild(): Guild | null {
@@ -130,7 +141,7 @@ export class HybridInteractionMessage {
         return this.data as Message;
     }
 
-    public getRaw(): Interaction | Message {
+    public getRaw(): BaseInteraction | Message {
         return this.data;
     }
 }

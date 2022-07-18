@@ -10,5 +10,4 @@ App.loadLocale();
 App.loadDiscord();
 App.load_osu();
 
-
 export default App;

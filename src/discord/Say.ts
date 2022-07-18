@@ -1,4 +1,4 @@
-import { Message, Permissions, Interaction, CommandInteraction } from 'discord.js';
+import { Message, CommandInteraction, PermissionsBitField } from 'discord.js';
 import { I18n } from 'i18n';
 
 import DiscordModule, { HybridInteractionMessage } from '../utils/DiscordModule';
@@ -78,9 +78,9 @@ export default class Say extends DiscordModule {
 
             if (
                 !message.member.permissions.has([
-                    Permissions.FLAGS.VIEW_CHANNEL,
-                    Permissions.FLAGS.SEND_MESSAGES,
-                    Permissions.FLAGS.MANAGE_CHANNELS
+                    PermissionsBitField.Flags.ViewChannel,
+                    PermissionsBitField.Flags.SendMessages,
+                    PermissionsBitField.Flags.ManageChannels,
                 ])
             )
                 return await sendHybridInteractionMessageResponse(data, {
@@ -93,22 +93,22 @@ export default class Say extends DiscordModule {
                 });
 
             query = args.join(' ');
-        } else if (data.isSlashCommand()) {
+        } else if (data.isApplicationCommand()) {
             const interaction = data.getSlashCommand();
             if (
                 !data
                     .getGuild()!
                     .members.cache.get(interaction.user.id)
-                    ?.permissions.has([Permissions.FLAGS.ADMINISTRATOR])
+                    ?.permissions.has([PermissionsBitField.Flags.Administrator])
             )
                 return await sendHybridInteractionMessageResponse(data, {
                     embeds: [EMBEDS.NO_PERMISSION(data, locale)]
                 });
 
-            query = interaction.options.getString('message');
+            query = interaction.options.get('message', true).value?.toString();
         }
 
-        if (data.isSlashCommand() && data.getChannel()) {
+        if (data.isApplicationCommand() && data.getChannel()) {
             try {
                 await data.getChannel()!.send({ content: query });
                 await data

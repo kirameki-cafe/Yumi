@@ -1,8 +1,10 @@
 {
 	"common": {
 		"available_args": "Available arguments",
-		"no_permissions": "Access denied (O_O;)",
-		"no_permissions_description": "You need ``{{PERMISSIONS}}`` permission on this guild",
+		"member_no_permissions": "Access denied (O_O;)",
+		"member_no_permissions_description": "You need ``{{PERMISSIONS}}`` permissions on this guild",
+		"bot_no_permissions": "I don't have permission (O_O;)",
+		"bot_no_permissions_description": "I need ``{{PERMISSIONS}}`` permissions",
 		"processing": "Please wait a moment~",
 		"processing_description": "Getting it done right now! (งᓀ‸ᓂ)ง"
 	},
@@ -35,7 +37,9 @@
 		"streaming_x": "Streaming {{NAME}}",
 		"listening_x": "Listening to {{NAME}}",
 		"watching_x": "Watching {{NAME}}",
-		"competing_x": "Competing {{NAME}}"
+		"competing_x": "Competing {{NAME}}",
+		"since": "Since {{{TIME}}}",
+		"end": "Ending {{{TIME}}}"
 	},
 	"say": {
 		"title": "Say",
@@ -106,13 +110,19 @@
 		"queue_added_songs_description": "Added {{COUNT}} songs to the queue",
 		"error": "Error while looking up the song"
 	},
+	"musicplayer_playmy": {
+		"not_detected": "You don't seem to be listening to any music currently according to your activity"
+	},
 	"musicplayer_queue": {
 		"title": "Queue",
+		"valid_args": "``Clear`` ``Shuffle``",
 		"empty": "The queue is empty! (っ˘ω˘ς )",
 		"now_playing": "Now playing",
 		"upcoming_song": "Upcoming song",
 		"looping_current": "(Looping current)",
-		"song_x_in_queue": "There are {{COUNT}} song in the queue!"
+		"song_x_in_queue": "There are {{COUNT}} song in the queue!",
+		"cleared": "Queue cleared~ (｡•ˇ‸ˇ•｡)",
+		"shuffled": "Queue shuffled"
 	},
 	"musicplayer_search": {
 		"title": "Search",
@@ -127,8 +137,8 @@
 	},
 	"settings": {
 		"title": "Settings",
-		"description": "Change how {{BOT_NAME}} behave on **{{GUILD_NAME}}**",
-		"valid_args": "``Prefix`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
+		"description": "Change how {{BOT_NAME}} behave on **{{{GUILD_NAME}}}**",
+		"valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
 	},
 	"settings_prefix": {
 		"info": "Current prefix is {{{PREFIX}}}",
@@ -140,10 +150,23 @@
 		"prefix_updated": "Prefix updated",
 		"prefix_updated_description": "From now onwards, I shall be called by using ``{{PREFIX}}``"
 	},
+	"settings_language": {
+		"info": "Current language is {{LANGUAGE}}",
+		"info_description": "Provide a new language to change\n**Available languages**: ``{{LANGUAGES}}``",
+		"language_invalid": "Invalid language",
+		"language_invalid_description": "The language code is invalid or not supported yet",
+		"language_updated": "Language updated",
+		"language_updated_description": "I will be using {{LANGUAGE}} from now on"
+	},
 	"ping": {
 		"title": "Network performance",
 		"title_processing": "Measuring network performance ( ◕▿◕ )",
 		"running_on": "Running on {{HOST}}",
 		"development_environment": "Development Environment"
+	},
+	"support": {
+		"title": "Support",
+		"info": "[Join {{BOT_NAME}}'s support server]({{{LINK}}})",
+		"not_available": "{{BOT_NAME}}'s support server is currently unavailable"
 	}
 }

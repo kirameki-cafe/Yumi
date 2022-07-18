@@ -1,36 +1,49 @@
 import {
     Message,
-    Interaction,
     CommandInteraction,
-    Permissions,
-    ThreadChannel,
-    GuildChannel,
-    Guild
+    Guild,
+    PermissionsBitField,
+    PermissionResolvable
 } from 'discord.js';
 import { I18n } from 'i18n';
 
 import DiscordProvider from '../../providers/Discord';
-import Prisma from '../../providers/Prisma';
-import Cache from '../../providers/Cache';
 import Locale from '../../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
 import {
     makeInfoEmbed,
     makeErrorEmbed,
-    makeSuccessEmbed,
     makeProcessingEmbed,
     sendHybridInteractionMessageResponse
 } from '../../utils/DiscordMessage';
 
 import * as PrefixModule from './Prefix';
+import * as LanguageModule from './Language';
 import * as ServiceAnnouncementModule from './ServiceAnnouncement';
 
 export const COMMON_EMBEDS = {
-    NO_PERMISSION: (data: HybridInteractionMessage, locale: I18n) => {
+    MEMBER_NO_PERMISSION: (data: HybridInteractionMessage, locale: I18n, permissions: PermissionResolvable[]) => {
+          
+        let allPermissions = [];
+        for(const value of permissions) {
+            allPermissions.push(new PermissionsBitField(value).toArray());
+        }
         return makeErrorEmbed({
-            title: locale.__('common.no_permissions'),
-            description: locale.__('common.no_permissions_description', { PERMISSIONS: 'ADMINISTRATOR'}),
+            title: locale.__('common.member_no_permissions'),
+            description: locale.__('common.member_no_permissions_description', { PERMISSIONS: allPermissions.join(', ')}),
+            user: data.getUser()
+        });
+    },
+    BOT_NO_PERMISSION: (data: HybridInteractionMessage, locale: I18n, permissions: PermissionResolvable[]) => {
+          
+        let allPermissions = [];
+        for(const value of permissions) {
+            allPermissions.push(new PermissionsBitField(value).toArray());
+        }
+        return makeErrorEmbed({
+            title: locale.__('common.bot_no_permissions'),
+            description: locale.__('common.bot_no_permissions_description', { PERMISSIONS: allPermissions.join(', ')}),
             user: data.getUser()
         });
     },
@@ -91,7 +104,7 @@ export default class Settings extends DiscordModule {
                 });
 
             query = args[0].toLowerCase();
-        } else if (data.isSlashCommand()) {
+        } else if (data.isApplicationCommand()) {
             query = args.getSubcommand();
         }
 
@@ -102,6 +115,8 @@ export default class Settings extends DiscordModule {
                 });
             case 'prefix':
                 return await PrefixModule.default(data, args, guild, locale);
+            case 'language':
+                return await LanguageModule.default(data, args, guild, locale);
             case 'enableserviceannouncement':
                 return await ServiceAnnouncementModule.setEnableServiceAnnouncement(data, args, guild, locale);
             case 'serviceannouncementchannel':
