@@ -119,7 +119,8 @@
 		"now_playing": "再生中",
 		"upcoming_song": "次の曲",
 		"looping_current": "(この曲の繰り返し)",
-		"song_x_in_queue": "{{COUNT}}曲も並んでいますよ。"
+		"song_x_in_queue": "{{COUNT}}曲も並んでいますよ。",
+		"cleared": "キューがクリアされました (｡•ˇ‸ˇ•｡)"
 	},
 	"musicplayer_search": {
 		"title": "検索",
