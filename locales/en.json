@@ -115,13 +115,14 @@
 	},
 	"musicplayer_queue": {
 		"title": "Queue",
-		"valid_args": "``clear``",
+		"valid_args": "``clear`` ``shuffle``",
 		"empty": "The queue is empty! (っ˘ω˘ς )",
 		"now_playing": "Now playing",
 		"upcoming_song": "Upcoming song",
 		"looping_current": "(Looping current)",
 		"song_x_in_queue": "There are {{COUNT}} song in the queue!",
-		"cleared": "Queue cleared~ (｡•ˇ‸ˇ•｡)"
+		"cleared": "Queue cleared~ (｡•ˇ‸ˇ•｡)",
+		"shuffled": "Queue shuffled"
 	},
 	"musicplayer_search": {
 		"title": "Search",

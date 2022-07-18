@@ -343,6 +343,24 @@ export class DiscordMusicPlayerInstance {
         this.queue.track = [this.queue.track[0]];
     }
 
+    public shuffleQueue() {
+        if (!this.voiceConnection) throw new Error('No voice connection');
+
+        const shuffleFixedFirst = (queue: ValidTracks[]) => {
+            if(queue.length <= 2) return queue;
+            
+            const fixedFirst = queue.shift();
+            if(!fixedFirst) return queue;
+
+            queue.sort(() => Math.random() - 0.5);
+            queue.unshift(fixedFirst);
+            return queue;
+        }
+
+        if(!this.queue.track || this.queue.track.length === 0) return;
+        this.queue.track = shuffleFixedFirst(this.queue.track);
+    }
+
     public setLoopMode(mode: DiscordMusicPlayerLoopMode) {
         this.loopMode = mode;
     }

@@ -115,13 +115,14 @@
 	},
 	"musicplayer_queue": {
 		"title": "キュー",
-		"valid_args": "``clear``",
+		"valid_args": "``clear`` ``shuffle``",
 		"empty": "キューは空です! (っ˘ω˘ς )",
 		"now_playing": "再生中",
 		"upcoming_song": "次の曲",
 		"looping_current": "(この曲の繰り返し)",
 		"song_x_in_queue": "{{COUNT}}曲も並んでいますよ。",
-		"cleared": "キューがクリアされました (｡•ˇ‸ˇ•｡)"
+		"cleared": "キューがクリアされました (｡•ˇ‸ˇ•｡)",
+		"shuffled": "キューがシャッフルされました"
 	},
 	"musicplayer_search": {
 		"title": "検索",
