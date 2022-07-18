@@ -1,6 +1,13 @@
 # 🍭 Yumi
 
-Multipurpose Discord Bot
+Multipurpose Discord bot in development
+
+## ✨ Feature
+
+- Music player (YouTube/Spotify)
+- Membership screening (Member approval system)
+- Fetching player info from games from APIs
+- and more in development...
 
 ## 👜 Prerequisites
 
