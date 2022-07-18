@@ -1,4 +1,4 @@
-import { Message, EmbedBuilder, Interaction, CommandInteraction, TextChannel, BaseInteraction, EmbedData, EmbedFieldData, EmbedProviderData } from 'discord.js';
+import { Message, EmbedBuilder, CommandInteraction, TextChannel, EmbedData } from 'discord.js';
 import { Promise } from 'bluebird';
 import fs from 'fs';
 import path from 'path';
