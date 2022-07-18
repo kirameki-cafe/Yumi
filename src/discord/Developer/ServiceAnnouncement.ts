@@ -31,7 +31,7 @@ const EMBEDS = {
             fields: [
                 {
                     name: 'Available arguments',
-                    value: '``reload`` ``previewNews`` ``sendNews`` ``previewMaintenance`` ``sendMaintenance`` ``previewMessage`` ``sendMessage`` ``previewAlert`` ``sendAlert``'
+                    value: '``Reload`` ``PreviewNews`` ``SendNews`` ``PreviewMaintenance`` ``SendMaintenance`` ``PreviewMessage`` ``SendMessage`` ``PreviewAlert`` ``SendAlert``'
                 }
             ],
             user: data.getUser()
