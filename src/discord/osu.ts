@@ -21,7 +21,7 @@ import {
 } from '../utils/DiscordMessage';
 
 const EMBEDS = {
-    osu_INFO: (data: Message | BaseInteraction) => {
+    osu_INFO: (data: HybridInteractionMessage) => {
         return makeInfoEmbed({
             title: 'osu!',
             description: `[osu!](https://osu.ppy.sh/home) is a free-to-play rhythm game primarily developed, published, and created by Dean "peppy" Herbert`,
@@ -35,43 +35,43 @@ const EMBEDS = {
                     value: '``user``'
                 }
             ],
-            user: data instanceof BaseInteraction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    NO_USER_FOUND: (data: Message | BaseInteraction) => {
+    NO_USER_FOUND: (data: HybridInteractionMessage) => {
         return makeErrorEmbed({
             title: `That user doesn't exists on osu!`,
-            user: data instanceof BaseInteraction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    NO_USER_MENTIONED: (data: Message | BaseInteraction) => {
+    NO_USER_MENTIONED: (data: HybridInteractionMessage) => {
         return makeErrorEmbed({
             title: `No osu! username or user id provided`,
-            user: data instanceof BaseInteraction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    INVALID_USER_MENTIONED: (data: Message | BaseInteraction) => {
+    INVALID_USER_MENTIONED: (data: HybridInteractionMessage) => {
         return makeErrorEmbed({
             title: `Not a valid osu username or id`,
-            user: data instanceof BaseInteraction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    INVALID_BEATMAP_ID_MENTIONED: (data: Message | BaseInteraction) => {
+    INVALID_BEATMAP_ID_MENTIONED: (data: HybridInteractionMessage) => {
         return makeErrorEmbed({
             title: `Not a valid osu beatmap id`,
-            user: data instanceof BaseInteraction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    NO_BEATMAP_FOUND: (data: Message | BaseInteraction) => {
+    NO_BEATMAP_FOUND: (data: HybridInteractionMessage) => {
         return makeErrorEmbed({
             title: `That beatmap doesn't exists on osu!`,
-            user: data instanceof BaseInteraction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    NO_BEATMAP_MENTIONED: (data: Message | BaseInteraction) => {
+    NO_BEATMAP_MENTIONED: (data: HybridInteractionMessage) => {
         return makeErrorEmbed({
             title: `No osu! beatmap id provided`,
-            user: data instanceof BaseInteraction ? data.user : data.author
+            user: data.getUser()
         });
     }
 };
@@ -99,7 +99,7 @@ export default class osu extends DiscordModule {
                 if (data.isMessage()) {
                     if (typeof args[1] === 'undefined')
                         return await sendHybridInteractionMessageResponse(data, {
-                            embeds: [EMBEDS.NO_USER_MENTIONED(data.getRaw())]
+                            embeds: [EMBEDS.NO_USER_MENTIONED(data)]
                         });
                     const [removed, ...newArgs] = args;
                     user = newArgs.join(' ');
@@ -108,14 +108,14 @@ export default class osu extends DiscordModule {
 
                 if (!validator.isNumeric(user) && !this.validate_osu_username(user))
                     return await sendHybridInteractionMessageResponse(data, {
-                        embeds: [EMBEDS.INVALID_USER_MENTIONED(data.getRaw())]
+                        embeds: [EMBEDS.INVALID_USER_MENTIONED(data)]
                     });
 
                 let result = await osuAPI.client.getUser({ u: user });
 
                 if (result instanceof Array && result.length === 0)
                     return await sendHybridInteractionMessageResponse(data, {
-                        embeds: [EMBEDS.NO_USER_FOUND(data.getRaw())]
+                        embeds: [EMBEDS.NO_USER_FOUND(data)]
                     });
 
                 if (data.isApplicationCommand()) {
@@ -277,7 +277,7 @@ export default class osu extends DiscordModule {
                 if (data.isMessage()) {
                     if (typeof args[1] === 'undefined')
                         return await sendHybridInteractionMessageResponse(data, {
-                            embeds: [EMBEDS.NO_BEATMAP_MENTIONED(data.getRaw())]
+                            embeds: [EMBEDS.NO_BEATMAP_MENTIONED(data)]
                         });
                     const [removed, ...newArgs] = args;
                     beatmap = newArgs.join(' ');
@@ -286,14 +286,14 @@ export default class osu extends DiscordModule {
 
                 if (!validator.isNumeric(beatmap))
                     return await sendHybridInteractionMessageResponse(data, {
-                        embeds: [EMBEDS.INVALID_BEATMAP_ID_MENTIONED(data.getRaw())]
+                        embeds: [EMBEDS.INVALID_BEATMAP_ID_MENTIONED(data)]
                     });
 
                 let result = await osuAPI.client.getBeatmaps({ b: beatmap });
 
                 if (result instanceof Array && result.length === 0)
                     return await sendHybridInteractionMessageResponse(data, {
-                        embeds: [EMBEDS.NO_BEATMAP_FOUND(data.getRaw())]
+                        embeds: [EMBEDS.NO_BEATMAP_FOUND(data)]
                     });
 
                 if (data.isApplicationCommand()) await data.getSlashCommand().deferReply();
@@ -473,7 +473,7 @@ export default class osu extends DiscordModule {
         if (data.isMessage()) {
             if (args.length === 0) {
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.osu_INFO(data.getRaw())]
+                    embeds: [EMBEDS.osu_INFO(data)]
                 });
             }
             query = args[0].toLowerCase();
