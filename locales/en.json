@@ -115,7 +115,7 @@
 	},
 	"musicplayer_queue": {
 		"title": "Queue",
-		"valid_args": "``clear`` ``shuffle``",
+		"valid_args": "``Clear`` ``Shuffle``",
 		"empty": "The queue is empty! (っ˘ω˘ς )",
 		"now_playing": "Now playing",
 		"upcoming_song": "Upcoming song",
