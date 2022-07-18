@@ -24,7 +24,7 @@ import Users from '../../services/Users';
 const hexToDecimal = (hex: string) => parseInt(hex.replace('#', ''), 16);
 
 const EMBEDS = {
-    ANNOUNCEMENT_INFO: (data: Message | BaseInteraction) => {
+    ANNOUNCEMENT_INFO: (data: HybridInteractionMessage) => {
         return makeInfoEmbed({
             title: 'Service Announcement',
             description: `This module contains management tool for announcement feed\n The announcement message is located in \`\`configs/ServiceAnnouncement.json\`\``,
@@ -34,14 +34,14 @@ const EMBEDS = {
                     value: '``reload`` ``previewNews`` ``sendNews`` ``previewMaintenance`` ``sendMaintenance`` ``previewMessage`` ``sendMessage`` ``previewAlert`` ``sendAlert``'
                 }
             ],
-            user: data instanceof BaseInteraction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    NOT_DEVELOPER: (data: Message | BaseInteraction) => {
+    NOT_DEVELOPER: (data: HybridInteractionMessage) => {
         return makeErrorEmbed({
             title: 'Developer only',
             description: `This command is restricted to the developers only`,
-            user: data instanceof BaseInteraction ? data.user : data.author
+            user: data.getUser()
         });
     },
     MAKE_PAYLOAD: (payload: EmbedData) => {
@@ -67,38 +67,38 @@ const EMBEDS = {
 
         return new EmbedBuilder(payload);
     },
-    RELOADED: (data: Message | BaseInteraction) => {
+    RELOADED: (data: HybridInteractionMessage) => {
         return makeSuccessEmbed({
             title: 'Service Announcement Configuration Reloaded',
-            user: data instanceof BaseInteraction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    RELOAD_ERROR: (data: Message | BaseInteraction, error: string) => {
+    RELOAD_ERROR: (data: HybridInteractionMessage, error: string) => {
         return makeErrorEmbed({
             title: 'Unable to reload Service Announcement Configuration',
             description: `\`\`\`${error}\`\`\``,
-            user: data instanceof BaseInteraction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    SENDING_SERVICE_ANNOUNCEMENT: (data: Message | BaseInteraction) => {
+    SENDING_SERVICE_ANNOUNCEMENT: (data: HybridInteractionMessage) => {
         return makeProcessingEmbed({
             title: 'Service Announcement',
             description: `Broadcasting Service Announcement`,
-            user: data instanceof BaseInteraction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    SERVICE_ANNOUNCEMENT_SENT: (data: Message | BaseInteraction) => {
+    SERVICE_ANNOUNCEMENT_SENT: (data: HybridInteractionMessage) => {
         return makeSuccessEmbed({
             title: 'Service Announcement',
             description: `Broadcasted Service Announcement`,
-            user: data instanceof BaseInteraction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS: (data: Message | BaseInteraction) => {
+    SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS: (data: HybridInteractionMessage) => {
         return makeWarningEmbed({
             title: 'Service Announcement',
             description: `Broadcasted Service Announcement with errors, check console for more info`,
-            user: data instanceof BaseInteraction ? data.user : data.author
+            user: data.getUser()
         });
     }
 };
@@ -167,7 +167,7 @@ export default class ServiceAnnouncement extends DiscordModule {
     async run(data: HybridInteractionMessage, args: any) {
         if (!Users.isDeveloper(data.getUser()!.id))
             return await sendHybridInteractionMessageResponse(data, {
-                embeds: [EMBEDS.NOT_DEVELOPER(data.getRaw())]
+                embeds: [EMBEDS.NOT_DEVELOPER(data)]
             });
 
         const channel = data.getChannel();
@@ -185,7 +185,7 @@ export default class ServiceAnnouncement extends DiscordModule {
                     } catch (err: any) {
                         Logger.error('Unable to load custom ServiceAnnouncement config: ' + err);
                         return await sendMessage(channel, undefined, {
-                            embeds: [EMBEDS.RELOAD_ERROR(data.getRaw(), err)]
+                            embeds: [EMBEDS.RELOAD_ERROR(data, err)]
                         });
                     }
                 } else {
@@ -197,7 +197,7 @@ export default class ServiceAnnouncement extends DiscordModule {
                 }
 
                 return await sendMessage(channel, undefined, {
-                    embeds: [EMBEDS.RELOADED(data.getRaw())]
+                    embeds: [EMBEDS.RELOADED(data)]
                 });
             },
             previewNews: async (data: HybridInteractionMessage) => {
@@ -252,7 +252,7 @@ export default class ServiceAnnouncement extends DiscordModule {
 
                 let _placeholder = await sendHybridInteractionMessageResponse(
                     data,
-                    { embeds: [EMBEDS.SENDING_SERVICE_ANNOUNCEMENT(data.getRaw())] },
+                    { embeds: [EMBEDS.SENDING_SERVICE_ANNOUNCEMENT(data)] },
                     true
                 );
                 if (_placeholder) placeholder = new HybridInteractionMessage(_placeholder);
@@ -300,7 +300,7 @@ export default class ServiceAnnouncement extends DiscordModule {
                             .getMessage()
                             .edit({
                                 embeds: [
-                                    EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data.getRaw())
+                                    EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data)
                                 ]
                             });
                     else if (data.isApplicationCommand())
@@ -308,7 +308,7 @@ export default class ServiceAnnouncement extends DiscordModule {
                             data,
                             {
                                 embeds: [
-                                    EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data.getRaw())
+                                    EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data)
                                 ]
                             },
                             true
@@ -317,11 +317,11 @@ export default class ServiceAnnouncement extends DiscordModule {
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
                         return placeholder
                             .getMessage()
-                            .edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data.getRaw())] });
+                            .edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data)] });
                     else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
-                            { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data.getRaw())] },
+                            { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data)] },
                             true
                         );
                 }
@@ -333,7 +333,7 @@ export default class ServiceAnnouncement extends DiscordModule {
         if (data.isMessage()) {
             if (args.length === 0)
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.ANNOUNCEMENT_INFO(data.getRaw())]
+                    embeds: [EMBEDS.ANNOUNCEMENT_INFO(data)]
                 });
             query = args[0].toLowerCase();
         } else if (data.isApplicationCommand()) {
@@ -343,7 +343,7 @@ export default class ServiceAnnouncement extends DiscordModule {
         switch (query) {
             case 'info':
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.ANNOUNCEMENT_INFO(data.getRaw())]
+                    embeds: [EMBEDS.ANNOUNCEMENT_INFO(data)]
                 });
             case 'reload':
                 return await funct.reload(data);
