@@ -62,6 +62,12 @@ const EMBEDS = {
             return makeInfoEmbed({
                 title: locale.__('musicplayer_queue.title'),
                 description: description,
+                fields: [
+                    {
+                        name: locale.__('common.available_args'),
+                        value: locale.__('musicplayer_queue.valid_args')
+                    }
+                ],
                 user: data.getUser()
             });
         }
