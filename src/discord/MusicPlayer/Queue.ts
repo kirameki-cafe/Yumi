@@ -78,6 +78,12 @@ const EMBEDS = {
             user: data.getUser()
         });
     },
+    QUEUE_SHUFFLED: (data: HybridInteractionMessage, locale: I18n) => {
+        return makeSuccessEmbed({
+            title: locale.__('musicplayer_queue.shuffled'),
+            user: data.getUser()
+        });
+    },
     NO_MUSIC_PLAYING: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
             title: locale.__('musicplayer.no_music_playing'),
@@ -124,10 +130,13 @@ export default class QueueCommand extends DiscordModule {
         }
 
         if (!query) return;
-        if (query.toLowerCase() !== 'clear') return;
-
-        instance.clearQueue();
-
-        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.QUEUE_CLEARED(data, locale)] });
+        switch (query.toLowerCase()) {
+            case 'clear':
+                instance.clearQueue();
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.QUEUE_CLEARED(data, locale)] });
+            case 'shuffle':
+                instance.shuffleQueue();
+                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.QUEUE_SHUFFLED(data, locale)] });
+        }
     }
 }

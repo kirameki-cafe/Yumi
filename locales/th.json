@@ -115,13 +115,14 @@
 	},
 	"musicplayer_queue": {
 		"title": "คิวเพลง",
-		"valid_args": "``clear``",
+		"valid_args": "``clear`` ``shuffle``",
 		"empty": "ตอนนี้คิวว่างนะ (っ˘ω˘ς )",
 		"now_playing": "กำลังเล่น",
 		"upcoming_song": "เพลงต่อไป",
 		"looping_current": "(กำลังวนซ้ำเพลงนี้)",
 		"song_x_in_queue": "ตอนนี้มี {{COUNT}} เพลงอยู่ในคิว!",
-		"cleared": "เคลียร์คิวเรียบร้อยละ~ (｡•ˇ‸ˇ•｡)"
+		"cleared": "เคลียร์คิวเรียบร้อยละ~ (｡•ˇ‸ˇ•｡)",
+		"shuffled": "สุ่มคิวเรียบร้อยละ"
 	},
 	"musicplayer_search": {
 		"title": "ค้นหา",
