@@ -1,16 +1,15 @@
 import {
     Message,
     CommandInteraction,
-    Interaction,
     VoiceChannel,
-    Permissions,
-    GuildMember,
     DMChannel,
     StageChannel,
-    MessageActionRow,
-    MessageButton,
-    TextChannel,
-    VoiceBasedChannel
+    ActionRowBuilder,
+    ButtonBuilder,
+    PermissionsBitField,
+    ButtonStyle,
+    BaseGuildTextChannel,
+    BaseGuildVoiceChannel
 } from 'discord.js';
 import { I18n } from 'i18n';
 
@@ -28,11 +27,14 @@ import DiscordMusicPlayer, {
     VoiceDisconnectedEvent,
     ValidTracks,
     DiscordMusicPlayerInstance,
-    DiscordMusicPlayerLoopMode
+    DiscordMusicPlayerLoopMode,
+    TrackUtils
 } from '../../providers/DiscordMusicPlayer';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
 import Locale from '../../services/Locale';
+import { SpotifyTrack, YouTubeVideo } from 'play-dl';
+import { checkBotPermissionsInChannel } from '../../utils/DiscordPermission';
 
 const EMBEDS = {
     VOICECHANNEL_JOINED: (data: HybridInteractionMessage, locale: I18n) => {
@@ -77,35 +79,37 @@ const EMBEDS = {
             user: data.getUser()
         });
     },
-    NOW_PLAYING: (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
+    NOW_PLAYING: async (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
+
+        const title = TrackUtils.getTitle(track);
+        const thumbnails = await TrackUtils.getThumbnails(track);
+
         const embed = makeInfoEmbed({
             title: locale.__('musicplayer.now_playing'),
             icon: '🎵 ',
-            description: track.title,
+            description: title,
             user: DiscordProvider.client.user
         });
 
-        const highestResolutionThumbnail = track.thumbnails.reduce((prev, current) =>
-            prev.height * prev.width > current.height * current.width ? prev : current
-        );
-
-        if (highestResolutionThumbnail) embed.setImage(highestResolutionThumbnail.url);
+        if (TrackUtils.getHighestResolutionThumbnail(thumbnails))
+            embed.setImage(TrackUtils.getHighestResolutionThumbnail(thumbnails).url);
 
         return embed;
     },
-    NOW_REPEATING: (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
+    NOW_REPEATING: async (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
+
+        const title = TrackUtils.getTitle(track);
+        const thumbnails = await TrackUtils.getThumbnails(track);
+
         const embed = makeInfoEmbed({
             title: locale.__('musicplayer.now_playing_repeating'),
             icon: '🎵 ',
-            description: `${track.title}`,
+            description: title,
             user: DiscordProvider.client.user
         });
 
-        const highestResolutionThumbnail = track.thumbnails.reduce((prev, current) =>
-            prev.height * prev.width > current.height * current.width ? prev : current
-        );
-
-        if (highestResolutionThumbnail) embed.setImage(highestResolutionThumbnail.url);
+        if (TrackUtils.getHighestResolutionThumbnail(thumbnails))
+            embed.setImage(TrackUtils.getHighestResolutionThumbnail(thumbnails).url);
 
         return embed;
     }
@@ -116,7 +120,7 @@ export async function joinVoiceChannelProcedure(
     instance: DiscordMusicPlayerInstance | null,
     voiceChannel: VoiceChannel | StageChannel
 ) {
-    const isSlashCommand = data.isSlashCommand();
+    const isSlashCommand = data.isApplicationCommand();
     const isAcceptableInteraction = data.isSelectMenu() || data.isButton();
     const isMessage = data.isMessage();
     if (!isSlashCommand && !isAcceptableInteraction && !isMessage) return;
@@ -128,15 +132,17 @@ export async function joinVoiceChannelProcedure(
     if (!member || !channel || !guild) return;
 
     if (channel instanceof DMChannel) return;
-    if (!(channel instanceof TextChannel)) return;
+    if (!(channel instanceof BaseGuildTextChannel || channel instanceof BaseGuildVoiceChannel)) return;
 
-    const memberVoiceChannel = member.voice.channel; //isMessage ? member.voice.channel : DiscordProvider.client.guilds.cache.get(guild.id)!.members.cache.get((data as Interaction).user.id)?.voice.channel;
+    const memberVoiceChannel = member.voice.channel;
     if (!memberVoiceChannel) return;
 
-    const bot = guild.me;
+    const bot = guild.members.me;
     if (!bot) return;
 
     const locale = await Locale.getGuildLocale(guild.id);
+    
+    if(!await checkBotPermissionsInChannel({ guild, data, locale, channel: memberVoiceChannel, permissions: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.Connect]})) return;
 
     // If already in VoiceChannel
     if (bot.voice.channelId) {
@@ -179,7 +185,7 @@ export async function joinVoiceChannelProcedure(
                                 EMBEDS.VOICECHANNEL_INUSE(
                                     data,
                                     locale,
-                                    member.permissions.has([Permissions.FLAGS.MOVE_MEMBERS])
+                                    member.permissions.has([PermissionsBitField.Flags.MoveMembers])
                                 )
                             ]
                         });
@@ -217,30 +223,44 @@ export async function joinVoiceChannelProcedure(
 
     // Register Event Listeners
     instance.events.on('playing', async (event: PlayerPlayingEvent) => {
+        const locale = await Locale.getGuildLocale(guild.id);
         if (!event.instance.queue || !event.instance.queue.track || event.instance.queue.track.length === 0) return;
         previousTrack = event.instance.getPreviousTrack();
 
         if (event.instance.queue.track[0] !== previousTrack) isLoopMessageSent = false;
         else if (event.instance.queue.track[0] === previousTrack && isLoopMessageSent) return;
 
-        const row = new MessageActionRow().addComponents(
-            new MessageButton()
-                .setEmoji('▶️')
-                .setLabel(' Open on YouTube')
-                .setURL(encodeURI(`https://www.youtube.com/watch?v=${event.instance.queue.track[0].id}`))
-                .setStyle('LINK')
-        );
+        const row = new ActionRowBuilder<ButtonBuilder>();
+        if(event.instance.queue.track[0] instanceof SpotifyTrack)
+            row.addComponents([
+                new ButtonBuilder()
+                    .setEmoji('🟢')
+                    .setLabel(' Open in Spotify')
+                    .setURL(encodeURI(`https://open.spotify.com/track/${event.instance.queue.track[0].id}`))
+                    .setStyle(ButtonStyle.Link)
+            ]);
+        if(event.instance.queue.track[0] instanceof YouTubeVideo || event.instance.queue.track[0] instanceof SpotifyTrack) {
+            const actualPlaybackURL = event.instance.getActualPlaybackURL();
+            if(event.instance.queue.track[0] instanceof SpotifyTrack && !actualPlaybackURL) return;
+            row.addComponents([
+                new ButtonBuilder()
+                    .setEmoji('🔴')
+                    .setLabel(' Open in YouTube')
+                    .setURL(event.instance.queue.track[0] instanceof YouTubeVideo ? encodeURI(`https://www.youtube.com/watch?v=${event.instance.queue.track[0].id}`) : encodeURI(event.instance.getActualPlaybackURL()!))
+                    .setStyle(ButtonStyle.Link)
+            ]);
+        }
 
         if (event.instance.textChannel) {
             if (event.instance.getLoopMode() === DiscordMusicPlayerLoopMode.Current) {
                 isLoopMessageSent = true;
                 await sendMessage(event.instance.textChannel, undefined, {
-                    embeds: [EMBEDS.NOW_REPEATING(data, locale, event.instance.queue.track[0])],
+                    embeds: [await EMBEDS.NOW_REPEATING(data, locale, event.instance.queue.track[0])],
                     components: [row]
                 });
             } else {
                 await sendMessage(event.instance.textChannel, undefined, {
-                    embeds: [EMBEDS.NOW_PLAYING(data, locale, event.instance.queue.track[0])],
+                    embeds: [await EMBEDS.NOW_PLAYING(data, locale, event.instance.queue.track[0])],
                     components: [row]
                 });
             }

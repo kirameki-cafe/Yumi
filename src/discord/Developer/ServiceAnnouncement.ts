@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, Interaction, CommandInteraction, TextChannel } from 'discord.js';
+import { Message, EmbedBuilder, CommandInteraction, TextChannel, EmbedData } from 'discord.js';
 import { Promise } from 'bluebird';
 import fs from 'fs';
 import path from 'path';
@@ -21,35 +21,37 @@ import DiscordProvider from '../../providers/Discord';
 import Prisma from '../../providers/Prisma';
 import Users from '../../services/Users';
 
+const hexToDecimal = (hex: string) => parseInt(hex.replace('#', ''), 16);
+
 const EMBEDS = {
-    ANNOUNCEMENT_INFO: (data: Message | Interaction) => {
+    ANNOUNCEMENT_INFO: (data: HybridInteractionMessage) => {
         return makeInfoEmbed({
             title: 'Service Announcement',
             description: `This module contains management tool for announcement feed\n The announcement message is located in \`\`configs/ServiceAnnouncement.json\`\``,
             fields: [
                 {
                     name: 'Available arguments',
-                    value: '``reload`` ``previewNews`` ``sendNews`` ``previewMaintenance`` ``sendMaintenance`` ``previewMessage`` ``sendMessage`` ``previewAlert`` ``sendAlert``'
+                    value: '``Reload`` ``PreviewNews`` ``SendNews`` ``PreviewMaintenance`` ``SendMaintenance`` ``PreviewMessage`` ``SendMessage`` ``PreviewAlert`` ``SendAlert``'
                 }
             ],
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    NOT_DEVELOPER: (data: Message | Interaction) => {
+    NOT_DEVELOPER: (data: HybridInteractionMessage) => {
         return makeErrorEmbed({
             title: 'Developer only',
             description: `This command is restricted to the developers only`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    MAKE_PAYLOAD: (payload: any) => {
+    MAKE_PAYLOAD: (payload: EmbedData) => {
         const user = DiscordProvider.client.user;
         payload.footer = {
             text: `${user?.username}`,
             iconURL: `${user?.displayAvatarURL()}?size=4096`
         };
 
-        if (!payload.timestamp) payload.timestamp = new Date();
+        if (!payload.timestamp) payload.timestamp = Date.now();
 
         if (payload.thumbnail?.url === 'bot_avatar')
             payload.thumbnail.url = `${user?.displayAvatarURL()}?size=4096`;
@@ -58,49 +60,52 @@ const EMBEDS = {
             payload.image.url = `${user?.displayAvatarURL()}?size=4096`;
 
         if (payload.description)
-            payload.description = payload.description.replaceAll('{bot_username}', user?.username);
+            payload.description = payload.description.replaceAll('{bot_username}', user?.username!);
 
-        return new MessageEmbed(payload);
+        if (payload.color && isNaN(payload.color))
+            payload.color = hexToDecimal(payload.color.toString());
+
+        return new EmbedBuilder(payload);
     },
-    RELOADED: (data: Message | Interaction) => {
+    RELOADED: (data: HybridInteractionMessage) => {
         return makeSuccessEmbed({
             title: 'Service Announcement Configuration Reloaded',
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    RELOAD_ERROR: (data: Message | Interaction, error: string) => {
+    RELOAD_ERROR: (data: HybridInteractionMessage, error: string) => {
         return makeErrorEmbed({
             title: 'Unable to reload Service Announcement Configuration',
             description: `\`\`\`${error}\`\`\``,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    SENDING_SERVICE_ANNOUNCEMENT: (data: Message | Interaction) => {
+    SENDING_SERVICE_ANNOUNCEMENT: (data: HybridInteractionMessage) => {
         return makeProcessingEmbed({
             title: 'Service Announcement',
             description: `Broadcasting Service Announcement`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    SERVICE_ANNOUNCEMENT_SENT: (data: Message | Interaction) => {
+    SERVICE_ANNOUNCEMENT_SENT: (data: HybridInteractionMessage) => {
         return makeSuccessEmbed({
             title: 'Service Announcement',
             description: `Broadcasted Service Announcement`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     },
-    SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS: (data: Message | Interaction) => {
+    SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS: (data: HybridInteractionMessage) => {
         return makeWarningEmbed({
             title: 'Service Announcement',
             description: `Broadcasted Service Announcement with errors, check console for more info`,
-            user: data instanceof Interaction ? data.user : data.author
+            user: data.getUser()
         });
     }
 };
 
 let Announcements = {
     News: {
-        color: '#FAEDF0',
+        color: hexToDecimal('#FAEDF0'),
         title: '📰 Newsletter',
         description: 'Some description here',
         thumbnail: {
@@ -108,7 +113,7 @@ let Announcements = {
         }
     },
     Maintenance: {
-        color: '#383b80',
+        color: hexToDecimal('#383b80'),
         title: '🔧 Maintenance',
         description: 'The bot is going offline for maintenance.',
         thumbnail: {
@@ -116,7 +121,7 @@ let Announcements = {
         }
     },
     Message: {
-        color: '#A1DE93',
+        color: hexToDecimal('#A1DE93'),
         title: '✉️ Message',
         description: 'Some description here',
         thumbnail: {
@@ -124,7 +129,7 @@ let Announcements = {
         }
     },
     Alert: {
-        color: '#EC255A',
+        color: hexToDecimal('#EC255A'),
         title: '🚨 Alert',
         description: 'Some description here',
         thumbnail: {
@@ -162,7 +167,7 @@ export default class ServiceAnnouncement extends DiscordModule {
     async run(data: HybridInteractionMessage, args: any) {
         if (!Users.isDeveloper(data.getUser()!.id))
             return await sendHybridInteractionMessageResponse(data, {
-                embeds: [EMBEDS.NOT_DEVELOPER(data.getRaw())]
+                embeds: [EMBEDS.NOT_DEVELOPER(data)]
             });
 
         const channel = data.getChannel();
@@ -180,7 +185,7 @@ export default class ServiceAnnouncement extends DiscordModule {
                     } catch (err: any) {
                         Logger.error('Unable to load custom ServiceAnnouncement config: ' + err);
                         return await sendMessage(channel, undefined, {
-                            embeds: [EMBEDS.RELOAD_ERROR(data.getRaw(), err)]
+                            embeds: [EMBEDS.RELOAD_ERROR(data, err)]
                         });
                     }
                 } else {
@@ -192,7 +197,7 @@ export default class ServiceAnnouncement extends DiscordModule {
                 }
 
                 return await sendMessage(channel, undefined, {
-                    embeds: [EMBEDS.RELOADED(data.getRaw())]
+                    embeds: [EMBEDS.RELOADED(data)]
                 });
             },
             previewNews: async (data: HybridInteractionMessage) => {
@@ -247,7 +252,7 @@ export default class ServiceAnnouncement extends DiscordModule {
 
                 let _placeholder = await sendHybridInteractionMessageResponse(
                     data,
-                    { embeds: [EMBEDS.SENDING_SERVICE_ANNOUNCEMENT(data.getRaw())] },
+                    { embeds: [EMBEDS.SENDING_SERVICE_ANNOUNCEMENT(data)] },
                     true
                 );
                 if (_placeholder) placeholder = new HybridInteractionMessage(_placeholder);
@@ -295,15 +300,15 @@ export default class ServiceAnnouncement extends DiscordModule {
                             .getMessage()
                             .edit({
                                 embeds: [
-                                    EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data.getRaw())
+                                    EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data)
                                 ]
                             });
-                    else if (data.isSlashCommand())
+                    else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
                             {
                                 embeds: [
-                                    EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data.getRaw())
+                                    EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data)
                                 ]
                             },
                             true
@@ -312,11 +317,11 @@ export default class ServiceAnnouncement extends DiscordModule {
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
                         return placeholder
                             .getMessage()
-                            .edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data.getRaw())] });
-                    else if (data.isSlashCommand())
+                            .edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data)] });
+                    else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
-                            { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data.getRaw())] },
+                            { embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data)] },
                             true
                         );
                 }
@@ -328,17 +333,17 @@ export default class ServiceAnnouncement extends DiscordModule {
         if (data.isMessage()) {
             if (args.length === 0)
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.ANNOUNCEMENT_INFO(data.getRaw())]
+                    embeds: [EMBEDS.ANNOUNCEMENT_INFO(data)]
                 });
             query = args[0].toLowerCase();
-        } else if (data.isSlashCommand()) {
+        } else if (data.isApplicationCommand()) {
             query = args.getSubcommand();
         }
 
         switch (query) {
             case 'info':
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.ANNOUNCEMENT_INFO(data.getRaw())]
+                    embeds: [EMBEDS.ANNOUNCEMENT_INFO(data)]
                 });
             case 'reload':
                 return await funct.reload(data);

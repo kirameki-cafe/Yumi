@@ -1,8 +1,10 @@
 {
 	"common": {
 		"available_args": "Available arguments",
-		"no_permissions": "許可していない (O_O;)",
-		"no_permissions_description": "このギルドでは ``{{PERMISSIONS}}`` の許可が必要です!",
+		"member_no_permissions": "許可していない (O_O;)",
+		"member_no_permissions_description": "このギルドでは ``{{PERMISSIONS}}`` の許可が必要です!",
+		"bot_no_permissions": "許可がない (O_O;)",
+		"bot_no_permissions_description": "そのためには、あたしの``{{PERMISSIONS}}``の権限が必要です",
 		"processing": "アクションの実行",
 		"processing_description": "今これを成し遂げています (งᓀ‸ᓂ)ง"
 	},
@@ -35,7 +37,9 @@
 		"streaming_x": "{{NAME}}をストリーミング中",
 		"listening_x": "{{NAME}}を再生中",
 		"watching_x": "{{NAME}}鑑賞中",
-		"competing_x": "{{NAME}}に参戦中です"
+		"competing_x": "{{NAME}}に参戦中です",
+		"since": "{{{TIME}}}から",
+		"end": "{{{TIME}}}で終了"
 	},
 	"say": {
 		"title": "言うこと",
@@ -106,13 +110,19 @@
 		"queue_added_songs_description": "キューに{{COUNT}}曲を追加",
 		"error": "曲の検索中にエラーが発生"
 	},
+	"musicplayer_playmy": {
+		"not_detected": "あなたの活動状況を見ると、現在、音楽を聴いていないようですね"
+	},
 	"musicplayer_queue": {
 		"title": "キュー",
+		"valid_args": "``Clear`` ``Shuffle``",
 		"empty": "キューは空です! (っ˘ω˘ς )",
 		"now_playing": "再生中",
 		"upcoming_song": "次の曲",
 		"looping_current": "(この曲の繰り返し)",
-		"song_x_in_queue": "{{COUNT}}曲も並んでいますよ。"
+		"song_x_in_queue": "{{COUNT}}曲も並んでいますよ。",
+		"cleared": "キューがクリアされました (｡•ˇ‸ˇ•｡)",
+		"shuffled": "キューがシャッフルされました"
 	},
 	"musicplayer_search": {
 		"title": "検索",
@@ -127,8 +137,8 @@
 	},
 	"settings": {
 		"title": "設定",
-		"description": "**{{GUILD_NAME}}**サーバでの{{BOT_NAME}}の動作変更",
-		"valid_args": "``Prefix`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
+		"description": "**{{{GUILD_NAME}}}**サーバでの{{BOT_NAME}}の動作変更",
+		"valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
 	},
 	"settings_prefix": {
 		"info": "現在の接頭辞は「{{{PREFIX}}}」です。",
@@ -140,10 +150,23 @@
 		"prefix_updated": "プレフィックスを更新",
 		"prefix_updated_description": "これ以降、私は 「``{{PREFIX}}``」 を使って呼び出されることになります。"
 	},
+	"settings_language": {
+		"info": "現在の言語は{{LANGUAGE}}です",
+		"info_description": "変更する新しい言語を提供する\n**利用可能な言語**: ``{{LANGUAGES}}``",
+		"language_invalid": "無効な言語",
+		"language_invalid_description": "言語コードが無効であるか、まだサポートされていません",
+		"language_updated": "言語が変更されました",
+		"language_updated_description": "これからは{{LANGUAGE}}を使います"
+	},
 	"ping": {
 		"title": "ネットワークパフォーマンス",
 		"title_processing": "ネットワーク性能の測定 ( ◕▿◕ )",
 		"running_on": "{{HOST}}で実行中",
 		"development_environment": "開発環境"
+	},
+	"support": {
+		"title": "サポート",
+		"info": "[{{BOT_NAME}}のサポートサーバーに参加する]({{{LINK}}})",
+		"not_available": "{{BOT_NAME}}のサポートサーバーは現在利用できません"
 	}
 }

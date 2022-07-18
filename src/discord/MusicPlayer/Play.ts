@@ -1,20 +1,21 @@
 import {
     Message,
     CommandInteraction,
-    Interaction,
     VoiceChannel,
-    MessageActionRow,
-    MessageButton,
+    ActionRowBuilder,
+    ButtonBuilder,
     SelectMenuInteraction,
     ButtonInteraction,
-    StageChannel
+    StageChannel,
+    ButtonStyle,
+    PermissionsBitField
 } from 'discord.js';
 import { I18n } from 'i18n';
 
 import { joinVoiceChannelProcedure } from './Join';
 
 import DiscordProvider from '../../providers/Discord';
-import DiscordMusicPlayer, { ValidTracks } from '../../providers/DiscordMusicPlayer';
+import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayer';
 import Locale from '../../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
@@ -24,6 +25,7 @@ import {
     sendHybridInteractionMessageResponse,
     makeInfoEmbed
 } from '../../utils/DiscordMessage';
+import { checkBotPermissionsInChannel } from '../../utils/DiscordPermission';
 
 const EMBEDS = {
     PLAY_INFO: (data: HybridInteractionMessage, locale: I18n) => {
@@ -33,24 +35,25 @@ const EMBEDS = {
             fields: [
                 {
                     name: locale.__('common.available_args'),
-                    value: locale.__('musicplayer_play.valid_args'),
+                    value: locale.__('musicplayer_play.valid_args')
                 }
             ],
             user: data.getUser()
         });
     },
-    ADDED_QUEUE: (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
+    ADDED_QUEUE: async (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
+
+        const title = TrackUtils.getTitle(track);
+        const thumbnails = await TrackUtils.getThumbnails(track);
+
         let embed = makeSuccessEmbed({
             title: locale.__('musicplayer_play.queue_added_song'),
-            description: track.title,
+            description: title,
             user: data.getUser()
         });
 
-        const highestResolutionThumbnail = track.thumbnails.reduce((prev, current) =>
-            prev.height * prev.width > current.height * current.width ? prev : current
-        );
-
-        if (highestResolutionThumbnail) embed.setImage(highestResolutionThumbnail.url);
+        if (TrackUtils.getHighestResolutionThumbnail(thumbnails))
+            embed.setImage(TrackUtils.getHighestResolutionThumbnail(thumbnails).url);
 
         return embed;
     },
@@ -158,6 +161,7 @@ export default class Play extends DiscordModule {
                 await joinVoiceChannelProcedure(new HybridInteractionMessage(interaction), null, voiceChannel);
 
             let instance = DiscordMusicPlayer.getGuildInstance(guild.id);
+            if (!instance) return;
 
             if (instance!.voiceChannel.id !== member.voice.channel.id)
                 return await sendHybridInteractionMessageResponse(
@@ -222,7 +226,8 @@ export default class Play extends DiscordModule {
             const voiceChannel = DiscordProvider.client.guilds.cache.get(guild.id)?.channels.cache.get(payload.d.v);
             //let member = DiscordProvider.client.guilds.cache.get(guild.id)?.members.cache.get(user.id);
 
-            if (!voiceChannel || !(voiceChannel instanceof VoiceChannel || voiceChannel instanceof StageChannel)) return;
+            if (!voiceChannel || !(voiceChannel instanceof VoiceChannel || voiceChannel instanceof StageChannel))
+                return;
 
             if (!member.voice.channel)
                 return await sendHybridInteractionMessageResponse(
@@ -235,11 +240,16 @@ export default class Play extends DiscordModule {
                 await joinVoiceChannelProcedure(new HybridInteractionMessage(interaction), null, voiceChannel);
 
             let instance = DiscordMusicPlayer.getGuildInstance(guild.id);
+            if (!instance) return;
 
             if (instance!.voiceChannel.id !== member.voice.channel.id)
                 return await sendHybridInteractionMessageResponse(
                     hybridData,
-                    { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(new HybridInteractionMessage(interaction), locale)] },
+                    {
+                        embeds: [
+                            EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(new HybridInteractionMessage(interaction), locale)
+                        ]
+                    },
                     true
                 );
 
@@ -265,7 +275,7 @@ export default class Play extends DiscordModule {
             instance.addTrackToQueue(result);
             return await sendHybridInteractionMessageResponse(
                 hybridData,
-                { embeds: [EMBEDS.ADDED_QUEUE(new HybridInteractionMessage(interaction), locale, result)] },
+                { embeds: [await EMBEDS.ADDED_QUEUE(new HybridInteractionMessage(interaction), locale, result)] },
                 true
             );
         }
@@ -274,7 +284,7 @@ export default class Play extends DiscordModule {
     async run(data: HybridInteractionMessage, args: any) {
         let query;
         const guild = data.getGuild();
-        const channel = data.getChannel();
+        const channel = data.getGuildChannel();
         const member = data.getMember();
 
         if (!guild || !channel || !member) return;
@@ -286,8 +296,8 @@ export default class Play extends DiscordModule {
                 return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.PLAY_INFO(data, locale)] });
 
             query = args.join(' ');
-        } else if (data.isSlashCommand()) {
-            query = data.getSlashCommand().options.getString('query');
+        } else if (data.isApplicationCommand()) {
+            query = data.getSlashCommand().options.get('query', true).value?.toString();
         }
 
         if (!query) return;
@@ -304,6 +314,7 @@ export default class Play extends DiscordModule {
         }
 
         let instance = DiscordMusicPlayer.getGuildInstance(guild.id);
+        if (!instance) return;
 
         if (instance!.voiceChannel.id !== member.voice.channel.id)
             return await sendHybridInteractionMessageResponse(
@@ -343,15 +354,15 @@ export default class Play extends DiscordModule {
 
             if (!result) return;
 
-            if (data.isMessage() && data.getMessage().embeds.length > 0) {
+            if (data.isMessage() && data.getMessage().embeds.length > 0 && await checkBotPermissionsInChannel({ guild, channel, permissions: [PermissionsBitField.Flags.ManageMessages]})) {
                 data.getMessage().suppressEmbeds(true);
             }
 
             instance.addTrackToQueue(result);
 
             if (linkData.list) {
-                const row = new MessageActionRow().addComponents(
-                    new MessageButton()
+                const row = new ActionRowBuilder<ButtonBuilder>().addComponents([
+                    new ButtonBuilder()
                         .setEmoji('✅')
                         .setCustomId(
                             JSON.stringify({
@@ -361,21 +372,70 @@ export default class Play extends DiscordModule {
                             })
                         )
                         .setLabel('  Add the remaining songs in the playlist')
-                        .setStyle('PRIMARY')
+                        .setStyle(ButtonStyle.Primary)
+                    ]
                 );
 
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.ADDED_QUEUE(data, locale, result)],
+                    embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result)],
                     components: [row]
                 });
             } else
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.ADDED_QUEUE(data, locale, result)]
+                    embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result)]
                 });
+        } else if (DiscordMusicPlayer.isSpotifyLink(query)) {
+            let linkData = DiscordMusicPlayer.parseSpotifyLink(query);
+
+            if (linkData.type === 'playlist' || linkData.type === 'album') {
+                let playlist = await DiscordMusicPlayer.getSpotifySongsInPlayList(query).catch((err) => {
+                    sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.LOOKUP_ERROR(data, locale, err)] }, true);
+                    return null;
+                });
+                
+                if(!playlist) return;
+                const songs = await playlist.all_tracks();
+
+                for (const song of songs) {
+                    instance.addTrackToQueue(song);
+                }
+
+                return await sendHybridInteractionMessageResponse(
+                    data,
+                    { embeds: [EMBEDS.ADDED_SONGS_QUEUE(data, locale, songs)] },
+                    true
+                );
+            }
+
+            let result = await DiscordMusicPlayer.searchSpotifyBySpotifyLink(linkData).catch((err) => {
+                sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.LOOKUP_ERROR(data, locale, err)] }, true);
+                return null;
+            });
+
+            if (!result) return;
+
+            if (data.isMessage() && data.getMessage().embeds.length > 0 && await checkBotPermissionsInChannel({ guild, channel, permissions: [PermissionsBitField.Flags.ManageMessages]})) {
+                data.getMessage().suppressEmbeds(true);
+            }
+
+            instance.addTrackToQueue(result);
+
+            return await sendHybridInteractionMessageResponse(data, {
+                embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result)]
+            });
+                
         } else {
             let result = await DiscordMusicPlayer.searchYouTubeByQuery(query);
 
-            if (!result) return;
+            if (!result) {
+                // TODO: Send not found embed
+                await sendHybridInteractionMessageResponse(
+                    data,
+                    { embeds: [EMBEDS.LOOKUP_ERROR(data, locale, new Error('Cannot find that song'))] },
+                    true
+                );
+                return;
+            }
             instance.addTrackToQueue(result[0]);
 
             if (result.length > 1) {
@@ -387,8 +447,8 @@ export default class Play extends DiscordModule {
                 // The query length is too long to fit in json
                 if (query.length > 100 - 51) return;
 
-                const row = new MessageActionRow().addComponents(
-                    new MessageButton()
+                const row = new ActionRowBuilder<ButtonBuilder>().addComponents([
+                    new ButtonBuilder()
                         .setEmoji('🔎')
                         .setCustomId(
                             JSON.stringify({
@@ -400,17 +460,17 @@ export default class Play extends DiscordModule {
                             })
                         )
                         .setLabel('  Not this? Search!')
-                        .setStyle('PRIMARY')
-                );
+                        .setStyle(ButtonStyle.Primary)
+                    ]);
 
                 return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.ADDED_QUEUE(data, locale, result[0])],
+                    embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result[0])],
                     components: [row]
                 });
             }
 
             return await sendHybridInteractionMessageResponse(data, {
-                embeds: [EMBEDS.ADDED_QUEUE(data, locale, result[0])]
+                embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result[0])]
             });
         }
     }

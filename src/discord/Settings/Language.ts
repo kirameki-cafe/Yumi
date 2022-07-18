@@ -1,7 +1,6 @@
 import { Guild, PermissionsBitField } from 'discord.js';
 import { I18n } from 'i18n';
 
-import DiscordProvider from '../../providers/Discord';
 import Prisma from '../../providers/Prisma';
 import Cache from '../../providers/Cache';
 
@@ -14,34 +13,33 @@ import {
 } from '../../utils/DiscordMessage';
 
 import { COMMON_EMBEDS } from '.';
+import Locale from '../../providers/Locale';
 import { checkMemberPermissionsInGuild } from '../../utils/DiscordPermission';
 
 const EMBEDS = {
-    PREFIX_INFO: (data: HybridInteractionMessage, locale: I18n, currentPrefix: string) => {
+    LANGUAGE_INFO: (data: HybridInteractionMessage, locale: I18n, currentLocale: string) => {
         return makeInfoEmbed({
-            title: locale.__('settings_prefix.info', { PREFIX: currentPrefix}),
-            description: locale.__('settings_prefix.info_description'),
+            title: locale.__('settings_language.info', { LANGUAGE: currentLocale }),
+            description: locale.__('settings_language.info_description', {
+                LANGUAGES: Locale.getLocaleProvider('en').getLocales().join(', ')
+            }),
             user: data.getUser()
         });
     },
-    PREFIX_TOO_LONG: (data: HybridInteractionMessage, locale: I18n) => {
+    LANGUAGE_INVALID: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
-            title: locale.__('settings_prefix.prefix_too_long'),
-            description: locale.__('settings_prefix.prefix_too_long_description'),
+            title: locale.__('settings_language.language_invalid'),
+            description: locale.__('settings_language.language_invalid_description'),
             user: data.getUser()
         });
     },
-    PREFIX_IS_MENTION: (data: HybridInteractionMessage, locale: I18n) => {
-        return makeErrorEmbed({
-            title: locale.__('settings_prefix.prefix_is_mention'),
-            description: locale.__('settings_prefix.prefix_is_mention_description'),
-            user: data.getUser()
-        });
-    },
-    PREFIX_UPDATED: (data: HybridInteractionMessage, locale: I18n, newPrefix: string) => {
+    LANGUAGE_UPDATED: (data: HybridInteractionMessage, locale: I18n, newLanguage: string) => {
         return makeSuccessEmbed({
-            title: locale.__('settings_prefix.prefix_updated'),
-            description: locale.__('settings_prefix.prefix_updated_description', { PREFIX: newPrefix }),
+            title: locale.__({ phrase: 'settings_language.language_updated', locale: newLanguage }),
+            description: locale.__(
+                { phrase: 'settings_language.language_updated_description', locale: newLanguage },
+                { LANGUAGE: newLanguage }
+            ),
             user: data.getUser()
         });
     }
@@ -52,39 +50,37 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
     if (!member) return;
 
     const GuildCache = await Cache.getCachedGuild(guild.id);
-        if (!GuildCache) return;
-    const prefix = GuildCache.prefix;
+    if (!GuildCache) return;
+    const language = GuildCache.locale;
 
     if (!(await checkMemberPermissionsInGuild({ member, data, locale, permissions: [PermissionsBitField.Flags.ManageGuild] })))
         return;
 
-    let newPrefix: string | null | undefined;
+    let newLanguage: string | null | undefined;
     if (data.isMessage()) {
         let _name: string;
         if (typeof args[1] === 'undefined')
             return await sendHybridInteractionMessageResponse(data, {
-                embeds: [EMBEDS.PREFIX_INFO(data, locale, prefix)]
+                embeds: [EMBEDS.LANGUAGE_INFO(data, locale, language)]
             });
 
         let __name = args;
         __name.shift();
         _name = __name.join(' ');
-        newPrefix = _name;
-    } else if (data.isApplicationCommand()) newPrefix = data.getSlashCommand().options.get('prefix', true).value?.toString();
+        newLanguage = _name;
+    } else if (data.isApplicationCommand())
+        newLanguage = data.getSlashCommand().options.get('language', true).value?.toString();
 
-    if (!newPrefix)
+    if (!newLanguage)
         return await sendHybridInteractionMessageResponse(data, {
-            embeds: [EMBEDS.PREFIX_INFO(data, locale, prefix)]
+            embeds: [EMBEDS.LANGUAGE_INFO(data, locale, language)]
         });
 
-    if (newPrefix.length > 200)
-        return await sendHybridInteractionMessageResponse(data, {
-            embeds: [EMBEDS.PREFIX_TOO_LONG(data, locale)]
-        });
+    newLanguage = newLanguage.toLowerCase();
 
-    if (newPrefix.startsWith(`<@!${DiscordProvider.client.user?.id}>`) || newPrefix.startsWith(`<@${DiscordProvider.client.user?.id}>`))
+    if (!Locale.getLocaleProvider('en').getLocales().includes(newLanguage))
         return await sendHybridInteractionMessageResponse(data, {
-            embeds: [EMBEDS.PREFIX_IS_MENTION(data, locale)]
+            embeds: [EMBEDS.LANGUAGE_INVALID(data, locale)]
         });
 
     let placeholder: HybridInteractionMessage | undefined;
@@ -96,16 +92,16 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
 
     await Prisma.client.guild.update({
         where: { id: guild.id },
-        data: { prefix: newPrefix }
+        data: { locale: newLanguage }
     });
     Cache.updateGuildCache(guild.id);
 
     if (data && data.isMessage() && placeholder && placeholder.isMessage())
-        return placeholder.getMessage().edit({ embeds: [EMBEDS.PREFIX_UPDATED(data, locale, newPrefix)] });
+        return placeholder.getMessage().edit({ embeds: [EMBEDS.LANGUAGE_UPDATED(data, locale, newLanguage)] });
     else if (data.isApplicationCommand())
         return await sendHybridInteractionMessageResponse(
             data,
-            { embeds: [EMBEDS.PREFIX_UPDATED(data, locale, newPrefix)] },
+            { embeds: [EMBEDS.LANGUAGE_UPDATED(data, locale, newLanguage)] },
             true
         );
 };

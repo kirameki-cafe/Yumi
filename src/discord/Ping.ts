@@ -1,4 +1,4 @@
-import { CommandInteraction, Message, Interaction } from 'discord.js';
+import { CommandInteraction, Message } from 'discord.js';
 import os from 'os';
 import NodePing from 'ping';
 import { Promise } from 'bluebird';
@@ -123,7 +123,7 @@ export default class Ping extends DiscordModule {
                 }`
         );
 
-        if (data.isSlashCommand())
+        if (data.isApplicationCommand())
             return await data
                 .getMessageComponentInteraction()
                 .editReply({ embeds: [EMBEDS.PING_INFO(data, locale, finalString.join('\n'))] });
