@@ -2,7 +2,7 @@
 
 Multipurpose Discord bot in development
 
-## ✨ Feature
+## ✨ Features
 
 - Music player (YouTube/Spotify)
 - Membership screening (Member approval system)
