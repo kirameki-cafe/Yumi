@@ -121,7 +121,7 @@ export default class Say extends DiscordModule {
             }
         } else if (data.isMessage()) {
             const message = data.getMessage();
-            if (message.deletable) await message.delete();
+            if (message.deletable) await message.delete().catch(() => {});
 
             try {
                 await data.getChannel()!.send({ content: query });
