@@ -3,6 +3,7 @@ import Configuration from './Configuration';
 import Prisma from './Prisma';
 import Discord from './Discord';
 import osu from './osuAPI';
+import Express from './Express';
 
 import Logger from '../libs/Logger';
 import Locale from './Locale';
@@ -40,6 +41,16 @@ class App {
     public load_osu(): void {
         Logger.log('info', 'Loading osu! Client');
         osu.init();
+    }
+
+    public loadExpress(): void {
+        Logger.log('info', 'Loading Express');
+        Express.init();
+    }
+
+    public endExpress(): void {
+        Logger.log('info', 'Ending Express');
+        Express.end();
     }
 }
 

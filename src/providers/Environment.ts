@@ -31,6 +31,9 @@ class Environment {
         const PRIVATE_BOT = process.env.PRIVATE_BOT;
         const SUPPORT_URL = process.env.SUPPORT_URL;
 
+        const WEB_HOST = process.env.WEB_HOST;
+        const WEB_PORT = process.env.WEB_PORT;
+
         const OSU_API_KEY = process.env.OSU_API_KEY;
         const YOUTUBE_COOKIE_BASE64 = process.env.YOUTUBE_COOKIE_BASE64;
 
@@ -46,6 +49,9 @@ class Environment {
             DEVELOPER_IDS,
             PRIVATE_BOT,
             SUPPORT_URL,
+
+            WEB_HOST,
+            WEB_PORT,
 
             OSU_API_KEY,
             YOUTUBE_COOKIE_BASE64,
