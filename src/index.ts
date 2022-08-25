@@ -9,5 +9,6 @@ App.loadPrisma();
 App.loadLocale();
 App.loadDiscord();
 App.load_osu();
+App.loadExpress();
 
 export default App;
