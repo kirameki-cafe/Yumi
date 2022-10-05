@@ -2,7 +2,7 @@ import {
     EmbedBuilder,
     User,
     MessagePayload,
-    MessageOptions,
+    BaseMessageOptions,
     GuildTextBasedChannel,
     TextChannel,
     DMChannel,
@@ -131,17 +131,22 @@ export function makeProcessingEmbed(data: EmbedDataPresets) {
 }
 
 export async function sendMessage(
-    channel: TextChannel | DMChannel | BaseGuildTextChannel | GuildTextBasedChannel | PartialDMChannel | BaseGuildTextChannel | BaseGuildVoiceChannel,
+    channel:
+        | TextChannel
+        | DMChannel
+        | BaseGuildTextChannel
+        | GuildTextBasedChannel
+        | PartialDMChannel
+        | BaseGuildTextChannel
+        | BaseGuildVoiceChannel,
     user: User | undefined,
-    options: string | MessagePayload | MessageOptions
+    options: string | MessagePayload | BaseMessageOptions
 ) {
     let message;
 
     try {
-        if(channel instanceof BaseGuildVoiceChannel)
-            message = await (channel as VoiceChannel).send(options);
-        else
-            message = await channel.send(options);
+        if (channel instanceof BaseGuildVoiceChannel) message = await (channel as VoiceChannel).send(options);
+        else message = await channel.send(options);
     } catch (error) {
         if (typeof user === 'undefined') {
             return Logger.error(
@@ -163,7 +168,7 @@ export async function sendMessage(
 
 export async function sendHybridInteractionMessageResponse(
     data: HybridInteractionMessage,
-    payload: MessageOptions | InteractionReplyOptions,
+    payload: BaseMessageOptions | InteractionReplyOptions,
     replace = false
 ): Promise<Message | BaseInteraction | undefined> {
     if (data.isApplicationCommand() || data.isButton() || data.isSelectMenu()) {
@@ -205,14 +210,14 @@ export async function sendHybridInteractionMessageResponse(
                 return message;
             }
         }
-    } else if (data.isMessage()) return await sendReply(data.getMessage(), payload as MessageOptions);
+    } else if (data.isMessage()) return await sendReply(data.getMessage(), payload as BaseMessageOptions);
 }
 
 export function getEmotes() {
     return emotes;
 }
 
-async function sendReply(rMessage: Message, options: string | MessagePayload | MessageOptions) {
+async function sendReply(rMessage: Message, options: string | MessagePayload | BaseMessageOptions) {
     let message;
 
     try {
