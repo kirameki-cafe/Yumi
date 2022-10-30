@@ -49,7 +49,7 @@ const EMBEDS = {
                 },
                 {
                     name: '\u200b',
-                    value: `**${locale.__('help.footer')}(https://github.com/YuzuZensai/Yumi)**`,
+                    value: `**${locale.__('help.footer')}(https://github.com/kirameki-cafe/Yumi)**`,
                     inline: false
                 }
             ],
