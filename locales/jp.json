@@ -148,7 +148,7 @@
 		"prefix_is_mention": "プレフィックスを@メンションにすることはできません",
 		"prefix_is_mention_description": "それはもう、私を@メンションすることで可能です。心配しないでください",
 		"prefix_updated": "プレフィックスを更新",
-		"prefix_updated_description": "これ以降、私は 「``{{PREFIX}}``」 を使って呼び出されることになります。"
+		"prefix_updated_description": "これ以降、私は 「``{{{PREFIX}}}``」 を使って呼び出されることになります。"
 	},
 	"settings_language": {
 		"info": "現在の言語は{{LANGUAGE}}です",
