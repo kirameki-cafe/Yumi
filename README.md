@@ -29,7 +29,7 @@ The output will be at ``/dist``, use ``node index.js`` to start
 1. Clone this repository
 2. Run ``yarn docker-build`` for yarn, or ``npm run docker-build`` for npm to build the image
 
-Image will be tagged as ``ghcr.io/yuzuzensai/yumi:latest``
+Image will be tagged as ``ghcr.io/kirameki-cafe/yumi:latest``
 
 ## 🔧 Debugging for development
 
@@ -39,7 +39,7 @@ Image will be tagged as ``ghcr.io/yuzuzensai/yumi:latest``
 
 ## 🌳 Environment Variables
 
-Take a look inside [.env.example](https://github.com/YuzuZensai/Yumi/blob/main/.env.example) for example
+Take a look inside [.env.example](https://github.com/kirameki-cafe/Yumi/blob/main/.env.example) for example
 
 - ``NODE_ENV`` Environment type, ``development`` or ``production``
 - ``DATABASE_URL`` Connection URL to your database. [More info](https://www.prisma.io/docs/getting-started/setup-prisma/start-from-scratch/relational-databases/connect-your-database-typescript-postgres)
