@@ -148,7 +148,7 @@
 		"prefix_is_mention": "คำนำหน้าไม่สามารถเป็น @กล่าวถึง ของฉันได้",
 		"prefix_is_mention_description": "คุณสามารถเรียกฉันด้วยการ @กล่าวถึง ฉันได้อยู่แล้วไม่ต้องห่วง",
 		"prefix_updated": "อัปเดตคำนำหน้าแล้ว",
-		"prefix_updated_description": "จากนี้ไป คุณสามารถเรียกฉันโดยใช้ ``{{PREFIX}}`` นะ"
+		"prefix_updated_description": "จากนี้ไป คุณสามารถเรียกฉันโดยใช้ ``{{{PREFIX}}}`` นะ"
 	},
 	"settings_language": {
 		"info": "ภาษาปัจจุบันตอนนี้คือ {{LANGUAGE}}",

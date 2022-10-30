@@ -148,7 +148,7 @@
 		"prefix_is_mention": "Prefix cannot be @Mention of me",
 		"prefix_is_mention_description": "You can already call me by mentioning me. I got that covered, don't worry",
 		"prefix_updated": "Prefix updated",
-		"prefix_updated_description": "From now onwards, I shall be called by using ``{{PREFIX}}``"
+		"prefix_updated_description": "From now onwards, I shall be called by using ``{{{PREFIX}}}``"
 	},
 	"settings_language": {
 		"info": "Current language is {{LANGUAGE}}",
