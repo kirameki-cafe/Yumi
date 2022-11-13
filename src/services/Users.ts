@@ -3,8 +3,11 @@ import Environment from '../providers/Environment';
 
 class Users {
     public static isDeveloper(user: User | Snowflake) {
-        const developers: Snowflake[] = Environment.get().DEVELOPER_IDS.split(',');
 
+        if(!Environment.get().DEVELOPERS)
+            return false;
+
+        const developers: Snowflake[] = Environment.get().DEVELOPER_IDS.split(',');
         let userID;
 
         if (user instanceof User) userID = user.id;
