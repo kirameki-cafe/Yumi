@@ -73,6 +73,12 @@ const EMBEDS = {
             title: `No osu! beatmap id provided`,
             user: data.getUser()
         });
+    },
+    NOT_INITIALIZED: (data: HybridInteractionMessage) => {
+        return makeErrorEmbed({
+            title: `osu! feature is disabled`,
+            user: data.getUser()
+        });
     }
 };
 
@@ -93,6 +99,12 @@ export default class osu extends DiscordModule {
         const Guild = await Prisma.client.guild.findFirst({ where: { id: data.getGuild()!.id } });
         if (!Guild) return;
 
+        
+        if (!osuAPI.client)
+            return await sendHybridInteractionMessageResponse(data, {
+                embeds: [EMBEDS.NOT_INITIALIZED(data)]
+            });
+
         const funct = {
             user: async (data: HybridInteractionMessage) => {
                 let user;
@@ -111,7 +123,7 @@ export default class osu extends DiscordModule {
                         embeds: [EMBEDS.INVALID_USER_MENTIONED(data)]
                     });
 
-                let result = await osuAPI.client.getUser({ u: user });
+                let result = await osuAPI.client!.getUser({ u: user });
 
                 if (result instanceof Array && result.length === 0)
                     return await sendHybridInteractionMessageResponse(data, {
@@ -123,12 +135,8 @@ export default class osu extends DiscordModule {
                 }
 
                 const level = {
-                    number: (Math.round((result.level + Number.EPSILON) * 100) / 100)
-                        .toFixed(2)
-                        .split('.')[0],
-                    progression: (Math.round((result.level + Number.EPSILON) * 100) / 100)
-                        .toFixed(2)
-                        .split('.')[1]
+                    number: (Math.round((result.level + Number.EPSILON) * 100) / 100).toFixed(2).split('.')[0],
+                    progression: (Math.round((result.level + Number.EPSILON) * 100) / 100).toFixed(2).split('.')[1]
                 };
                 const embed = makeInfoEmbed({
                     icon: '',
@@ -142,10 +150,7 @@ export default class osu extends DiscordModule {
                             )}**, totaling in **${this.numberWithCommas(
                                 parseFloat(
                                     (
-                                        Math.round(
-                                            (result.secondsPlayed / (60 * 60) + Number.EPSILON) *
-                                                100
-                                        ) / 100
+                                        Math.round((result.secondsPlayed / (60 * 60) + Number.EPSILON) * 100) / 100
                                     ).toFixed(2)
                                 )
                             )} ${result.secondsPlayed < 60 ? 'hour' : 'hours'}** of songs played
@@ -236,9 +241,7 @@ export default class osu extends DiscordModule {
                             name: `❤  Account Information`,
                             value: `Joined: <t:${Math.round(
                                 new Date(result.raw_joinDate).getTime() / 1000
-                            )}:R>, <t:${Math.round(
-                                new Date(result.raw_joinDate).getTime() / 1000
-                            )}:f>`
+                            )}:R>, <t:${Math.round(new Date(result.raw_joinDate).getTime() / 1000)}:f>`
                         } //,
                         /*{
                             name: `💌  Recent Events (Coming soon)`,
@@ -255,8 +258,7 @@ export default class osu extends DiscordModule {
 
                 // TODO: Fix for ppl with no image
                 embed.setThumbnail(
-                    `https://a.ppy.sh/${result.id}` ||
-                        'https://osu.ppy.sh/images/layout/avatar-guest.png'
+                    `https://a.ppy.sh/${result.id}` || 'https://osu.ppy.sh/images/layout/avatar-guest.png'
                 );
 
                 const row = new ActionRowBuilder<ButtonBuilder>().addComponents([
@@ -289,7 +291,7 @@ export default class osu extends DiscordModule {
                         embeds: [EMBEDS.INVALID_BEATMAP_ID_MENTIONED(data)]
                     });
 
-                let result = await osuAPI.client.getBeatmaps({ b: beatmap });
+                let result = await osuAPI.client!.getBeatmaps({ b: beatmap });
 
                 if (result instanceof Array && result.length === 0)
                     return await sendHybridInteractionMessageResponse(data, {
@@ -331,17 +333,13 @@ export default class osu extends DiscordModule {
                         {
                             name: '⭐  Star Difficulty',
                             value: `**${(
-                                Math.round((bm_result.difficulty.rating + Number.EPSILON) * 100) /
-                                100
+                                Math.round((bm_result.difficulty.rating + Number.EPSILON) * 100) / 100
                             ).toFixed(2)}**`,
                             inline: true
                         },
                         {
                             name: `⌛ Length`,
-                            value: `**${(
-                                Math.round((bm_result.length.total / 60 + Number.EPSILON) * 100) /
-                                100
-                            )
+                            value: `**${(Math.round((bm_result.length.total / 60 + Number.EPSILON) * 100) / 100)
                                 .toFixed(2)
                                 .replace('.', ':')}**`,
                             inline: true
@@ -389,19 +387,13 @@ export default class osu extends DiscordModule {
                             Genre: **${bm_result.genre}**
                             Submission Date: <t:${Math.round(
                                 new Date(bm_result.raw_submitDate).getTime() / 1000
-                            )}:R>, <t:${Math.round(
-                                new Date(bm_result.raw_submitDate).getTime() / 1000
-                            )}:f>
+                            )}:R>, <t:${Math.round(new Date(bm_result.raw_submitDate).getTime() / 1000)}:f>
                             Last updated: <t:${Math.round(
                                 new Date(bm_result.raw_lastUpdate).getTime() / 1000
-                            )}:R>, <t:${Math.round(
-                                new Date(bm_result.raw_lastUpdate).getTime() / 1000
-                            )}:f>
+                            )}:R>, <t:${Math.round(new Date(bm_result.raw_lastUpdate).getTime() / 1000)}:f>
                             Approved: <t:${Math.round(
                                 new Date(bm_result.raw_approvedDate).getTime() / 1000
-                            )}:R>, <t:${Math.round(
-                                new Date(bm_result.raw_approvedDate).getTime() / 1000
-                            )}:f>
+                            )}:R>, <t:${Math.round(new Date(bm_result.raw_approvedDate).getTime() / 1000)}:f>
                             \u200b`
                         },
                         {
@@ -433,9 +425,7 @@ export default class osu extends DiscordModule {
                     url: `https://osu.ppy.sh/beatmapsets/${bm_result.beatmapSetId}${url_mode}/${bm_result.id}`,
                     iconURL: `https://upload.wikimedia.org/wikipedia/commons/e/e3/Osulogo.png`
                 });
-                embed2.setImage(
-                    `https://assets.ppy.sh/beatmaps/${bm_result.beatmapSetId}/covers/cover.jpg`
-                );
+                embed2.setImage(`https://assets.ppy.sh/beatmaps/${bm_result.beatmapSetId}/covers/cover.jpg`);
 
                 const row = new ActionRowBuilder<ButtonBuilder>();
                 if (bm_result.hasDownload)
@@ -455,9 +445,7 @@ export default class osu extends DiscordModule {
                         new ButtonBuilder()
                             .setEmoji('💬')
                             .setLabel('  Open discussion')
-                            .setURL(
-                                `https://osu.ppy.sh/beatmapsets/${bm_result.beatmapSetId}/discussion`
-                            )
+                            .setURL(`https://osu.ppy.sh/beatmapsets/${bm_result.beatmapSetId}/discussion`)
                             .setStyle(ButtonStyle.Link)
                     ]);
 

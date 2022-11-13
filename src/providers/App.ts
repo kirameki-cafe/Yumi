@@ -39,6 +39,10 @@ class App {
     }
 
     public load_osu(): void {
+        if (!Environment.get().OSU_API_KEY) {
+            Logger.log('warn', 'OSU_API_KEY is not defined in .env, osu! features will be disabled');
+            return;
+        }
         Logger.log('info', 'Loading osu! Client');
         osu.init();
     }

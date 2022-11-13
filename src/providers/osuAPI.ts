@@ -2,14 +2,10 @@ import { Api } from 'node-osu';
 import Environment from './Environment';
 
 class osuAPI {
-    public client: Api;
+    public client: Api | null;
 
     constructor() {
-        this.client = new Api(Environment.get().OSU_API_KEY, {
-            notFoundAsError: false,
-            completeScores: true,
-            parseNumeric: true
-        });
+        this.client = null;
     }
 
     public init(): void {
