@@ -39,11 +39,19 @@ class App {
     }
 
     public load_osu(): void {
+        if (!Environment.get().OSU_API_KEY) {
+            Logger.log('warn', 'OSU_API_KEY is not defined in .env, osu! features will be disabled');
+            return;
+        }
         Logger.log('info', 'Loading osu! Client');
         osu.init();
     }
 
     public loadExpress(): void {
+        if (!Environment.get().WEB_HOST || !Environment.get().WEB_PORT) {
+            Logger.log('warn', 'WEB_HOST or WEB_PORT is not defined in .env, not starting web server');
+            return;
+        }
         Logger.log('info', 'Loading Express');
         Express.init();
     }
