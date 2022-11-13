@@ -44,6 +44,10 @@ class App {
     }
 
     public loadExpress(): void {
+        if (!Environment.get().WEB_HOST || !Environment.get().WEB_PORT) {
+            Logger.log('warn', 'WEB_HOST or WEB_PORT is not defined in .env, not starting web server');
+            return;
+        }
         Logger.log('info', 'Loading Express');
         Express.init();
     }
