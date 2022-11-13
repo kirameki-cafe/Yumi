@@ -30,7 +30,7 @@ class Express {
     }
 
     public end(): void {
-        if(this.server != null)
+        if(this.server)
             this.server.close();
     }
 
