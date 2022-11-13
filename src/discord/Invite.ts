@@ -13,8 +13,11 @@ const EMBEDS = {
     INVITE_INFO: (data: HybridInteractionMessage, locale: I18n) => {
         const user = data.getUser();
         let message;
-        if (!(Environment.get().PRIVATE_BOT === 'true') || user != null && Users.isDeveloper(user.id))
-            message = locale.__('invite.info', { BOT_NAME: DiscordProvider.client.user!.username, LINK: `https://discord.com/api/oauth2/authorize?client_id=${DiscordProvider.client.user?.id}&permissions=8&scope=bot%20applications.commands`});
+        if (!(Environment.get().PRIVATE_BOT.toLowerCase() === 'true') || (user != null && Users.isDeveloper(user.id)))
+            message = locale.__('invite.info', {
+                BOT_NAME: DiscordProvider.client.user!.username,
+                LINK: `https://discord.com/api/oauth2/authorize?client_id=${DiscordProvider.client.user?.id}&permissions=8&scope=bot%20applications.commands`
+            });
 
         return makeInfoEmbed({
             title: `Invite`,
