@@ -682,10 +682,10 @@ country-code-emoji@^2.3.0:
   resolved "https://registry.yarnpkg.com/country-code-emoji/-/country-code-emoji-2.3.0.tgz#17de6ef57964467568a53ae9fb30044371a5055c"
   integrity sha512-MqmIWr3aucoU/3XZU44e0sz6izAlErqaUYp9/NFzdnzb9TrwwornyW3ws2da5TSnpTUr2qP2840oJW9oNKXCoQ==
 
-country-code-lookup@^0.0.20:
-  version "0.0.20"
-  resolved "https://registry.yarnpkg.com/country-code-lookup/-/country-code-lookup-0.0.20.tgz#d04c71cd94de4bd44dab6822f637638ed3e55359"
-  integrity sha512-mcNlekdiVyiKO0lrjj3FrZ36vxlwjUwXTHpdRtVu9917SAYsHrlORmpHdPXeEXwTmw/yiKiTX4t6LC5uP5KVFg==
+country-code-lookup@^0.0.22:
+  version "0.0.22"
+  resolved "https://registry.yarnpkg.com/country-code-lookup/-/country-code-lookup-0.0.22.tgz#9ba8728cf0daf8ec6b598b6da8e18048d22e36d9"
+  integrity sha512-MAeQDq6i7/lSKB6lp20HWrlL5bIVNfWyQQJ/FmRac6VNBj+cTgyMv8D+pauV/GMpcgSLD5ODYb3RcRD1OvtCYA==
 
 create-require@^1.1.0:
   version "1.1.1"
