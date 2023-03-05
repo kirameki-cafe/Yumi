@@ -1,15 +1,15 @@
 [
     {
-        "type": "ping", 
+        "type": "ping",
         "title": "☁️ Internet | ",
         "host": "1.1.1.1"
     },
     {
-        "type": "discordwebsocket", 
+        "type": "discordwebsocket",
         "title": "🚀 Discord Websocket | "
     },
     {
-        "type": "discordhttp", 
+        "type": "discordhttp",
         "title": "🏓 Discord HTTP | "
     }
 ]

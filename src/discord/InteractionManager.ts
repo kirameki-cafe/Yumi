@@ -108,9 +108,7 @@ export default class InteractionManager extends DiscordModule {
                     await unregisterAllGuildsCommands();
 
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
-                        return placeholder
-                            .getMessage()
-                            .edit({ embeds: [EMBEDS.UNLOADALL_SUCCESS(data)] });
+                        return placeholder.getMessage().edit({ embeds: [EMBEDS.UNLOADALL_SUCCESS(data)] });
                     else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
@@ -119,9 +117,7 @@ export default class InteractionManager extends DiscordModule {
                         );
                 } catch (err) {
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
-                        return placeholder
-                            .getMessage()
-                            .edit({ embeds: [EMBEDS.UNLOADALL_ERROR(data, err)] });
+                        return placeholder.getMessage().edit({ embeds: [EMBEDS.UNLOADALL_ERROR(data, err)] });
                     else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
@@ -143,9 +139,7 @@ export default class InteractionManager extends DiscordModule {
                     await registerAllGlobalCommands();
 
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
-                        return placeholder
-                            .getMessage()
-                            .edit({ embeds: [EMBEDS.RELOADALL_SUCCESS(data)] });
+                        return placeholder.getMessage().edit({ embeds: [EMBEDS.RELOADALL_SUCCESS(data)] });
                     else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
@@ -154,9 +148,7 @@ export default class InteractionManager extends DiscordModule {
                         );
                 } catch (err) {
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
-                        return placeholder
-                            .getMessage()
-                            .edit({ embeds: [EMBEDS.RELOADALL_ERROR(data, err)] });
+                        return placeholder.getMessage().edit({ embeds: [EMBEDS.RELOADALL_ERROR(data, err)] });
                     else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
@@ -178,9 +170,7 @@ export default class InteractionManager extends DiscordModule {
                     await registerAllGuildsCommands();
 
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
-                        return placeholder
-                            .getMessage()
-                            .edit({ embeds: [EMBEDS.RELOADALL_SUCCESS(data)] });
+                        return placeholder.getMessage().edit({ embeds: [EMBEDS.RELOADALL_SUCCESS(data)] });
                     else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
@@ -189,9 +179,7 @@ export default class InteractionManager extends DiscordModule {
                         );
                 } catch (err) {
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
-                        return placeholder
-                            .getMessage()
-                            .edit({ embeds: [EMBEDS.RELOADALL_ERROR(data, err)] });
+                        return placeholder.getMessage().edit({ embeds: [EMBEDS.RELOADALL_ERROR(data, err)] });
                     else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,

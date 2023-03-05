@@ -4,12 +4,12 @@
         "title": "📰 Newsletter",
         "description": "\u200B\n**{bot_username} has been super-charged and upgraded!**\nThe long-awaited update is now here, running latest and greatest version!\n\n**What's new?**\n\u200B\n",
         "fields": [
-            { 
+            {
                 "name": "🔥 Feature 1!",
                 "value": "\u200B\nSuch wow! New feature so cool 10/10!!!!\n\u200B\n",
                 "inline": false
             },
-            { 
+            {
                 "name": "✨ Shiny and new feature!",
                 "value": "\u200B\nNow brighter than ever!\n\u200B\n",
                 "inline": false
@@ -29,8 +29,8 @@
         "title": "🔧 Maintenance",
         "description": "{bot_username} will be down for maintenance\nThe maintenance includes feature improvement to bug fixes\n\nDuring the maintenance, {bot_username}'s commands and features will be unavailable",
         "fields": [
-            { "name": "Start", "value": "<t:1812519286:R>", "inline": true},
-            { "name": "End", "value": "<t:3390442486:R>", "inline": true}
+            { "name": "Start", "value": "<t:1812519286:R>", "inline": true },
+            { "name": "End", "value": "<t:3390442486:R>", "inline": true }
         ],
         "thumbnail": {
             "url": "bot_avatar"

@@ -19,7 +19,7 @@ import { checkMemberPermissionsInGuild } from '../../utils/DiscordPermission';
 const EMBEDS = {
     PREFIX_INFO: (data: HybridInteractionMessage, locale: I18n, currentPrefix: string) => {
         return makeInfoEmbed({
-            title: locale.__('settings_prefix.info', { PREFIX: currentPrefix}),
+            title: locale.__('settings_prefix.info', { PREFIX: currentPrefix }),
             description: locale.__('settings_prefix.info_description'),
             user: data.getUser()
         });
@@ -52,10 +52,17 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
     if (!member) return;
 
     const GuildCache = await Cache.getCachedGuild(guild.id);
-        if (!GuildCache) return;
+    if (!GuildCache) return;
     const prefix = GuildCache.prefix;
 
-    if (!(await checkMemberPermissionsInGuild({ member, data, locale, permissions: [PermissionsBitField.Flags.ManageGuild] })))
+    if (
+        !(await checkMemberPermissionsInGuild({
+            member,
+            data,
+            locale,
+            permissions: [PermissionsBitField.Flags.ManageGuild]
+        }))
+    )
         return;
 
     let newPrefix: string | null | undefined;
@@ -70,7 +77,8 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
         __name.shift();
         _name = __name.join(' ');
         newPrefix = _name;
-    } else if (data.isApplicationCommand()) newPrefix = data.getSlashCommand().options.get('prefix', true).value?.toString();
+    } else if (data.isApplicationCommand())
+        newPrefix = data.getSlashCommand().options.get('prefix', true).value?.toString();
 
     if (!newPrefix)
         return await sendHybridInteractionMessageResponse(data, {
@@ -82,7 +90,10 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
             embeds: [EMBEDS.PREFIX_TOO_LONG(data, locale)]
         });
 
-    if (newPrefix.startsWith(`<@!${DiscordProvider.client.user?.id}>`) || newPrefix.startsWith(`<@${DiscordProvider.client.user?.id}>`))
+    if (
+        newPrefix.startsWith(`<@!${DiscordProvider.client.user?.id}>`) ||
+        newPrefix.startsWith(`<@${DiscordProvider.client.user?.id}>`)
+    )
         return await sendHybridInteractionMessageResponse(data, {
             embeds: [EMBEDS.PREFIX_IS_MENTION(data, locale)]
         });

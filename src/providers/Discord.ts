@@ -1,4 +1,17 @@
-import { Guild, Client, GuildMember, IntentsBitField, Interaction, Message, TextChannel, BaseGuildTextChannel, TextBasedChannelMixin, ChannelType, BaseGuildVoiceChannel, InteractionType } from 'discord.js';
+import {
+    Guild,
+    Client,
+    GuildMember,
+    IntentsBitField,
+    Interaction,
+    Message,
+    TextChannel,
+    BaseGuildTextChannel,
+    TextBasedChannelMixin,
+    ChannelType,
+    BaseGuildVoiceChannel,
+    InteractionType
+} from 'discord.js';
 
 import Logger from '../libs/Logger';
 import Environment from './Environment';
@@ -131,7 +144,11 @@ class Discord {
                 if (interaction.guild) {
                     thisModule.GuildInteractionCreate(interaction);
 
-                    if (interaction.type === InteractionType.ApplicationCommand && interaction.commandName && thisModule.commandInteractionName) {
+                    if (
+                        interaction.type === InteractionType.ApplicationCommand &&
+                        interaction.commandName &&
+                        thisModule.commandInteractionName
+                    ) {
                         thisModule.GuildCommandInteractionCreate(interaction);
                         if (interaction.commandName.toLowerCase() === thisModule.commandInteractionName)
                             thisModule.GuildModuleCommandInteractionCreate(interaction);
@@ -164,7 +181,8 @@ class Discord {
 
         // Handling guild commands
         this.client.on('messageCreate', async (message: Message) => {
-            if (!(message.channel instanceof BaseGuildTextChannel || message.channel instanceof BaseGuildVoiceChannel)) return;
+            if (!(message.channel instanceof BaseGuildTextChannel || message.channel instanceof BaseGuildVoiceChannel))
+                return;
             if (message.author.bot) return;
             if (typeof message.guild?.id === 'undefined') return;
 
@@ -265,7 +283,8 @@ class Discord {
         // Handling mentions
         this.client.on('messageCreate', async (message: Message) => {
             // TODO: Handle DMs commands soon
-            if (!(message.channel instanceof BaseGuildTextChannel || message.channel instanceof BaseGuildVoiceChannel)) return;
+            if (!(message.channel instanceof BaseGuildTextChannel || message.channel instanceof BaseGuildVoiceChannel))
+                return;
             if (message.author.bot) return;
 
             if (typeof message.guild?.id === 'undefined') return;

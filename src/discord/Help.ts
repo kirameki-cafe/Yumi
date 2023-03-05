@@ -17,10 +17,10 @@ const EMBEDS = {
         let _e = makeInfoEmbed({
             icon: '💌',
             title: locale.__('help.title', { BOT_NAME: bot.username }),
-            description: `\u200b\n🏷️ **${locale.__('help.prefix_title')}**\n${locale.__(
-                'help.prefix_description',
-                {PREFIX: prefix.replaceAll('`', '`​'), PREFIX_MENTION: `<@${bot.id}>`}
-            )}\n\n💻 **${locale.__('help.available_commands')}**`,
+            description: `\u200b\n🏷️ **${locale.__('help.prefix_title')}**\n${locale.__('help.prefix_description', {
+                PREFIX: prefix.replaceAll('`', '`​'),
+                PREFIX_MENTION: `<@${bot.id}>`
+            })}\n\n💻 **${locale.__('help.available_commands')}**`,
             fields: [
                 {
                     name: `☕ ${locale.__('help.general')}`,

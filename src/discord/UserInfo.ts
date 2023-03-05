@@ -74,22 +74,24 @@ const EMBEDS = {
         if (user.presence?.activities) {
             for (let activity of user.presence?.activities) {
                 if (activity.type === ActivityType.Custom)
-                    embed.addFields([{
-                        name: `✨  ${locale.__('userinfo.custom_status')}`,
-                        value: `${
-                            !activity.emoji
-                                ? ''
-                                : `${
-                                      activity.emoji?.identifier.startsWith('<') &&
-                                      activity.emoji?.identifier.endsWith('>') &&
-                                      activity.emoji?.identifier.split(':').length == 2
-                                          ? activity.emoji?.identifier.split(':')[0]
-                                          : activity.emoji?.name
-                                  }`
-                        }  ${activity.state === null ? '' : activity.state}
+                    embed.addFields([
+                        {
+                            name: `✨  ${locale.__('userinfo.custom_status')}`,
+                            value: `${
+                                !activity.emoji
+                                    ? ''
+                                    : `${
+                                          activity.emoji?.identifier.startsWith('<') &&
+                                          activity.emoji?.identifier.endsWith('>') &&
+                                          activity.emoji?.identifier.split(':').length == 2
+                                              ? activity.emoji?.identifier.split(':')[0]
+                                              : activity.emoji?.name
+                                      }`
+                            }  ${activity.state === null ? '' : activity.state}
                      \u200b`,
-                        inline: false
-                    }]);
+                            inline: false
+                        }
+                    ]);
                 else {
                     let title = '';
                     switch (activity.type) {
@@ -111,38 +113,46 @@ const EMBEDS = {
                     }
                     const startTime = activity.timestamps?.start;
                     const endTime = activity.timestamps?.end;
-                    embed.addFields([{
-                        name: `${title}`,
-                        value: `${activity.details === null ? '' : activity.details}
+                    embed.addFields([
+                        {
+                            name: `${title}`,
+                            value: `${activity.details === null ? '' : activity.details}
                         ${activity.state === null ? '' : activity.state}
                         ${
                             startTime
-                                ? `${locale.__('userinfo.since', {TIME: `<t:${Math.round(startTime.getTime() / 1000)}:R>` })}`
+                                ? `${locale.__('userinfo.since', {
+                                      TIME: `<t:${Math.round(startTime.getTime() / 1000)}:R>`
+                                  })}`
                                 : ''
                         }${
-                            endTime
-                                ? `\n${locale.__('userinfo.end', {TIME: `<t:${Math.round(endTime.getTime() / 1000)}:R>` })}`
-                                : ''
-                        }
+                                endTime
+                                    ? `\n${locale.__('userinfo.end', {
+                                          TIME: `<t:${Math.round(endTime.getTime() / 1000)}:R>`
+                                      })}`
+                                    : ''
+                            }
                         \u200b`,
-                        inline: false
-                    }]);
+                            inline: false
+                        }
+                    ]);
                 }
             }
         }
 
-        embed.addFields([{
-            name: `📰 ${locale.__('userinfo.user_guild_info')}`,
-            value: `${
-                user.joinedAt === null
-                    ? locale.__('userinfo.join_date_unknown')
-                    : locale.__('userinfo.join_date', {
-                          TIME: `<t:${Math.round(user.joinedAt.getTime() / 1000).toString()}:R>`
-                      })
-            }
+        embed.addFields([
+            {
+                name: `📰 ${locale.__('userinfo.user_guild_info')}`,
+                value: `${
+                    user.joinedAt === null
+                        ? locale.__('userinfo.join_date_unknown')
+                        : locale.__('userinfo.join_date', {
+                              TIME: `<t:${Math.round(user.joinedAt.getTime() / 1000).toString()}:R>`
+                          })
+                }
             ${user.isGuildOwner ? `${locale.__('userinfo.guild_owner')}` : ''}
             `
-        }]);
+            }
+        ]);
 
         embed.setThumbnail(user.displayAvatarURL + '?size=4096');
         embed.setAuthor({
