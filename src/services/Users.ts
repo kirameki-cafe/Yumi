@@ -3,7 +3,7 @@ import Environment from '../providers/Environment';
 
 class Users {
     public static isDeveloper(user: User | Snowflake) {
-        if (!Environment.get().DEVELOPERS) return false;
+        if (!Environment.get().DEVELOPER_IDS) return false;
 
         const developers: Snowflake[] = Environment.get().DEVELOPER_IDS.split(',');
         let userID;
