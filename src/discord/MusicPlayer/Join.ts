@@ -80,7 +80,6 @@ const EMBEDS = {
         });
     },
     NOW_PLAYING: async (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
-
         const title = TrackUtils.getTitle(track);
         const thumbnails = await TrackUtils.getThumbnails(track);
 
@@ -97,7 +96,6 @@ const EMBEDS = {
         return embed;
     },
     NOW_REPEATING: async (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
-
         const title = TrackUtils.getTitle(track);
         const thumbnails = await TrackUtils.getThumbnails(track);
 
@@ -141,8 +139,17 @@ export async function joinVoiceChannelProcedure(
     if (!bot) return;
 
     const locale = await Locale.getGuildLocale(guild.id);
-    
-    if(!await checkBotPermissionsInChannel({ guild, data, locale, channel: memberVoiceChannel, permissions: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.Connect]})) return;
+
+    if (
+        !(await checkBotPermissionsInChannel({
+            guild,
+            data,
+            locale,
+            channel: memberVoiceChannel,
+            permissions: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.Connect]
+        }))
+    )
+        return;
 
     // If already in VoiceChannel
     if (bot.voice.channelId) {
@@ -231,7 +238,7 @@ export async function joinVoiceChannelProcedure(
         else if (event.instance.queue.track[0] === previousTrack && isLoopMessageSent) return;
 
         const row = new ActionRowBuilder<ButtonBuilder>();
-        if(event.instance.queue.track[0] instanceof SpotifyTrack)
+        if (event.instance.queue.track[0] instanceof SpotifyTrack)
             row.addComponents([
                 new ButtonBuilder()
                     .setEmoji('🟢')
@@ -239,14 +246,21 @@ export async function joinVoiceChannelProcedure(
                     .setURL(encodeURI(`https://open.spotify.com/track/${event.instance.queue.track[0].id}`))
                     .setStyle(ButtonStyle.Link)
             ]);
-        if(event.instance.queue.track[0] instanceof YouTubeVideo || event.instance.queue.track[0] instanceof SpotifyTrack) {
+        if (
+            event.instance.queue.track[0] instanceof YouTubeVideo ||
+            event.instance.queue.track[0] instanceof SpotifyTrack
+        ) {
             const actualPlaybackURL = event.instance.getActualPlaybackURL();
-            if(event.instance.queue.track[0] instanceof SpotifyTrack && !actualPlaybackURL) return;
+            if (event.instance.queue.track[0] instanceof SpotifyTrack && !actualPlaybackURL) return;
             row.addComponents([
                 new ButtonBuilder()
                     .setEmoji('🔴')
                     .setLabel(' Open in YouTube')
-                    .setURL(event.instance.queue.track[0] instanceof YouTubeVideo ? encodeURI(`https://www.youtube.com/watch?v=${event.instance.queue.track[0].id}`) : encodeURI(event.instance.getActualPlaybackURL()!))
+                    .setURL(
+                        event.instance.queue.track[0] instanceof YouTubeVideo
+                            ? encodeURI(`https://www.youtube.com/watch?v=${event.instance.queue.track[0].id}`)
+                            : encodeURI(event.instance.getActualPlaybackURL()!)
+                    )
                     .setStyle(ButtonStyle.Link)
             ]);
         }

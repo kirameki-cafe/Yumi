@@ -13,11 +13,15 @@ const EMBEDS = {
         const user = data.getUser();
         let message;
         if (Environment.get().SUPPORT_URL)
-            message = locale.__('support.info', { BOT_NAME: DiscordProvider.client.user!.username, LINK: Environment.get().SUPPORT_URL});
+            message = locale.__('support.info', {
+                BOT_NAME: DiscordProvider.client.user!.username,
+                LINK: Environment.get().SUPPORT_URL
+            });
 
         return makeInfoEmbed({
             title: locale.__('support.title'),
-            description: message || locale.__('support.not_available', { BOT_NAME: DiscordProvider.client.user!.username}),
+            description:
+                message || locale.__('support.not_available', { BOT_NAME: DiscordProvider.client.user!.username }),
             user
         });
     }
@@ -46,7 +50,7 @@ export default class Support extends DiscordModule {
             embeds: [EMBEDS.SUPPORT_INFO(data, locale)]
         });
 
-        if(Environment.get().SUPPORT_URL)
+        if (Environment.get().SUPPORT_URL)
             await sendHybridInteractionMessageResponse(data, {
                 content: Environment.get().SUPPORT_URL
             });

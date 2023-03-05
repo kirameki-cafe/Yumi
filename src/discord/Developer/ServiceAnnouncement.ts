@@ -53,17 +53,14 @@ const EMBEDS = {
 
         if (!payload.timestamp) payload.timestamp = Date.now();
 
-        if (payload.thumbnail?.url === 'bot_avatar')
-            payload.thumbnail.url = `${user?.displayAvatarURL()}?size=4096`;
+        if (payload.thumbnail?.url === 'bot_avatar') payload.thumbnail.url = `${user?.displayAvatarURL()}?size=4096`;
 
-        if (payload.image?.url === 'bot_avatar')
-            payload.image.url = `${user?.displayAvatarURL()}?size=4096`;
+        if (payload.image?.url === 'bot_avatar') payload.image.url = `${user?.displayAvatarURL()}?size=4096`;
 
         if (payload.description)
             payload.description = payload.description.replaceAll('{bot_username}', user?.username!);
 
-        if (payload.color && isNaN(payload.color))
-            payload.color = hexToDecimal(payload.color.toString());
+        if (payload.color && isNaN(payload.color)) payload.color = hexToDecimal(payload.color.toString());
 
         return new EmbedBuilder(payload);
     },
@@ -145,9 +142,7 @@ export default class ServiceAnnouncement extends DiscordModule {
     async Init() {
         if (fs.existsSync(path.join(process.cwd(), 'configs/ServiceAnnouncement.json'))) {
             try {
-                const rawData = fs.readFileSync(
-                    path.join(process.cwd(), 'configs/ServiceAnnouncement.json')
-                );
+                const rawData = fs.readFileSync(path.join(process.cwd(), 'configs/ServiceAnnouncement.json'));
                 const jsonData = JSON.parse(rawData.toString());
                 Announcements = jsonData;
             } catch (err) {
@@ -177,9 +172,7 @@ export default class ServiceAnnouncement extends DiscordModule {
             reload: async (data: HybridInteractionMessage) => {
                 if (fs.existsSync(path.join(process.cwd(), 'configs/ServiceAnnouncement.json'))) {
                     try {
-                        const rawData = fs.readFileSync(
-                            path.join(process.cwd(), 'configs/ServiceAnnouncement.json')
-                        );
+                        const rawData = fs.readFileSync(path.join(process.cwd(), 'configs/ServiceAnnouncement.json'));
                         const jsonData = JSON.parse(rawData.toString());
                         Announcements = jsonData;
                     } catch (err: any) {
@@ -264,9 +257,7 @@ export default class ServiceAnnouncement extends DiscordModule {
                             let Guild: Guild = element[0];
                             let Channel: TextChannel = element[1];
                             try {
-                                const guildObject = DiscordProvider.client.guilds.cache.get(
-                                    Guild.id
-                                );
+                                const guildObject = DiscordProvider.client.guilds.cache.get(Guild.id);
                                 if (!guildObject) throw new Error('Guild not found');
                                 Logger.info(
                                     `Sending Service Announcement to ${guildObject?.name} (${guildObject.id}) #${Channel.name} (${Channel.id})`
@@ -276,9 +267,7 @@ export default class ServiceAnnouncement extends DiscordModule {
                                 });
                             } catch (err) {
                                 withError = true;
-                                const guildObject = DiscordProvider.client.guilds.cache.get(
-                                    Guild.id
-                                );
+                                const guildObject = DiscordProvider.client.guilds.cache.get(Guild.id);
                                 if (guildObject)
                                     Logger.info(
                                         `Unable to send Service Announcement to ${guildObject?.name} (${guildObject.id}) #${Channel.name} (${Channel.id})`
@@ -296,28 +285,20 @@ export default class ServiceAnnouncement extends DiscordModule {
 
                 if (withError) {
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
-                        return placeholder
-                            .getMessage()
-                            .edit({
-                                embeds: [
-                                    EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data)
-                                ]
-                            });
+                        return placeholder.getMessage().edit({
+                            embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data)]
+                        });
                     else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,
                             {
-                                embeds: [
-                                    EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data)
-                                ]
+                                embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT_WITH_ERRORS(data)]
                             },
                             true
                         );
                 } else {
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
-                        return placeholder
-                            .getMessage()
-                            .edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data)] });
+                        return placeholder.getMessage().edit({ embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_SENT(data)] });
                     else if (data.isApplicationCommand())
                         return await sendHybridInteractionMessageResponse(
                             data,

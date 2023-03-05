@@ -21,7 +21,7 @@ const EMBEDS = {
 
         return makeInfoEmbed({
             title: `Invite`,
-            description: message || locale.__('invite.private', { BOT_NAME: DiscordProvider.client.user!.username}),
+            description: message || locale.__('invite.private', { BOT_NAME: DiscordProvider.client.user!.username }),
             user
         });
     }

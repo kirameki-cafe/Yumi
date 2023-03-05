@@ -53,7 +53,14 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
     if (!GuildCache) return;
     const language = GuildCache.locale;
 
-    if (!(await checkMemberPermissionsInGuild({ member, data, locale, permissions: [PermissionsBitField.Flags.ManageGuild] })))
+    if (
+        !(await checkMemberPermissionsInGuild({
+            member,
+            data,
+            locale,
+            permissions: [PermissionsBitField.Flags.ManageGuild]
+        }))
+    )
         return;
 
     let newLanguage: string | null | undefined;

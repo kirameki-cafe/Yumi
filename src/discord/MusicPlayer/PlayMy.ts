@@ -1,12 +1,12 @@
-import { I18n } from "i18n";
-import { Message, CommandInteraction, ActivityType, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import { I18n } from 'i18n';
+import { Message, CommandInteraction, ActivityType, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
-import DiscordMusicPlayer, { TrackUtils, ValidTracks } from "../../providers/DiscordMusicPlayer";
-import Locale from "../../services/Locale";
+import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayer';
+import Locale from '../../services/Locale';
 
-import { makeSuccessEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from "../../utils/DiscordMessage";
-import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
-import { joinVoiceChannelProcedure } from "./Join";
+import { makeSuccessEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from '../../utils/DiscordMessage';
+import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
+import { joinVoiceChannelProcedure } from './Join';
 
 const EMBEDS = {
     NOT_DETECTED: (data: HybridInteractionMessage, locale: I18n) => {
@@ -28,7 +28,6 @@ const EMBEDS = {
         });
     },
     ADDED_QUEUE: async (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
-
         const title = TrackUtils.getTitle(track);
         const thumbnails = await TrackUtils.getThumbnails(track);
 
@@ -43,28 +42,26 @@ const EMBEDS = {
 
         return embed;
     }
-}
+};
 
 export default class PlayMy extends DiscordModule {
-    
-    public id = "Discord_MusicPlayer_PlayMy";
-    public commands = ["playmy"];
-    public commandInteractionName = "playmy";
+    public id = 'Discord_MusicPlayer_PlayMy';
+    public commands = ['playmy'];
+    public commandInteractionName = 'playmy';
 
     async GuildOnModuleCommand(args: any, message: Message) {
         await this.run(new HybridInteractionMessage(message), args);
     }
 
-    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) { 
+    async GuildModuleCommandInteractionCreate(interaction: CommandInteraction) {
         await this.run(new HybridInteractionMessage(interaction), interaction.options);
     }
 
     async run(data: HybridInteractionMessage, args: any) {
-
         const guild = data.getGuild();
         const member = data.getMember();
 
-        if(!guild || !member) return;
+        if (!guild || !member) return;
 
         const locale = await Locale.getGuildLocale(guild.id);
 
@@ -94,22 +91,20 @@ export default class PlayMy extends DiscordModule {
             instance = DiscordMusicPlayer.getGuildInstance(guild.id);
         }
 
-        if(!instance) return;
-        if(!member.presence) return;
-        if(!member.presence.activities) return;
+        if (!instance) return;
+        if (!member.presence) return;
+        if (!member.presence.activities) return;
 
         let query;
         let found = false;
         for (const activity of member.presence.activities) {
-            if(activity.type === ActivityType.Listening) {
-                if(!activity.details) continue;
+            if (activity.type === ActivityType.Listening) {
+                if (!activity.details) continue;
                 found = true;
 
-                if(activity.name == "Spotify")
-                    query = `${activity.state} - ${activity.details}`
-                else
-                    query = `${activity.state} - ${activity.details}` // TODO: Find better query formula
-            
+                if (activity.name == 'Spotify') query = `${activity.state} - ${activity.details}`;
+                else query = `${activity.state} - ${activity.details}`; // TODO: Find better query formula
+
                 const result = await DiscordMusicPlayer.searchYouTubeByQuery(query);
                 if (!result) continue;
                 instance.addTrackToQueue(result[0]);
@@ -120,10 +115,10 @@ export default class PlayMy extends DiscordModule {
                     // If the first result title is exact match with the query or first title contains half the space of the query, it's probably a sentence
                     // then we don't need to show the search results
                     // if(result[0].title === query || result[0].title && (Math.ceil((result[0].title.split(" ").length - 1) / 2) === Math.ceil((query.split(" ").length - 1) / 2))) return;
-    
+
                     // The query length is too long to fit in json
                     if (query.length > 100 - 51) return;
-    
+
                     row = new ActionRowBuilder<ButtonBuilder>().addComponents([
                         new ButtonBuilder()
                             .setEmoji('🔎')
@@ -138,10 +133,10 @@ export default class PlayMy extends DiscordModule {
                             )
                             .setLabel('  Not this? Search!')
                             .setStyle(ButtonStyle.Primary)
-                        ]);
+                    ]);
                 }
 
-                if(!row)
+                if (!row)
                     await sendHybridInteractionMessageResponse(data, {
                         embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result[0])]
                     });
@@ -153,8 +148,7 @@ export default class PlayMy extends DiscordModule {
             }
         }
 
-        if(!found)
-            await sendHybridInteractionMessageResponse(data, { embeds:[EMBEDS.NOT_DETECTED(data, locale)] });
+        if (!found) await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NOT_DETECTED(data, locale)] });
 
         return;
     }
