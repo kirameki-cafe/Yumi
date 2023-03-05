@@ -1,11 +1,16 @@
-import { I18n } from "i18n";
-import { Message, CommandInteraction } from "discord.js";
+import { I18n } from 'i18n';
+import { Message, CommandInteraction } from 'discord.js';
 
-import DiscordMusicPlayer, { DiscordMusicPlayerLoopMode } from "../../providers/DiscordMusicPlayer";
-import Locale from "../../services/Locale";
+import DiscordMusicPlayer, { DiscordMusicPlayerLoopMode } from '../../providers/DiscordMusicPlayer';
+import Locale from '../../services/Locale';
 
-import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
-import { makeErrorEmbed, makeSuccessEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
+import {
+    makeErrorEmbed,
+    makeSuccessEmbed,
+    sendHybridInteractionMessageResponse,
+    makeInfoEmbed
+} from '../../utils/DiscordMessage';
 const EMBEDS = {
     INVALID_LOOP_MODE: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
@@ -50,12 +55,11 @@ const EMBEDS = {
             user: data.getUser()
         });
     }
-}
+};
 export default class Loop extends DiscordModule {
-
-    public id = "Discord_MusicPlayer_Loop";
-    public commands = ["loop", "repeat"];
-    public commandInteractionName = "loop";
+    public id = 'Discord_MusicPlayer_Loop';
+    public commands = ['loop', 'repeat'];
+    public commandInteractionName = 'loop';
 
     async GuildOnModuleCommand(args: any, message: Message) {
         await this.run(new HybridInteractionMessage(message), args);
@@ -66,7 +70,6 @@ export default class Loop extends DiscordModule {
     }
 
     async run(data: HybridInteractionMessage, args: any) {
-
         const guild = data.getGuild();
         const user = data.getUser();
         const member = data.getMember();
@@ -78,39 +81,52 @@ export default class Loop extends DiscordModule {
         let query;
 
         if (data.isMessage()) {
-            if (args.length !== 0)
-                query = args.join(' ');
-        }
-        else if (data.isApplicationCommand())
-            query = args.getSubcommand();
+            if (args.length !== 0) query = args.join(' ');
+        } else if (data.isApplicationCommand()) query = args.getSubcommand();
 
         const voiceChannel = member.voice.channel;
 
         if (!voiceChannel)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data, locale)] });
+            return await sendHybridInteractionMessageResponse(data, {
+                embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data, locale)]
+            });
 
         const instance = DiscordMusicPlayer.getGuildInstance(guild.id);
 
         if (!instance)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)] });
+            return await sendHybridInteractionMessageResponse(data, {
+                embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)]
+            });
 
         if (instance.voiceChannel.id !== voiceChannel.id)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data, locale)] }, true);
+            return await sendHybridInteractionMessageResponse(
+                data,
+                { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data, locale)] },
+                true
+            );
 
         if (instance.queue.track.length === 0)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)] });
+            return await sendHybridInteractionMessageResponse(data, {
+                embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)]
+            });
 
         if (!query)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.LOOP_STATUS(data, locale, instance.getLoopMode())] });
+            return await sendHybridInteractionMessageResponse(data, {
+                embeds: [EMBEDS.LOOP_STATUS(data, locale, instance.getLoopMode())]
+            });
 
-        let enumKey = Object.keys(DiscordMusicPlayerLoopMode)[Object.values(DiscordMusicPlayerLoopMode).indexOf(query.toLowerCase())];
+        let enumKey =
+            Object.keys(DiscordMusicPlayerLoopMode)[
+                Object.values(DiscordMusicPlayerLoopMode).indexOf(query.toLowerCase())
+            ];
 
-        if(enumKey) {
+        if (enumKey) {
             instance.setLoopMode(DiscordMusicPlayerLoopMode[enumKey as keyof typeof DiscordMusicPlayerLoopMode]);
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.LOOP_SET(data, locale, instance.getLoopMode())] });
+            return await sendHybridInteractionMessageResponse(data, {
+                embeds: [EMBEDS.LOOP_SET(data, locale, instance.getLoopMode())]
+            });
         }
-        
+
         return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.INVALID_LOOP_MODE(data, locale)] });
     }
-
 }

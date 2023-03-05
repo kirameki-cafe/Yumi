@@ -1,13 +1,20 @@
-import { Message, CommandInteraction, ActionRowBuilder, ButtonInteraction, SelectMenuBuilder, SelectMenuComponentOptionData } from "discord.js";
-import { I18n } from "i18n";
+import {
+    Message,
+    CommandInteraction,
+    ActionRowBuilder,
+    ButtonInteraction,
+    SelectMenuBuilder,
+    SelectMenuComponentOptionData
+} from 'discord.js';
+import { I18n } from 'i18n';
 
-import { joinVoiceChannelProcedure } from "./Join";
+import { joinVoiceChannelProcedure } from './Join';
 
-import DiscordMusicPlayer, { TrackUtils, ValidTracks } from "../../providers/DiscordMusicPlayer";
-import Locale from "../../services/Locale";
+import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayer';
+import Locale from '../../services/Locale';
 
-import DiscordModule, { HybridInteractionMessage } from "../../utils/DiscordModule";
-import { makeErrorEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from "../../utils/DiscordMessage";
+import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
+import { makeErrorEmbed, sendHybridInteractionMessageResponse, makeInfoEmbed } from '../../utils/DiscordMessage';
 
 const EMBEDS = {
     SEARCH_INFO: (data: HybridInteractionMessage, locale: I18n) => {
@@ -17,7 +24,7 @@ const EMBEDS = {
             fields: [
                 {
                     name: locale.__('common.available_args'),
-                    value: locale.__('musicplayer_search.valid_args'),
+                    value: locale.__('musicplayer_search.valid_args')
                 }
             ],
             user: data.getUser()
@@ -28,7 +35,7 @@ const EMBEDS = {
             title: locale.__('musicplayer_search.title_result'),
             description: `${locale.__('musicplayer_search.x_results_found', {
                 COUNT: result.length.toString()
-            })}\n\n${result.map(track => `- [${TrackUtils.getTitle(track)}](${track.url})`).join('\n')}`,
+            })}\n\n${result.map((track) => `- [${TrackUtils.getTitle(track)}](${track.url})`).join('\n')}`,
             user: data.getUser()
         });
     },
@@ -44,12 +51,11 @@ const EMBEDS = {
             user: data.getUser()
         });
     }
-}
+};
 export default class Search extends DiscordModule {
-
-    public id = "Discord_MusicPlayer_Search";
-    public commands = ["search"];
-    public commandInteractionName = "search";
+    public id = 'Discord_MusicPlayer_Search';
+    public commands = ['search'];
+    public commandInteractionName = 'search';
 
     async GuildOnModuleCommand(args: any, message: Message) {
         await this.run(new HybridInteractionMessage(message), args);
@@ -70,16 +76,18 @@ export default class Search extends DiscordModule {
             data.q stands for data.query
         */
 
-        if (typeof payload.m === 'undefined' ||
+        if (
+            typeof payload.m === 'undefined' ||
             typeof payload.a === 'undefined' ||
             payload.m !== 'MP_S' ||
-            payload.a !== 'search') return;
+            payload.a !== 'search'
+        )
+            return;
 
         await this.run(new HybridInteractionMessage(interaction), payload.d.q);
     }
-    
-    async run(data: HybridInteractionMessage, args: any) {
 
+    async run(data: HybridInteractionMessage, args: any) {
         const guild = data.getGuild();
         const user = data.getUser();
         const member = data.getMember();
@@ -95,19 +103,18 @@ export default class Search extends DiscordModule {
                 return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SEARCH_INFO(data, locale)] });
 
             query = args.join(' ');
-        }
-        else if (data.isApplicationCommand())
+        } else if (data.isApplicationCommand())
             query = data.getSlashCommand().options.get('query', true).value?.toString();
-        else if (data.isButton())
-            query = args;
+        else if (data.isButton()) query = args;
 
         if (!query) return;
 
         const voiceChannel = member.voice.channel;
 
         if (!voiceChannel)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data, locale)] });
-
+            return await sendHybridInteractionMessageResponse(data, {
+                embeds: [EMBEDS.USER_NOT_IN_VOICECHANNEL(data, locale)]
+            });
 
         if (!DiscordMusicPlayer.isGuildInstanceExists(guild.id))
             await joinVoiceChannelProcedure(data, null, voiceChannel);
@@ -116,7 +123,9 @@ export default class Search extends DiscordModule {
         if (!instance) return;
 
         if (instance.voiceChannel.id !== voiceChannel.id)
-            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data, locale)] });
+            return await sendHybridInteractionMessageResponse(data, {
+                embeds: [EMBEDS.USER_NOT_IN_SAME_VOICECHANNEL(data, locale)]
+            });
 
         if (!instance.isConnected()) {
             await joinVoiceChannelProcedure(data, instance!, voiceChannel);
@@ -136,14 +145,16 @@ export default class Search extends DiscordModule {
             data.r stands for data.requester
             data.v stands for data.voiceChannel
         */
-        messageSelectMenu.setCustomId(JSON.stringify({
-            m: 'MP_SM',
-            a: 'play',
-            d: {
-                r: user.id,
-                v: voiceChannel.id
-            }
-        }))
+        messageSelectMenu.setCustomId(
+            JSON.stringify({
+                m: 'MP_SM',
+                a: 'play',
+                d: {
+                    r: user.id,
+                    v: voiceChannel.id
+                }
+            })
+        );
         messageSelectMenu.setPlaceholder('Nothing selected');
 
         for (let song of result) {
@@ -160,21 +171,21 @@ export default class Search extends DiscordModule {
         const row = new ActionRowBuilder<SelectMenuBuilder>();
         row.addComponents([messageSelectMenu]);
 
-        return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.SEARCH_RESULT(data, locale, result)], components: [row] });
+        return await sendHybridInteractionMessageResponse(data, {
+            embeds: [EMBEDS.SEARCH_RESULT(data, locale, result)],
+            components: [row]
+        });
     }
-
 
     isJsonValid(jsonString: string) {
         try {
             let o = JSON.parse(jsonString);
-            if (o && typeof o === "object") {
+            if (o && typeof o === 'object') {
                 return true;
                 //return o;
             }
-        }
-        catch (e) { }
+        } catch (e) {}
 
         return false;
     }
-
 }

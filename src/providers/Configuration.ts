@@ -36,11 +36,7 @@ class Configuration {
         const dir = path.join(process.cwd(), 'configs/');
         if (!fs.existsSync(path.join(dir, file))) {
             fs.copyFileSync(
-                path.join(
-                    process.cwd(),
-                    'configs_example/',
-                    `${file.replace('.json', '.example.json')}`
-                ),
+                path.join(process.cwd(), 'configs_example/', `${file.replace('.json', '.example.json')}`),
                 path.join(dir, file)
             );
         }

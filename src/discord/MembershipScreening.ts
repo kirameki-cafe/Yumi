@@ -13,7 +13,7 @@ import {
     PermissionsBitField,
     EmbedBuilder,
     ButtonStyle,
-    ActionRowBuilder,
+    ActionRowBuilder
 } from 'discord.js';
 
 import DiscordProvider from '../providers/Discord';
@@ -114,16 +114,14 @@ const EMBEDS = {
     MANAGED_ROLE: (data: Message | BaseInteraction, role: Role) => {
         return makeErrorEmbed({
             title: 'You cannot use this role',
-            description:
-                '``' + role.name + '``' + ' is managed by external service and cannot be used',
+            description: '``' + role.name + '``' + ' is managed by external service and cannot be used',
             user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
     CONFIGURED_ROLE: (data: Message | BaseInteraction, role: Role) => {
         return makeSuccessEmbed({
             title: 'Configured Membership Screening Role',
-            description:
-                'New member will be given a ' + '``' + role.name + '``' + ' role after approval',
+            description: 'New member will be given a ' + '``' + role.name + '``' + ' role after approval',
             user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
@@ -146,17 +144,10 @@ const EMBEDS = {
             user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
-    INVALID_CHANNEL_THREAD: (
-        data: Message | BaseInteraction,
-        channel: GuildChannel | ThreadChannel
-    ) => {
+    INVALID_CHANNEL_THREAD: (data: Message | BaseInteraction, channel: GuildChannel | ThreadChannel) => {
         return makeErrorEmbed({
             title: 'Thread channel is not supported',
-            description:
-                '``' +
-                channel.name +
-                '``' +
-                ' is a thread channel. Please use a regular text channel',
+            description: '``' + channel.name + '``' + ' is a thread channel. Please use a regular text channel',
             user: data instanceof BaseInteraction ? data.user : data.author
         });
     },
@@ -225,11 +216,7 @@ export default class MembershipScreening extends DiscordModule {
         if (!this.isJsonValid(interaction.customId)) return;
         const payload = JSON.parse(interaction.customId);
 
-        if (
-            typeof payload.m === 'undefined' ||
-            typeof payload.a === 'undefined' ||
-            payload.m !== 'MembershipScreening'
-        )
+        if (typeof payload.m === 'undefined' || typeof payload.a === 'undefined' || payload.m !== 'MembershipScreening')
             return;
 
         const message = await channel.messages.fetch(interaction.message.id);
@@ -261,9 +248,7 @@ export default class MembershipScreening extends DiscordModule {
             const role = (await guild.roles.fetch()).find(
                 (role) => role.id === PrismaGuild.MembershipScreening_GivenRole
             );
-            const requesterMember = (await guild.members.fetch()).find(
-                (member) => member.id === payload.d.requester
-            );
+            const requesterMember = (await guild.members.fetch()).find((member) => member.id === payload.d.requester);
 
             if (!role)
                 return await interaction.reply({
@@ -466,7 +451,8 @@ export default class MembershipScreening extends DiscordModule {
                     });
 
                 if (
-                    !guild.members.me?.permissionsIn(TargetChannel)
+                    !guild.members.me
+                        ?.permissionsIn(TargetChannel)
                         .has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ViewChannel])
                 )
                     return await sendHybridInteractionMessageResponse(data, {
@@ -556,58 +542,54 @@ export default class MembershipScreening extends DiscordModule {
             fields: [
                 {
                     name: 'Account Information',
-                    value: `Account age: <t:${Math.round(
-                        member.user.createdAt.getTime() / 1000
-                    )}:R>`
+                    value: `Account age: <t:${Math.round(member.user.createdAt.getTime() / 1000)}:R>`
                 }
             ]
         });
 
         embed.setThumbnail(`${member.user.displayAvatarURL()}?size=4096`);
 
-        const row = new ActionRowBuilder<ButtonBuilder>()
-            .addComponents([
-                new ButtonBuilder()
-                    .setCustomId(
-                        JSON.stringify({
-                            m: 'MembershipScreening',
-                            a: 'approve',
-                            d: {
-                                requester: member.id
-                            }
-                        })
-                    )
-                    .setEmoji('✅')
-                    .setLabel('  Approve')
-                    .setStyle(ButtonStyle.Success),
-                new ButtonBuilder()
-                    .setCustomId(
-                        JSON.stringify({
-                            m: 'MembershipScreening',
-                            a: 'deny',
-                            d: {
-                                requester: member.id
-                            }
-                        })
-                    )
-                    .setEmoji('⛔')
-                    .setLabel('  Deny and kick')
-                    .setStyle(ButtonStyle.Danger),
-                new ButtonBuilder()
-                    .setCustomId(
-                        JSON.stringify({
-                            m: 'MembershipScreening',
-                            a: 'ban',
-                            d: {
-                                requester: member.id
-                            }
-                        })
-                    )
-                    .setEmoji('🔪')
-                    .setLabel('  Vision Hunt Decree (Ban)')
-                    .setStyle(ButtonStyle.Danger)
-            ]
-            );
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents([
+            new ButtonBuilder()
+                .setCustomId(
+                    JSON.stringify({
+                        m: 'MembershipScreening',
+                        a: 'approve',
+                        d: {
+                            requester: member.id
+                        }
+                    })
+                )
+                .setEmoji('✅')
+                .setLabel('  Approve')
+                .setStyle(ButtonStyle.Success),
+            new ButtonBuilder()
+                .setCustomId(
+                    JSON.stringify({
+                        m: 'MembershipScreening',
+                        a: 'deny',
+                        d: {
+                            requester: member.id
+                        }
+                    })
+                )
+                .setEmoji('⛔')
+                .setLabel('  Deny and kick')
+                .setStyle(ButtonStyle.Danger),
+            new ButtonBuilder()
+                .setCustomId(
+                    JSON.stringify({
+                        m: 'MembershipScreening',
+                        a: 'ban',
+                        d: {
+                            requester: member.id
+                        }
+                    })
+                )
+                .setEmoji('🔪')
+                .setLabel('  Vision Hunt Decree (Ban)')
+                .setStyle(ButtonStyle.Danger)
+        ]);
 
         await channel.send({ content: '\u200b', embeds: [embed], components: [row] });
     }

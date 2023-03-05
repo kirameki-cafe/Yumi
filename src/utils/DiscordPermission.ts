@@ -60,7 +60,7 @@ export async function checkBotPermissionsInGuild({
     locale?: I18n;
 }): Promise<boolean> {
     const member = guild.members.me;
-    if(!member) return false;
+    if (!member) return false;
 
     const hasPermissions = member.permissions.has(permissions);
 
@@ -86,7 +86,7 @@ export async function checkBotPermissionsInChannel({
     locale?: I18n;
 }): Promise<boolean> {
     const member = guild.members.me;
-    if(!member) return false;
+    if (!member) return false;
 
     const hasPermissions = member.permissionsIn(channel).has(permissions);
 

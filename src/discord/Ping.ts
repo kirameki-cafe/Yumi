@@ -10,11 +10,7 @@ import Environment from '../providers/Environment';
 import Locale from '../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../utils/DiscordModule';
-import {
-    makeSuccessEmbed,
-    makeProcessingEmbed,
-    sendHybridInteractionMessageResponse
-} from '../utils/DiscordMessage';
+import { makeSuccessEmbed, makeProcessingEmbed, sendHybridInteractionMessageResponse } from '../utils/DiscordMessage';
 
 enum MeasureType {
     Ping = 'ping',
@@ -57,14 +53,14 @@ export default class Ping extends DiscordModule {
         const guild = data.getGuild();
         const member = data.getMember();
 
-        if(!guild || !member) return;
+        if (!guild || !member) return;
 
         const locale = await Locale.getGuildLocale(guild.id);
 
         let placeholder: HybridInteractionMessage | undefined;
         let beforeEditDate = Date.now();
         let _placeholder = await sendHybridInteractionMessageResponse(data, {
-            embeds: [EMBEDS.PINGING(data, locale)],
+            embeds: [EMBEDS.PINGING(data, locale)]
         });
         if (_placeholder) placeholder = new HybridInteractionMessage(_placeholder);
 
@@ -86,23 +82,17 @@ export default class Ping extends DiscordModule {
                             return finalString.push(stringCurrent);
                         }
 
-                        if (
-                            res.avg === 'unknown' ||
-                            res.min === 'unknown' ||
-                            res.max === 'unknown'
-                        ) {
+                        if (res.avg === 'unknown' || res.min === 'unknown' || res.max === 'unknown') {
                             stringCurrent += 'Failed';
                             return finalString.push(stringCurrent);
                         }
 
-                        stringCurrent += `${parseFloat(res.avg).toFixed(1)}ms (${parseFloat(
-                            res.min
-                        ).toFixed(1)}ms - ${parseFloat(res.max).toFixed(1)}ms)`;
+                        stringCurrent += `${parseFloat(res.avg).toFixed(1)}ms (${parseFloat(res.min).toFixed(
+                            1
+                        )}ms - ${parseFloat(res.max).toFixed(1)}ms)`;
                         finalString.push(stringCurrent);
                     } else if (entry.type === MeasureType.DiscordWebsocket) {
-                        stringCurrent += `${Math.round(DiscordProvider.client.ws.ping).toFixed(
-                            1
-                        )}ms`;
+                        stringCurrent += `${Math.round(DiscordProvider.client.ws.ping).toFixed(1)}ms`;
                         finalString.push(stringCurrent);
                     } else if (entry.type === MeasureType.DiscordHTTPPing) {
                         stringCurrent += `${Math.abs(afterEditDate - beforeEditDate).toFixed(1)}ms`;
@@ -117,9 +107,11 @@ export default class Ping extends DiscordModule {
 
         finalString.push('');
         finalString.push(
-            `💻 ${locale.__('ping.running_on', {HOST: os.hostname()})} ` +
+            `💻 ${locale.__('ping.running_on', { HOST: os.hostname() })} ` +
                 `${
-                    Environment.get().NODE_ENV === 'development' ? ` / ${locale.__('ping.development_environment')}` : ''
+                    Environment.get().NODE_ENV === 'development'
+                        ? ` / ${locale.__('ping.development_environment')}`
+                        : ''
                 }`
         );
 

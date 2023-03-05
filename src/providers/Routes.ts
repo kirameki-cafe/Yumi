@@ -3,7 +3,6 @@ import Logger from '../libs/Logger';
 import apiv1Router from '../routes/API/v1';
 
 class Routes {
-
     public mountWeb(_express: express.Application): Application {
         Logger.log('info', 'Mounting Web routes');
         return _express;
@@ -16,7 +15,6 @@ class Routes {
 
         return _express;
     }
-
 }
 
-export default new Routes;
+export default new Routes();

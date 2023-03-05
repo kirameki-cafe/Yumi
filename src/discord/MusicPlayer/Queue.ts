@@ -133,10 +133,14 @@ export default class QueueCommand extends DiscordModule {
         switch (query.toLowerCase()) {
             case 'clear':
                 instance.clearQueue();
-                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.QUEUE_CLEARED(data, locale)] });
+                return await sendHybridInteractionMessageResponse(data, {
+                    embeds: [EMBEDS.QUEUE_CLEARED(data, locale)]
+                });
             case 'shuffle':
                 instance.shuffleQueue();
-                return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.QUEUE_SHUFFLED(data, locale)] });
+                return await sendHybridInteractionMessageResponse(data, {
+                    embeds: [EMBEDS.QUEUE_SHUFFLED(data, locale)]
+                });
         }
     }
 }

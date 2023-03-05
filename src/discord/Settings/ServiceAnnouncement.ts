@@ -104,29 +104,49 @@ export const setEnableServiceAnnouncement = async (
     let member = data.getMember();
     if (!member) return;
 
-    if (!(await checkMemberPermissionsInGuild({ member, data, locale, permissions: [PermissionsBitField.Flags.Administrator] })))
+    if (
+        !(await checkMemberPermissionsInGuild({
+            member,
+            data,
+            locale,
+            permissions: [PermissionsBitField.Flags.Administrator]
+        }))
+    )
         return;
 
     let GuildCache = await Cache.getCachedGuild(guild.id);
-    if(!GuildCache) return;
+    if (!GuildCache) return;
 
     let newStatus: string | null | undefined;
     if (data.isMessage()) {
         let _name: string;
         if (typeof args[1] === 'undefined')
             return await sendHybridInteractionMessageResponse(data, {
-                embeds: [await EMBEDS.NO_SERVICE_ANNOUNCEMENT_STATUS_PROVIDED(data, locale, GuildCache.ServiceAnnouncement_Enabled)]
+                embeds: [
+                    await EMBEDS.NO_SERVICE_ANNOUNCEMENT_STATUS_PROVIDED(
+                        data,
+                        locale,
+                        GuildCache.ServiceAnnouncement_Enabled
+                    )
+                ]
             });
 
         let __name = args;
         __name.shift();
         _name = __name.join(' ');
         newStatus = _name;
-    } else if (data.isApplicationCommand()) newStatus = data.getSlashCommand().options.get('status', true).value?.toString();
+    } else if (data.isApplicationCommand())
+        newStatus = data.getSlashCommand().options.get('status', true).value?.toString();
 
     if (!newStatus)
         return await sendHybridInteractionMessageResponse(data, {
-            embeds: [await EMBEDS.NO_SERVICE_ANNOUNCEMENT_STATUS_PROVIDED(data, locale, GuildCache.ServiceAnnouncement_Enabled)]
+            embeds: [
+                await EMBEDS.NO_SERVICE_ANNOUNCEMENT_STATUS_PROVIDED(
+                    data,
+                    locale,
+                    GuildCache.ServiceAnnouncement_Enabled
+                )
+            ]
         });
 
     if (!['true', 'false', 'yes', 'no', 'y', 'n', 'enable', 'disable'].includes(newStatus.toLowerCase()))
@@ -182,7 +202,14 @@ export const setServiceAnnouncementChannel = async (
     let member = data.getMember();
     if (!member) return;
 
-    if (!(await checkMemberPermissionsInGuild({ member, data, locale, permissions: [PermissionsBitField.Flags.Administrator] })))
+    if (
+        !(await checkMemberPermissionsInGuild({
+            member,
+            data,
+            locale,
+            permissions: [PermissionsBitField.Flags.Administrator]
+        }))
+    )
         return;
 
     let channel;
@@ -213,7 +240,9 @@ export const setServiceAnnouncementChannel = async (
         });
 
     if (
-        !data.getGuild()?.members.me?.permissionsIn(TargetChannel)
+        !data
+            .getGuild()
+            ?.members.me?.permissionsIn(TargetChannel)
             .has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ViewChannel])
     )
         return await sendHybridInteractionMessageResponse(data, {

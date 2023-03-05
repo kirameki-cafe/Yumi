@@ -27,11 +27,9 @@ const EMBEDS = {
     NO_PERMISSION: (data: HybridInteractionMessage, locale: I18n) => {
         return makeErrorEmbed({
             title: locale.__('common.no_permissions'),
-            description: locale.__(
-                'common.no_permissions_description', {
-                    PERMISSIONS: 'VIEW_CHANNEL, SEND_MESSAGES, MANAGE_CHANNELS'
-                }
-            ),
+            description: locale.__('common.no_permissions_description', {
+                PERMISSIONS: 'VIEW_CHANNEL, SEND_MESSAGES, MANAGE_CHANNELS'
+            }),
             user: data.getUser()
         });
     },
@@ -80,7 +78,7 @@ export default class Say extends DiscordModule {
                 !message.member.permissions.has([
                     PermissionsBitField.Flags.ViewChannel,
                     PermissionsBitField.Flags.SendMessages,
-                    PermissionsBitField.Flags.ManageChannels,
+                    PermissionsBitField.Flags.ManageChannels
                 ])
             )
                 return await sendHybridInteractionMessageResponse(data, {

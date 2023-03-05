@@ -42,7 +42,6 @@ const EMBEDS = {
         });
     },
     ADDED_QUEUE: async (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
-
         const title = TrackUtils.getTitle(track);
         const thumbnails = await TrackUtils.getThumbnails(track);
 
@@ -354,7 +353,15 @@ export default class Play extends DiscordModule {
 
             if (!result) return;
 
-            if (data.isMessage() && data.getMessage().embeds.length > 0 && await checkBotPermissionsInChannel({ guild, channel, permissions: [PermissionsBitField.Flags.ManageMessages]})) {
+            if (
+                data.isMessage() &&
+                data.getMessage().embeds.length > 0 &&
+                (await checkBotPermissionsInChannel({
+                    guild,
+                    channel,
+                    permissions: [PermissionsBitField.Flags.ManageMessages]
+                }))
+            ) {
                 data.getMessage().suppressEmbeds(true);
             }
 
@@ -373,8 +380,7 @@ export default class Play extends DiscordModule {
                         )
                         .setLabel('  Add the remaining songs in the playlist')
                         .setStyle(ButtonStyle.Primary)
-                    ]
-                );
+                ]);
 
                 return await sendHybridInteractionMessageResponse(data, {
                     embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result)],
@@ -389,11 +395,15 @@ export default class Play extends DiscordModule {
 
             if (linkData.type === 'playlist' || linkData.type === 'album') {
                 let playlist = await DiscordMusicPlayer.getSpotifySongsInPlayList(query).catch((err) => {
-                    sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.LOOKUP_ERROR(data, locale, err)] }, true);
+                    sendHybridInteractionMessageResponse(
+                        data,
+                        { embeds: [EMBEDS.LOOKUP_ERROR(data, locale, err)] },
+                        true
+                    );
                     return null;
                 });
-                
-                if(!playlist) return;
+
+                if (!playlist) return;
                 const songs = await playlist.all_tracks();
 
                 for (const song of songs) {
@@ -414,7 +424,15 @@ export default class Play extends DiscordModule {
 
             if (!result) return;
 
-            if (data.isMessage() && data.getMessage().embeds.length > 0 && await checkBotPermissionsInChannel({ guild, channel, permissions: [PermissionsBitField.Flags.ManageMessages]})) {
+            if (
+                data.isMessage() &&
+                data.getMessage().embeds.length > 0 &&
+                (await checkBotPermissionsInChannel({
+                    guild,
+                    channel,
+                    permissions: [PermissionsBitField.Flags.ManageMessages]
+                }))
+            ) {
                 data.getMessage().suppressEmbeds(true);
             }
 
@@ -423,7 +441,6 @@ export default class Play extends DiscordModule {
             return await sendHybridInteractionMessageResponse(data, {
                 embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result)]
             });
-                
         } else {
             let result = await DiscordMusicPlayer.searchYouTubeByQuery(query);
 
@@ -461,7 +478,7 @@ export default class Play extends DiscordModule {
                         )
                         .setLabel('  Not this? Search!')
                         .setStyle(ButtonStyle.Primary)
-                    ]);
+                ]);
 
                 return await sendHybridInteractionMessageResponse(data, {
                     embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result[0])],

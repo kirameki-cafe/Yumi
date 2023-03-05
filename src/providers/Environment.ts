@@ -33,13 +33,17 @@ class Environment {
         // PRIVATE_BOT Checks
         if (this.get().PRIVATE_BOT.toLowerCase() != 'true' && this.get().PRIVATE_BOT.toLowerCase() != 'false')
             throw new Error('.env PRIVATE_BOT must be either "true" or "false"');
-        
+
         // SUPPORT_URL Checks
         if (this.get().SUPPORT_URL && !validator.isURL(this.get().SUPPORT_URL))
             throw new Error('.env SUPPORT_URL is not a valid URL');
 
         // WEB_HOST Checks
-        if (this.get().WEB_HOST && this.get().WEB_HOST.toLowerCase() != 'localhost' && !validator.isIP(this.get().WEB_HOST))
+        if (
+            this.get().WEB_HOST &&
+            this.get().WEB_HOST.toLowerCase() != 'localhost' &&
+            !validator.isIP(this.get().WEB_HOST)
+        )
             throw new Error('.env WEB_HOST must be either localhost or a valid IP address');
 
         // WEB_PORT Checks
@@ -68,10 +72,10 @@ class Environment {
         const YOUTUBE_COOKIE_BASE64 = process.env.YOUTUBE_COOKIE_BASE64;
 
         const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
-        const SPOTIFY_CLIENT_SECRET= process.env.SPOTIFY_CLIENT_SECRET;
-        const SPOTIFY_REFRESH_TOKEN= process.env.SPOTIFY_REFRESH_TOKEN;
-        const SPOTIFY_CLIENT_MARKET= process.env.SPOTIFY_CLIENT_MARKET;
-        
+        const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+        const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
+        const SPOTIFY_CLIENT_MARKET = process.env.SPOTIFY_CLIENT_MARKET;
+
         return {
             NODE_ENV,
 

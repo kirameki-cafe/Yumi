@@ -1,11 +1,4 @@
-import {
-    Message,
-    ActionRowBuilder,
-    ButtonBuilder,
-    CommandInteraction,
-    BaseInteraction,
-    ButtonStyle
-} from 'discord.js';
+import { Message, ActionRowBuilder, ButtonBuilder, CommandInteraction, BaseInteraction, ButtonStyle } from 'discord.js';
 import validator from 'validator';
 import countryLookup from 'country-code-lookup';
 import { countryCodeEmoji } from 'country-code-emoji';
@@ -14,11 +7,7 @@ import Prisma from '../providers/Prisma';
 import osuAPI from '../providers/osuAPI';
 
 import DiscordModule, { HybridInteractionMessage } from '../utils/DiscordModule';
-import {
-    makeInfoEmbed,
-    makeErrorEmbed,
-    sendHybridInteractionMessageResponse
-} from '../utils/DiscordMessage';
+import { makeInfoEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from '../utils/DiscordMessage';
 
 const EMBEDS = {
     osu_INFO: (data: HybridInteractionMessage) => {
@@ -99,7 +88,6 @@ export default class osu extends DiscordModule {
         const Guild = await Prisma.client.guild.findFirst({ where: { id: data.getGuild()!.id } });
         if (!Guild) return;
 
-        
         if (!osuAPI.client)
             return await sendHybridInteractionMessageResponse(data, {
                 embeds: [EMBEDS.NOT_INITIALIZED(data)]

@@ -44,13 +44,9 @@ export default class DiscordModule {
     GuildModuleInteractionCreate(interaction: Interaction): void | Promise<void | any> {}
 
     GuildCommandInteractionCreate(interaction: CommandInteraction): void | Promise<void | any> {}
-    GuildModuleCommandInteractionCreate(
-        interaction: CommandInteraction
-    ): void | Promise<void | any> {}
+    GuildModuleCommandInteractionCreate(interaction: CommandInteraction): void | Promise<void | any> {}
 
-    GuildSelectMenuInteractionCreate(
-        interaction: SelectMenuInteraction
-    ): void | Promise<void | any> {}
+    GuildSelectMenuInteractionCreate(interaction: SelectMenuInteraction): void | Promise<void | any> {}
 
     GuildButtonInteractionCreate(interaction: ButtonInteraction): void | Promise<void | any> {}
 

@@ -9,11 +9,7 @@ import {
 } from 'discord.js';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
-import {
-    makeInfoEmbed,
-    makeErrorEmbed,
-    sendHybridInteractionMessageResponse
-} from '../../utils/DiscordMessage';
+import { makeInfoEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from '../../utils/DiscordMessage';
 
 import DiscordMusicPlayer from '../../providers/DiscordMusicPlayer';
 import Users from '../../services/Users';
@@ -140,34 +136,26 @@ export default class Debug extends DiscordModule {
             },
             activeMusicPlayer: async (data: HybridInteractionMessage) => {
                 await sendHybridInteractionMessageResponse(data, {
-                    embeds: [
-                        EMBEDS.ACTIVE_MUSIC_PLAYERS(data, DiscordMusicPlayer.GuildQueue)
-                    ]
+                    embeds: [EMBEDS.ACTIVE_MUSIC_PLAYERS(data, DiscordMusicPlayer.GuildQueue)]
                 });
             },
             myData: async (data: HybridInteractionMessage) => {
                 const userData = await Cache.getCachedUser(user.id);
                 await sendHybridInteractionMessageResponse(data, {
-                    embeds: [
-                        EMBEDS.YOUR_USER_DATA(data, userData)
-                    ]
+                    embeds: [EMBEDS.YOUR_USER_DATA(data, userData)]
                 });
             },
             guildData: async (data: HybridInteractionMessage) => {
                 const guildData = await Cache.getCachedGuild(guild.id);
                 await sendHybridInteractionMessageResponse(data, {
-                    embeds: [
-                        EMBEDS.GUILD_DATA(data, guildData)
-                    ]
+                    embeds: [EMBEDS.GUILD_DATA(data, guildData)]
                 });
             },
             invalidInteraction: async (data: HybridInteractionMessage) => {
                 const row = new ActionRowBuilder<ButtonBuilder>().addComponents([
                     new ButtonBuilder()
                         .setEmoji('😥')
-                        .setLabel(
-                            ' Make invalid interaction (Wait 7 seconds, check error in console or logs)'
-                        )
+                        .setLabel(' Make invalid interaction (Wait 7 seconds, check error in console or logs)')
                         .setCustomId('dev_make_invalid_interaction')
                         .setStyle(ButtonStyle.Primary)
                 ]);

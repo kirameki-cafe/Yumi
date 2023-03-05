@@ -1,10 +1,4 @@
-import {
-    Message,
-    CommandInteraction,
-    Guild,
-    PermissionsBitField,
-    PermissionResolvable
-} from 'discord.js';
+import { Message, CommandInteraction, Guild, PermissionsBitField, PermissionResolvable } from 'discord.js';
 import { I18n } from 'i18n';
 
 import DiscordProvider from '../../providers/Discord';
@@ -24,26 +18,26 @@ import * as ServiceAnnouncementModule from './ServiceAnnouncement';
 
 export const COMMON_EMBEDS = {
     MEMBER_NO_PERMISSION: (data: HybridInteractionMessage, locale: I18n, permissions: PermissionResolvable[]) => {
-          
         let allPermissions = [];
-        for(const value of permissions) {
+        for (const value of permissions) {
             allPermissions.push(new PermissionsBitField(value).toArray());
         }
         return makeErrorEmbed({
             title: locale.__('common.member_no_permissions'),
-            description: locale.__('common.member_no_permissions_description', { PERMISSIONS: allPermissions.join(', ')}),
+            description: locale.__('common.member_no_permissions_description', {
+                PERMISSIONS: allPermissions.join(', ')
+            }),
             user: data.getUser()
         });
     },
     BOT_NO_PERMISSION: (data: HybridInteractionMessage, locale: I18n, permissions: PermissionResolvable[]) => {
-          
         let allPermissions = [];
-        for(const value of permissions) {
+        for (const value of permissions) {
             allPermissions.push(new PermissionsBitField(value).toArray());
         }
         return makeErrorEmbed({
             title: locale.__('common.bot_no_permissions'),
-            description: locale.__('common.bot_no_permissions_description', { PERMISSIONS: allPermissions.join(', ')}),
+            description: locale.__('common.bot_no_permissions_description', { PERMISSIONS: allPermissions.join(', ') }),
             user: data.getUser()
         });
     },
@@ -55,7 +49,7 @@ export const COMMON_EMBEDS = {
             user: data.getUser()
         });
     }
-}
+};
 
 const EMBEDS = {
     SETTINGS_INFO: (data: HybridInteractionMessage, locale: I18n, guild: Guild) => {
@@ -68,7 +62,7 @@ const EMBEDS = {
             fields: [
                 {
                     name: locale.__('common.available_args'),
-                    value: locale.__('settings.valid_args'),
+                    value: locale.__('settings.valid_args')
                 }
             ],
             user: data.getUser()
