@@ -282,24 +282,6 @@ export class DiscordMusicPlayerInstance {
                 }, 2000);
             }
         );
-
-        // Hotfix for VoiceConnection stuck in signalling state around a minute
-        // https://github.com/discordjs/discord.js/issues/9185
-        this.voiceConnection.on('stateChange', (oldState: VoiceConnectionState, newState: VoiceConnectionState) => {
-            const oldNetworking = Reflect.get(oldState, 'networking');
-            const newNetworking = Reflect.get(newState, 'networking');
-
-            const networkStateChangeHandler = (
-                oldNetworkState: VoiceConnectionState,
-                newNetworkState: VoiceConnectionState
-            ) => {
-                const newUdp = Reflect.get(newNetworkState, 'udp');
-                clearInterval(newUdp?.keepAliveInterval);
-            };
-
-            oldNetworking?.off('stateChange', networkStateChangeHandler);
-            newNetworking?.on('stateChange', networkStateChangeHandler);
-        });
     }
 
     public async leaveVoiceChannel() {
