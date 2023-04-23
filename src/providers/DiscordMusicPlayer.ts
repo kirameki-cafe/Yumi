@@ -27,6 +27,8 @@ import DiscordProvider from './Discord';
 import Environment from './Environment';
 import Logger from '../libs/Logger';
 
+const LOGGING_TAG = '[DiscordMusicPlayer]';
+
 export type ValidTracks = YouTubeVideo | SpotifyTrack;
 declare class YouTubeThumbnail {
     url: string;
@@ -65,6 +67,7 @@ interface TokenOptions {
 let tokenObject: TokenOptions = {};
 
 if (Environment.get().YOUTUBE_COOKIE_BASE64) {
+    Logger.debug(LOGGING_TAG, 'Setting YouTube cookie');
     tokenObject.youtube = {
         cookie: Buffer.from(Environment.get().YOUTUBE_COOKIE_BASE64, 'base64').toString()
     };
@@ -76,6 +79,7 @@ if (
     Environment.get().SPOTIFY_REFRESH_TOKEN &&
     Environment.get().SPOTIFY_CLIENT_MARKET
 ) {
+    Logger.debug(LOGGING_TAG, 'Setting Spotify token');
     tokenObject.spotify = {
         client_id: Environment.get().SPOTIFY_CLIENT_ID,
         client_secret: Environment.get().SPOTIFY_CLIENT_SECRET,
@@ -180,6 +184,7 @@ export enum DiscordMusicPlayerLoopMode {
     None = 'none',
     Current = 'current'
 }
+
 export class DiscordMusicPlayerInstance {
     public queue: Queue;
     public player: AudioPlayer;
@@ -322,6 +327,12 @@ export class DiscordMusicPlayerInstance {
             let resource;
             if (track instanceof YouTubeVideo) {
                 const stream = await playdl.stream(track.url);
+
+                Logger.verbose(
+                    LOGGING_TAG,
+                    `New stream created, type: ${stream.type}, url: ${track.url}, Guild: ${this.voiceChannel.guild.id}, VoiceChannel: ${this.voiceChannel.id}`
+                );
+
                 resource = createAudioResource(stream.stream, {
                     inputType: stream.type
                 });
@@ -331,6 +342,12 @@ export class DiscordMusicPlayerInstance {
                 if (!search) throw new Error('Unable to find Spotify track on YouTube');
 
                 const stream = await playdl.stream(search.url);
+
+                Logger.verbose(
+                    LOGGING_TAG,
+                    `New stream created, type: ${stream.type}, url: ${track.url}, Guild: ${this.voiceChannel.guild.id}, VoiceChannel: ${this.voiceChannel.id}`
+                );
+
                 resource = createAudioResource(stream.stream, {
                     inputType: stream.type
                 });
@@ -473,6 +490,12 @@ class DiscordMusicPlayer {
         const searched: YouTubeVideo[] = await playdl.search(query, {
             source: { youtube: 'video' }
         });
+
+        Logger.verbose(
+            LOGGING_TAG,
+            `Search YouTube by query: ${query}, Total result: ${searched.length}, ${JSON.stringify(searched)}`
+        );
+
         if (searched.length == 0) return null;
         return searched;
     }
@@ -491,7 +514,10 @@ class DiscordMusicPlayer {
     }
 
     public async searchSpotifyBySpotifyLink(spotifyLink: SpotifyLink) {
-        if (playdl.is_expired()) await playdl.refreshToken();
+        if (playdl.is_expired()) {
+            Logger.debug(LOGGING_TAG, 'Spotify token expired, refreshing...');
+            await playdl.refreshToken();
+        }
 
         if (spotifyLink.type != 'track') return;
 
@@ -502,6 +528,9 @@ class DiscordMusicPlayer {
                 Logger.error(err.message);
                 throw new Error('Error while searching on Spotify');
             });
+
+        Logger.verbose(LOGGING_TAG, `Search Spotify by link: ${spotifyLink.id}, ${JSON.stringify(searched)}`);
+
         if (!(searched instanceof SpotifyTrack)) return;
 
         if (!searched) return null;
@@ -514,6 +543,14 @@ class DiscordMusicPlayer {
         const searched: YouTubeVideo[] = await playdl.search('https://www.youtube.com/watch?v=' + youtubeLink.videoId, {
             source: { youtube: 'video' }
         });
+
+        Logger.verbose(
+            LOGGING_TAG,
+            `Search YouTube by link (Pass 1): ${youtubeLink.videoId}, Total result: ${
+                searched.length
+            }, ${JSON.stringify(searched)}`
+        );
+
         for (let video of searched) {
             if (video.id === youtubeLink.videoId) return video;
         }
@@ -522,6 +559,14 @@ class DiscordMusicPlayer {
         const searched2: YouTubeVideo[] = await playdl.search(youtubeLink.videoId, {
             source: { youtube: 'video' }
         });
+
+        Logger.verbose(
+            LOGGING_TAG,
+            `Seach YouTube by video ID (Pass 2): ${youtubeLink.videoId}, Total result: ${
+                searched2.length
+            }, ${JSON.stringify(searched2)}`
+        );
+
         for (let video of searched2) {
             if (video.id === youtubeLink.videoId) return video;
         }
@@ -532,12 +577,21 @@ class DiscordMusicPlayer {
             const searched: YouTubeVideo[] = await playdl.search(videoInfo.video_details.title, {
                 source: { youtube: 'video' }
             });
+
+            Logger.verbose(
+                LOGGING_TAG,
+                `Search YouTube by title (Pass 3): ${videoInfo.video_details.title}, Total result: ${
+                    searched.length
+                }, ${JSON.stringify(searched)}`
+            );
+
             for (let video of searched) {
                 if (video.id === youtubeLink.videoId) return video;
             }
         }
 
         let yt_info = await playdl.video_info('https://www.youtube.com/watch?v=' + youtubeLink.videoId);
+
         if (yt_info) {
             return new YouTubeVideo({
                 id: yt_info.video_details.id,
@@ -566,18 +620,25 @@ class DiscordMusicPlayer {
     }
 
     public async getYouTubeSongsInPlayList(youtubeLink: string) {
-        return await playdl.playlist_info(youtubeLink, {
+        const result = await playdl.playlist_info(youtubeLink, {
             incomplete: true
         });
+        Logger.verbose(LOGGING_TAG, `Get YouTube songs in playlist: ${youtubeLink}, ${JSON.stringify(result)}`);
+        return result;
     }
 
     public async getSpotifySongsInPlayList(spotifyLink: string) {
-        if (playdl.is_expired()) await playdl.refreshToken();
+        if (playdl.is_expired()) {
+            Logger.debug(LOGGING_TAG, 'Spotify token expired, refreshing...');
+            await playdl.refreshToken();
+        }
 
         const result = await playdl.spotify(spotifyLink).catch((err) => {
             Logger.error(err.message);
             throw new Error('Error while searching on Spotify');
         });
+
+        Logger.verbose(LOGGING_TAG, `Get Spotify songs in playlist: ${spotifyLink}, ${JSON.stringify(result)}`);
 
         if (!(result.type == 'playlist' || result.type == 'album')) throw new Error('Not a spotify playlist');
 

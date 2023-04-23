@@ -16,6 +16,9 @@ import {
     unregisterAllGuildsCommands,
     unregisterAllGlobalCommands
 } from '../utils/DiscordInteraction';
+import Logger from '../libs/Logger';
+
+const LOGGING_TAG = '[InteractionManager]';
 
 const EMBEDS = {
     INTERACTION_INFO: (data: HybridInteractionMessage) => {
@@ -97,6 +100,7 @@ export default class InteractionManager extends DiscordModule {
 
         const funct = {
             unloadAll: async (data: HybridInteractionMessage) => {
+                Logger.info(LOGGING_TAG, 'Unloading all interaction');
                 let placeholder: HybridInteractionMessage | undefined;
 
                 let _placeholder = await sendHybridInteractionMessageResponse(data, {
@@ -127,6 +131,7 @@ export default class InteractionManager extends DiscordModule {
                 }
             },
             unloadGlobal: async (data: HybridInteractionMessage) => {
+                Logger.info(LOGGING_TAG, 'Unloading all global interaction');
                 let placeholder: HybridInteractionMessage | undefined;
 
                 let _placeholder = await sendHybridInteractionMessageResponse(data, {
@@ -157,6 +162,7 @@ export default class InteractionManager extends DiscordModule {
                 }
             },
             reloadGlobal: async (data: HybridInteractionMessage) => {
+                Logger.info(LOGGING_TAG, 'Reloading all global interaction');
                 let placeholder: HybridInteractionMessage | undefined;
 
                 let _placeholder = await sendHybridInteractionMessageResponse(data, {
@@ -188,6 +194,7 @@ export default class InteractionManager extends DiscordModule {
                 }
             },
             reloadAll: async (data: HybridInteractionMessage) => {
+                Logger.info(LOGGING_TAG, 'Reloading all interaction');
                 let placeholder: HybridInteractionMessage | undefined;
 
                 let _placeholder = await sendHybridInteractionMessageResponse(data, {

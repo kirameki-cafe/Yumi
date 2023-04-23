@@ -7,6 +7,8 @@ import Logger from '../libs/Logger';
 import Cache from '../providers/Cache';
 import Prisma from '../providers/Prisma';
 
+const LOGGING_TAG = '[DiscordCore]';
+
 export default class Core extends DiscordModule {
     public id: string = 'Discord_Core';
 
@@ -28,13 +30,15 @@ export default class Core extends DiscordModule {
 
         this.setActivity();
         setInterval(() => {
+            Logger.verbose(LOGGING_TAG, 'Updating activity');
             this.setActivity();
         }, 5 * 60 * 1000);
 
-        Logger.info('Core started successfully');
+        Logger.info(LOGGING_TAG, 'Core started successfully');
     }
 
     async GuildCreate(guild: Guild) {
+        Logger.info(LOGGING_TAG, `Joined guild ${guild.name} (${guild.id})`);
         if (await Prisma.client.guild.findFirst({ where: { id: guild.id } })) return;
 
         await Prisma.client.guild.create({

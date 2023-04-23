@@ -20,6 +20,8 @@ import App from '..';
 import { HybridInteractionMessage } from './DiscordModule';
 import Logger from '../libs/Logger';
 
+const LOGGING_TAG = '[DiscordMessage]';
+
 const emotes = {
     yumiloading: '<a:yumiloading:983269480085983262>'
 };
@@ -142,6 +144,7 @@ export async function sendMessage(
     user: User | undefined,
     options: string | MessagePayload | BaseMessageOptions
 ) {
+    Logger.verbose(LOGGING_TAG, `Sending message, ${JSON.stringify(options)})}`);
     let message;
 
     try {
@@ -171,6 +174,8 @@ export async function sendHybridInteractionMessageResponse(
     payload: BaseMessageOptions | InteractionReplyOptions,
     replace = false
 ): Promise<Message | BaseInteraction | undefined> {
+    Logger.verbose(LOGGING_TAG, `Sending hybrid interaction message response, ${JSON.stringify(payload)})}`);
+
     if (data.isApplicationCommand() || data.isButton() || data.isSelectMenu()) {
         const messageComponent = data.getMessageComponentInteraction();
 
@@ -218,6 +223,7 @@ export function getEmotes() {
 }
 
 async function sendReply(rMessage: Message, options: string | MessagePayload | BaseMessageOptions) {
+    Logger.verbose(LOGGING_TAG, `Sending reply, ${JSON.stringify(options)})}`);
     let message;
 
     try {
