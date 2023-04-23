@@ -9,6 +9,7 @@ App.loadPrisma();
 App.loadLocale();
 App.loadDiscord();
 App.load_osu();
+App.loadVRChat();
 App.loadExpress();
 
 export default App;
