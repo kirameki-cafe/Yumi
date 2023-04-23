@@ -29,7 +29,7 @@ const EMBEDS = {
                 },
                 {
                     name: `🎮 ${locale.__('help.games')}`,
-                    value: `osu`,
+                    value: `osu, vrchat (vrc)`,
                     inline: true
                 },
                 {
