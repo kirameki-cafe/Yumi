@@ -26,7 +26,7 @@ const EMBEDS = {
                 },
                 {
                     name: 'Available arguments',
-                    value: '``user``'
+                    value: '``user`` ``world``'
                 }
             ],
             user: data.getUser()
