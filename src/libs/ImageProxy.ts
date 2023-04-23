@@ -1,5 +1,8 @@
 import { createHmac } from 'crypto';
 import Environment from '../providers/Environment';
+import Logger from './Logger';
+
+const LOGGING_TAG = '[ImageProxy]';
 
 export default class ImagePorxy {
     public static signImageProxyURL(url: string, modifiers: string | undefined = undefined) {
@@ -22,6 +25,8 @@ export default class ImagePorxy {
 
         const signature = sign(Environment.get().IMGPROXY_SALT, path, Environment.get().IMGPROXY_KEY);
         const result = `${Environment.get().IMGPROXY_HOST}${signature}${path}`;
+
+        Logger.verbose(LOGGING_TAG, `Signed URL ${result}`);
         return result;
     }
 }

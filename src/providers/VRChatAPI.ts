@@ -144,6 +144,7 @@ class VRChatAPI {
         if (typeof this.cache.Users[id] !== 'undefined') {
             if (this.cache.Users[id].expires > new Date()) {
                 Logger.debug(LOGGING_TAG, `Cache hit for user ${id}`);
+                Logger.verbose(LOGGING_TAG, `Cache hit for user ${id}, ${JSON.stringify(this.cache.Users[id].user)}}`);
                 return this.cache.Users[id].user;
             }
             Logger.debug(LOGGING_TAG, `Cache hit for user ${id} but expired, refreshing`);
@@ -174,6 +175,10 @@ class VRChatAPI {
         if (typeof this.cache.Worlds[id] !== 'undefined') {
             if (this.cache.Worlds[id].expires > new Date()) {
                 Logger.debug(LOGGING_TAG, `Cache hit for world ${id}`);
+                Logger.verbose(
+                    LOGGING_TAG,
+                    `Cache hit for world ${id}, ${JSON.stringify(this.cache.Worlds[id].world)}}`
+                );
                 return this.cache.Worlds[id].world;
             }
             Logger.debug(LOGGING_TAG, `Cache hit for world ${id} but expired, refreshing`);
@@ -193,6 +198,7 @@ class VRChatAPI {
         }
 
         Logger.debug(LOGGING_TAG, `Caching world ${id}`);
+        Logger.verbose(LOGGING_TAG, `Caching world ${id}, ${JSON.stringify(world.data)}}`);
         this.cache.Worlds[id] = {
             world: world.data,
             expires: new Date(Date.now() + VRC_CACHE_DURATION)

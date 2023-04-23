@@ -1,6 +1,9 @@
 import { User, Guild } from '@prisma/client';
 import { Snowflake } from 'discord-api-types/v10';
 import Prisma from './Prisma';
+import Logger from '../libs/Logger';
+
+const LOGGING_TAG = '[PrismaCache]';
 
 class Cache {
     private cache: {
@@ -16,6 +19,7 @@ class Cache {
     }
 
     public async updateGuildsCache() {
+        Logger.debug(LOGGING_TAG, 'Updating guilds cache');
         const Guilds = await Prisma.client.guild.findMany();
         for (let guild of Guilds) {
             this.setGuildCache(guild.id, guild);
@@ -23,6 +27,7 @@ class Cache {
     }
 
     public async updateGuildCache(id: Snowflake) {
+        Logger.debug(LOGGING_TAG, `Updating guild cache for ${id}`);
         const DBGuild = await Prisma.client.guild.findFirst({ where: { id: id } });
 
         // TODO: Try to fetch guild, create if not found or throw error
@@ -31,6 +36,7 @@ class Cache {
     }
 
     public async updateUserCache(id: Snowflake) {
+        Logger.debug(LOGGING_TAG, `Updating user cache for ${id}`);
         let user = await Prisma.client.user.findUnique({ where: { id } });
         if (!user) {
             user = await Prisma.client.user.create({
@@ -58,8 +64,12 @@ class Cache {
     }
 
     public async getCachedUser(id: Snowflake): Promise<User | undefined> {
-        if (typeof this.cache.Users[id] !== 'undefined') return this.cache.Users[id];
+        if (typeof this.cache.Users[id] !== 'undefined') {
+            Logger.debug(LOGGING_TAG, `Cache hit for user ${id}`);
+            return this.cache.Users[id];
+        }
 
+        Logger.debug(LOGGING_TAG, `Looking up user ${id} in Prisma`);
         const user = await Prisma.client.user.findUnique({
             where: {
                 id: id
@@ -73,10 +83,12 @@ class Cache {
     }
 
     public setGuildCache(id: Snowflake, data: Guild): void {
+        Logger.debug(LOGGING_TAG, `Caching guild ${id}`);
         this.cache.Guilds[id] = data;
     }
 
     public setUserCache(id: Snowflake, data: User): void {
+        Logger.debug(LOGGING_TAG, `Caching user ${id}`);
         this.cache.Users[id] = data;
     }
 
