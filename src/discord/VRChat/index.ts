@@ -90,12 +90,4 @@ export default class VRChat extends DiscordModule {
                 return await VRChatWorld.run(data, args);
         }
     }
-
-    private numberWithCommas(x: Number) {
-        try {
-            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        } catch (err) {
-            return x;
-        }
-    }
 }
