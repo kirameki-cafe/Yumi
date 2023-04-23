@@ -22,12 +22,6 @@ const EMBEDS = {
             user: data.getUser()
         });
     },
-    NOT_INITIALIZED: (data: HybridInteractionMessage) => {
-        return makeErrorEmbed({
-            title: `VRChat feature is disabled`,
-            user: data.getUser()
-        });
-    },
     ERROR: (data: HybridInteractionMessage) => {
         return makeErrorEmbed({
             title: `Something went wrong while connecting to VRChat`,
