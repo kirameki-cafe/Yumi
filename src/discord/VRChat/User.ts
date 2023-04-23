@@ -196,7 +196,7 @@ export default class VRChatUser {
         if (tags.includes('system_trust_trusted')) return 'Known User';
         if (tags.includes('system_trust_known')) return 'User';
         if (tags.includes('system_trust_basic')) return 'New User';
-        return '🤍 Visitor';
+        return 'Visitor';
     }
 
     private static getExtraRanks(tags: string[]) {
