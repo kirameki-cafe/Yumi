@@ -25,7 +25,7 @@ const EMBEDS = {
             fields: [
                 {
                     name: 'Available arguments',
-                    value: '``reloadAll`` ``unloadAll`` ``reloadglobal``'
+                    value: '``reloadAll`` ``unloadAll`` ``reloadGlobal``'
                 }
             ],
             user: data.getUser()
