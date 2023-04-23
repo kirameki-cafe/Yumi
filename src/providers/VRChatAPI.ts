@@ -29,6 +29,7 @@ interface Cache {
 class VRChatAPI {
     public client: VRChatAPIs | null;
     public configuration: VRChat.Configuration | null;
+    private ready = false;
     private cache: Cache;
     private useragent: string | null = null;
 
@@ -66,8 +67,18 @@ class VRChatAPI {
         };
 
         Logger.info('Logging in to VRChat');
-        let res = await this.client.AuthenticationApi.getCurrentUser();
 
+        let res;
+        try {
+            res = await this.client.AuthenticationApi.getCurrentUser();
+        } catch (err: any) {
+            if (err.response?.status === 401) {
+                Logger.error('Unable to log in to VRChat, check your credentials');
+                return;
+            } else throw err;
+        }
+
+        this.ready = true;
         Logger.info('Logged in to VRChat as ' + res.data.displayName);
 
         setInterval(() => {
@@ -84,6 +95,10 @@ class VRChatAPI {
                 }
             }
         }, VRC_CACHE_DURATION);
+    }
+
+    public isReady(): boolean {
+        return this.ready;
     }
 
     public async getCachedUserById(id: string) {

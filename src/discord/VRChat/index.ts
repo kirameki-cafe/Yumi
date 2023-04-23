@@ -63,7 +63,7 @@ export default class VRChat extends DiscordModule {
         const Guild = await Prisma.client.guild.findFirst({ where: { id: data.getGuild()!.id } });
         if (!Guild) return;
 
-        if (!VRChatAPI.client)
+        if (!VRChatAPI.isReady())
             return await sendHybridInteractionMessageResponse(data, {
                 embeds: [EMBEDS.NOT_INITIALIZED(data)]
             });
