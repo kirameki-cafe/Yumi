@@ -687,6 +687,18 @@ class DiscordMusicPlayer {
                 videoId: videoId
             };
         } else if (
+            query.startsWith('https://www.youtube.com/shorts/') ||
+            query.startsWith('http://www.youtube.com/shorts/')
+        ) {
+            let videoId = query.split('/')[4];
+
+            if (!videoId) throw new Error('YouTube link is invalid');
+            if (query.split('/')[5]) throw new Error('YouTube link is invalid');
+
+            return {
+                videoId: videoId
+            };
+        } else if (
             query.startsWith('https://www.youtube.com/playlist?list=') ||
             query.startsWith('http://www.youtube.com/playlist?list=')
         ) {
