@@ -26,6 +26,7 @@ import Discord_InteractionManager from '../discord/InteractionManager';
 import Discord_MembershipScreening from '../discord/MembershipScreening';
 import Discord_osu from '../discord/osu';
 import Discord_VRChat from '../discord/VRChat';
+import Discord_VRChatLogin from '../discord/Developer/VRChatLogin';
 import Discord_UserInfo from '../discord/UserInfo';
 import Discord_Stats from '../discord/Stats';
 import Discord_Support from '../discord/Support';
@@ -80,6 +81,7 @@ class Discord {
             new Discord_InteractionManager(),
             new Discord_osu(),
             new Discord_VRChat(),
+            new Discord_VRChatLogin(),
             new Discord_Settings(),
             new Discord_Support(),
 

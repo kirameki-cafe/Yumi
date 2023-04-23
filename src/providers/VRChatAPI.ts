@@ -97,6 +97,32 @@ class VRChatAPI {
         }, VRC_CACHE_DURATION);
     }
 
+    public async reInit() {
+        Logger.info(LOGGING_TAG, 'Re-initializing VRChat API');
+        this.ready = false;
+        this.client = null;
+        this.configuration = null;
+        await this.init();
+    }
+
+    public async loginEmailOtp(otp: string) {
+        if (this.ready) throw new Error('Already logged in');
+        let res;
+        try {
+            res = await this.client!.AuthenticationApi.verify2FAEmailCode({
+                code: otp
+            });
+        } catch (err: any) {
+            if (err.response?.status === 400) {
+                Logger.error(LOGGING_TAG, 'Unable to log in, invalid OTP');
+                throw new Error('Invalid OTP');
+            } else if (err.response?.status === 401) {
+                Logger.error(LOGGING_TAG, 'Unable to log in, invalid auth cookie');
+                throw new Error('Invalid auth cookie');
+            } else throw err;
+        }
+    }
+
     public isReady(): boolean {
         return this.ready;
     }
