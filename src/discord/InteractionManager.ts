@@ -25,7 +25,7 @@ const EMBEDS = {
             fields: [
                 {
                     name: 'Available arguments',
-                    value: '``reloadAll`` ``unloadAll`` ``reloadGlobal``'
+                    value: '``reloadAll`` ``unloadAll`` ``reloadGlobal`` ``unloadGlobal``'
                 }
             ],
             user: data.getUser()
@@ -106,6 +106,36 @@ export default class InteractionManager extends DiscordModule {
 
                 try {
                     await unregisterAllGuildsCommands();
+
+                    if (data && data.isMessage() && placeholder && placeholder.isMessage())
+                        return placeholder.getMessage().edit({ embeds: [EMBEDS.UNLOADALL_SUCCESS(data)] });
+                    else if (data.isApplicationCommand())
+                        return await sendHybridInteractionMessageResponse(
+                            data,
+                            { embeds: [EMBEDS.UNLOADALL_SUCCESS(data)] },
+                            true
+                        );
+                } catch (err) {
+                    if (data && data.isMessage() && placeholder && placeholder.isMessage())
+                        return placeholder.getMessage().edit({ embeds: [EMBEDS.UNLOADALL_ERROR(data, err)] });
+                    else if (data.isApplicationCommand())
+                        return await sendHybridInteractionMessageResponse(
+                            data,
+                            { embeds: [EMBEDS.UNLOADALL_ERROR(data, err)] },
+                            true
+                        );
+                }
+            },
+            unloadGlobal: async (data: HybridInteractionMessage) => {
+                let placeholder: HybridInteractionMessage | undefined;
+
+                let _placeholder = await sendHybridInteractionMessageResponse(data, {
+                    embeds: [EMBEDS.PROCESSING(data)]
+                });
+                if (_placeholder) placeholder = new HybridInteractionMessage(_placeholder);
+
+                try {
+                    await unregisterAllGlobalCommands();
 
                     if (data && data.isMessage() && placeholder && placeholder.isMessage())
                         return placeholder.getMessage().edit({ embeds: [EMBEDS.UNLOADALL_SUCCESS(data)] });
@@ -214,6 +244,8 @@ export default class InteractionManager extends DiscordModule {
                 return await funct.reloadGlobal(data);
             case 'unloadall':
                 return await funct.unloadAll(data);
+            case 'unloadglobal':
+                return await funct.unloadGlobal(data);
         }
     }
 }
