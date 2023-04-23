@@ -7,6 +7,9 @@ import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModu
 import { makeInfoEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from '../../utils/DiscordMessage';
 import Environment from '../../providers/Environment';
 import ImagePorxy from '../../libs/ImageProxy';
+import Logger from '../../libs/Logger';
+
+const LOGGING_TAG = '[VRChatUser]';
 
 const EMBEDS = {
     NO_USER_FOUND: (data: HybridInteractionMessage) => {
@@ -83,6 +86,8 @@ export default class VRChatUser {
         if (data.isApplicationCommand()) {
             await data.getSlashCommand().deferReply();
         }
+
+        Logger.verbose(LOGGING_TAG, `Showing user ${user.displayName} (${user.id})`, JSON.stringify(user));
 
         const embed = makeInfoEmbed({
             icon: null,
