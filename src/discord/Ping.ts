@@ -11,6 +11,9 @@ import Locale from '../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../utils/DiscordModule';
 import { makeSuccessEmbed, makeProcessingEmbed, sendHybridInteractionMessageResponse } from '../utils/DiscordMessage';
+import Logger from '../libs/Logger';
+
+const LOGGING_TAG = '[Ping]';
 
 enum MeasureType {
     Ping = 'ping',
@@ -75,26 +78,36 @@ export default class Ping extends DiscordModule {
                     let stringCurrent = `${entry.title}`;
 
                     if (entry.type === MeasureType.Ping) {
+                        Logger.debug(LOGGING_TAG, `Pinging ${entry.host}`);
                         const res = await NodePing.promise.probe(entry.host!, { min_reply: 4 });
 
                         if (!res.alive) {
+                            Logger.debug(LOGGING_TAG, `Ping failed for ${entry.host} (not alive)`);
                             stringCurrent += 'Failed';
                             return finalString.push(stringCurrent);
                         }
 
                         if (res.avg === 'unknown' || res.min === 'unknown' || res.max === 'unknown') {
+                            Logger.debug(LOGGING_TAG, `Ping failed for ${entry.host} (unknown)`);
                             stringCurrent += 'Failed';
                             return finalString.push(stringCurrent);
                         }
+
+                        Logger.debug(
+                            LOGGING_TAG,
+                            `Ping result for ${entry.host}: Avg: ${res.avg}ms, Min: ${res.min}ms, Max: ${res.max}ms`
+                        );
 
                         stringCurrent += `${parseFloat(res.avg).toFixed(1)}ms (${parseFloat(res.min).toFixed(
                             1
                         )}ms - ${parseFloat(res.max).toFixed(1)}ms)`;
                         finalString.push(stringCurrent);
                     } else if (entry.type === MeasureType.DiscordWebsocket) {
+                        Logger.debug(LOGGING_TAG, `Pinging DiscordWebsocket`);
                         stringCurrent += `${Math.round(DiscordProvider.client.ws.ping).toFixed(1)}ms`;
                         finalString.push(stringCurrent);
                     } else if (entry.type === MeasureType.DiscordHTTPPing) {
+                        Logger.debug(LOGGING_TAG, `Pinging DiscordHTTPPing`);
                         stringCurrent += `${Math.abs(afterEditDate - beforeEditDate).toFixed(1)}ms`;
                         finalString.push(stringCurrent);
                     }
@@ -104,6 +117,8 @@ export default class Ping extends DiscordModule {
             },
             { concurrency: 5 }
         );
+
+        Logger.debug(LOGGING_TAG, `All pings done, sending message`);
 
         finalString.push('');
         finalString.push(

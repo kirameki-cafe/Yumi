@@ -63,6 +63,7 @@ class Environment {
 
     public get(): any {
         const NODE_ENV = process.env.NODE_ENV;
+        const VERBOSE = process.env.VERBOSE;
 
         const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
         const DEVELOPER_IDS = process.env.DEVELOPER_IDS;
@@ -90,6 +91,7 @@ class Environment {
 
         return {
             NODE_ENV,
+            VERBOSE,
 
             DISCORD_TOKEN,
             DEVELOPER_IDS,

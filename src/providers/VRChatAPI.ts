@@ -3,6 +3,7 @@ import Environment from './Environment';
 import Logger from '../libs/Logger';
 import App from './App';
 
+const LOGGING_TAG = '[VRChatAPI]';
 const VRC_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 interface VRChatAPIs {
@@ -29,6 +30,7 @@ interface Cache {
 class VRChatAPI {
     public client: VRChatAPIs | null;
     public configuration: VRChat.Configuration | null;
+
     private ready = false;
     private cache: Cache;
     private useragent: string | null = null;
@@ -46,7 +48,8 @@ class VRChatAPI {
         this.useragent = `Yumi/${App.version.replaceAll('/', '').replaceAll(' ', '-').replaceAll('--', '-')} ${
             Environment.get().VRC_CONTACT_EMAIL
         }`;
-        Logger.debug(`[VRChat] Using user agent ${this.useragent}`);
+
+        Logger.debug(LOGGING_TAG, `Using user agent ${this.useragent}`);
         this.configuration = new VRChat.Configuration({
             //username: Environment.get().VRC_USERNAME,
             //;password: Environment.get().VRC_PASSWORD,
@@ -66,31 +69,41 @@ class VRChatAPI {
             WorldsApi: new VRChat.WorldsApi(this.configuration)
         };
 
-        Logger.info('Logging in to VRChat');
+        Logger.info(LOGGING_TAG, 'Logging in to VRChat');
 
         let res;
         try {
             res = await this.client.AuthenticationApi.getCurrentUser();
         } catch (err: any) {
             if (err.response?.status === 401) {
-                Logger.error('Unable to log in to VRChat, check your credentials');
+                Logger.error(LOGGING_TAG, 'Unable to log in, check your credentials');
                 return;
             } else throw err;
         }
 
+        if ((res.data as any).requiresTwoFactorAuth) {
+            Logger.error(
+                LOGGING_TAG,
+                'Two factor authentication is required, please authenticate',
+                (res.data as any).requiresTwoFactorAuth
+            );
+            Logger.info(LOGGING_TAG, `Auth Cookie: ${this.configuration.baseOptions.headers.Cookie}`);
+            return;
+        }
+
         this.ready = true;
-        Logger.info('Logged in to VRChat as ' + res.data.displayName);
+        Logger.info(LOGGING_TAG, 'Logged in to VRChat as ' + res.data.displayName);
 
         setInterval(() => {
             for (let key in this.cache.Users) {
                 if (this.cache.Users[key].expires < new Date()) {
-                    Logger.debug('[VRChat] [Cache] Removing user ' + key + ' from cache');
+                    Logger.debug(LOGGING_TAG, `Removing user ${key} from cache (expired)`);
                     delete this.cache.Users[key];
                 }
             }
             for (let key in this.cache.Worlds) {
                 if (this.cache.Worlds[key].expires < new Date()) {
-                    Logger.debug('[VRChat] [Cache] Removing world ' + key + ' from cache');
+                    Logger.debug(LOGGING_TAG, `Removing world ${key} from cache (expired)`);
                     delete this.cache.Worlds[key];
                 }
             }
@@ -129,13 +142,15 @@ class VRChatAPI {
 
     public async getCachedUserById(id: string) {
         if (typeof this.cache.Users[id] !== 'undefined') {
-            Logger.debug('[VRChat] [Cache] Cache hit for user ' + id);
             if (this.cache.Users[id].expires > new Date()) {
+                Logger.debug(LOGGING_TAG, `Cache hit for user ${id}`);
+                Logger.verbose(LOGGING_TAG, `Cache hit for user ${id}, ${JSON.stringify(this.cache.Users[id].user)}}`);
                 return this.cache.Users[id].user;
             }
+            Logger.debug(LOGGING_TAG, `Cache hit for user ${id} but expired, refreshing`);
         }
 
-        Logger.debug('[VRChat] [Cache] Cache miss for ' + id);
+        Logger.debug(LOGGING_TAG, `Looking up user ${id} in VRChat API`);
         let user;
         try {
             user = await this.client!.UsersApi.getUser(id);
@@ -148,7 +163,7 @@ class VRChatAPI {
             return null;
         }
 
-        Logger.debug('[VRChat] [Cache] Caching user ' + id);
+        Logger.debug(LOGGING_TAG, `Caching user ${id}`);
         this.cache.Users[id] = {
             user: user.data,
             expires: new Date(Date.now() + VRC_CACHE_DURATION)
@@ -158,13 +173,18 @@ class VRChatAPI {
 
     public async getCachedWorldById(id: string) {
         if (typeof this.cache.Worlds[id] !== 'undefined') {
-            Logger.debug('[VRChat] [Cache] Cache hit for world ' + id);
             if (this.cache.Worlds[id].expires > new Date()) {
+                Logger.debug(LOGGING_TAG, `Cache hit for world ${id}`);
+                Logger.verbose(
+                    LOGGING_TAG,
+                    `Cache hit for world ${id}, ${JSON.stringify(this.cache.Worlds[id].world)}}`
+                );
                 return this.cache.Worlds[id].world;
             }
+            Logger.debug(LOGGING_TAG, `Cache hit for world ${id} but expired, refreshing`);
         }
 
-        Logger.debug('[VRChat] [Cache] Cache miss for ' + id);
+        Logger.debug(LOGGING_TAG, `Looking up world ${id} in VRChat API`);
         let world;
         try {
             world = await this.client!.WorldsApi.getWorld(id);
@@ -177,12 +197,12 @@ class VRChatAPI {
             return null;
         }
 
-        Logger.debug('[VRChat] [Cache] Caching world ' + id);
+        Logger.debug(LOGGING_TAG, `Caching world ${id}`);
+        Logger.verbose(LOGGING_TAG, `Caching world ${id}, ${JSON.stringify(world.data)}}`);
         this.cache.Worlds[id] = {
             world: world.data,
             expires: new Date(Date.now() + VRC_CACHE_DURATION)
         };
-
         return world.data;
     }
 

@@ -49,6 +49,8 @@ import Discord_Developer_Debug from '../discord/Developer/Debug';
 import Cache from './Cache';
 import DiscordModule from '../utils/DiscordModule';
 
+const LOGGING_TAG = '[DiscordProvider]';
+
 class Discord {
     public client: Client;
     private loaded_module = new Map<string, DiscordModule>();
@@ -111,7 +113,10 @@ class Discord {
                             _module.id
                         }. ${this.loaded_module.get(_module.id)!.constructor.name} is already assigned to this id.`
                     );
-                else this.loaded_module.set(_module.id, _module);
+                else {
+                    Logger.verbose(LOGGING_TAG, `Loaded module ${_module.constructor.name}`);
+                    this.loaded_module.set(_module.id, _module);
+                }
             } else Logger.error(`Invalid module ${_module.constructor.name}. The module does not have an id.`);
         }
 
@@ -119,6 +124,7 @@ class Discord {
 
         for (const module of this.loaded_module) {
             let thisModule: DiscordModule = module[1];
+            Logger.verbose(LOGGING_TAG, `Initializing module ${thisModule.constructor.name}`);
             thisModule.Init();
         }
 
@@ -126,6 +132,7 @@ class Discord {
         this.client.on('ready', () => {
             for (const module of this.loaded_module) {
                 let thisModule: DiscordModule = module[1];
+                Logger.verbose(LOGGING_TAG, `Triggering 'ready' event for module ${thisModule.constructor.name}`);
                 thisModule.Ready();
             }
         });
@@ -134,6 +141,10 @@ class Discord {
         this.client.on('guildMemberAdd', (member: GuildMember) => {
             for (const module of this.loaded_module) {
                 let thisModule: DiscordModule = module[1];
+                Logger.verbose(
+                    LOGGING_TAG,
+                    `Triggering 'guildMemberAdd' event for module ${thisModule.constructor.name}`
+                );
                 thisModule.GuildMemberAdd(member);
             }
         });
@@ -154,11 +165,24 @@ class Discord {
                         thisModule.commandInteractionName
                     ) {
                         thisModule.GuildCommandInteractionCreate(interaction);
-                        if (interaction.commandName.toLowerCase() === thisModule.commandInteractionName)
+                        if (interaction.commandName.toLowerCase() === thisModule.commandInteractionName) {
+                            Logger.verbose(
+                                LOGGING_TAG,
+                                `Triggering 'GuildModuleCommandInteractionCreate' event for module ${thisModule.constructor.name}`
+                            );
                             thisModule.GuildModuleCommandInteractionCreate(interaction);
+                        }
                     } else if (interaction.isButton()) {
+                        Logger.verbose(
+                            LOGGING_TAG,
+                            `Triggering 'GuildButtonInteractionCreate' event for module ${thisModule.constructor.name}`
+                        );
                         thisModule.GuildButtonInteractionCreate(interaction);
                     } else if (interaction.isSelectMenu()) {
+                        Logger.verbose(
+                            LOGGING_TAG,
+                            `Triggering 'GuildSelectMenuInteractionCreate' event for module ${thisModule.constructor.name}`
+                        );
                         thisModule.GuildSelectMenuInteractionCreate(interaction);
                     }
                 }
@@ -171,6 +195,11 @@ class Discord {
         this.client.on('messageCreate', (message: Message) => {
             for (const module of this.loaded_module) {
                 let thisModule: DiscordModule = module[1];
+                // This spamms too much logs
+                //Logger.verbose(
+                //    LOGGING_TAG,
+                //    `Triggering 'messageCreate' event for module ${thisModule.constructor.name}`
+                //);
                 thisModule.GuildMessageCreate(message);
             }
         });
@@ -179,6 +208,7 @@ class Discord {
         this.client.on('guildCreate', (guild: Guild) => {
             for (const module of this.loaded_module) {
                 let thisModule: DiscordModule = module[1];
+                Logger.verbose(LOGGING_TAG, `Triggering 'guildCreate' event for module ${thisModule.constructor.name}`);
                 thisModule.GuildCreate(guild);
             }
         });
@@ -275,6 +305,11 @@ class Discord {
 
             if (!Cache.isUserCached(message.author.id)) await Cache.updateUserCache(message.author.id);
 
+            Logger.verbose(
+                LOGGING_TAG,
+                `Triggering 'GuildOnCommand (Message)' event to loaded modules for command ${command} by ${message.author.username} (${message.author.id}) in ${message.guild.name} (${message.guild.id})`
+            );
+
             for (const module of this.loaded_module) {
                 let thisModule: DiscordModule = module[1];
                 thisModule.GuildOnCommand(command, args, message);
@@ -314,6 +349,10 @@ class Discord {
 
             for (const module of this.loaded_module) {
                 let thisModule: DiscordModule = module[1];
+                Logger.verbose(
+                    LOGGING_TAG,
+                    `Triggering 'GuildOnCommand (Mention)' event for module ${thisModule.constructor.name}`
+                );
                 thisModule.GuildOnCommand(command, args, message);
 
                 if (thisModule.commands && thisModule.commands.includes(command))
