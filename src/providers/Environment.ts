@@ -1,5 +1,3 @@
-import * as path from 'path';
-import * as dotenv from 'dotenv';
 import validator from 'validator';
 
 import Logger from '../libs/Logger';
@@ -16,8 +14,6 @@ const requiredENV = [
 
 class Environment {
     public init(): void {
-        dotenv.config({ path: path.resolve(__dirname, '../../.env') });
-
         for (let param of requiredENV) {
             if (this.isUndefinedOrEmpty(process.env[param])) throw new Error(`.env ${param} is undefined`);
         }
