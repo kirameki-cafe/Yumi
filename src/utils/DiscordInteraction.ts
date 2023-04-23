@@ -58,6 +58,22 @@ export const GLOBAL_COMMANDS: Object[] = [
                 .setName('beatmap')
                 .setDescription('Get beatmap information on osu!')
                 .addStringOption((user) => user.setName('beatmap').setDescription('Beatmap id').setRequired(true))
+        ),
+
+    new SlashCommandBuilder()
+        .setName('vrchat')
+        .setDescription('Interact with the VRChat')
+        .addSubcommand((user) =>
+            user
+                .setName('user')
+                .setDescription('Get user information on VRChat')
+                .addStringOption((user) => user.setName('user').setDescription('Username or User id').setRequired(true))
+        )
+        .addSubcommand((world) =>
+            world
+                .setName('world')
+                .setDescription('Get world information on VRChat')
+                .addStringOption((user) => user.setName('world').setDescription('World id').setRequired(true))
         )
 ];
 export const GUILD_COMMANDS: Object[] = [];
