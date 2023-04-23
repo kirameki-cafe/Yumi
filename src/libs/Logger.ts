@@ -59,4 +59,15 @@ const Logger = winston.createLogger({
     transports
 });
 
+const wrapper = (original: winston.LeveledLogMethod) => {
+    return (...args: any) => original(args.join(' '));
+};
+
+Logger.error = wrapper(Logger.error);
+Logger.warn = wrapper(Logger.warn);
+Logger.info = wrapper(Logger.info);
+Logger.verbose = wrapper(Logger.verbose);
+Logger.debug = wrapper(Logger.debug);
+Logger.silly = wrapper(Logger.silly);
+
 export default Logger;
