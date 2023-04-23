@@ -3,6 +3,7 @@ import Configuration from './Configuration';
 import Prisma from './Prisma';
 import Discord from './Discord';
 import osu from './osuAPI';
+import VRChat from './VRChatAPI';
 import Express from './Express';
 
 import Logger from '../libs/Logger';
@@ -36,6 +37,11 @@ class App {
     public loadLocale(): void {
         Logger.log('info', 'Loading Locale');
         Locale.init();
+    }
+
+    public loadVRChat(): void {
+        Logger.log('info', 'Loading VRChat');
+        VRChat.init();
     }
 
     public load_osu(): void {
