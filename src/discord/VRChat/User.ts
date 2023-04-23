@@ -31,22 +31,22 @@ const EMBEDS = {
 
 export default class VRChatUser {
     public static async run(data: HybridInteractionMessage, args: any) {
-        let user;
+        let query;
         if (data.isMessage()) {
             if (typeof args[1] === 'undefined')
                 return await sendHybridInteractionMessageResponse(data, {
                     embeds: [EMBEDS.NO_USER_MENTIONED(data)]
                 });
             const [removed, ...newArgs] = args;
-            user = newArgs.join(' ');
-        } else if (data.isApplicationCommand()) user = data.getSlashCommand().options.get('user')?.value?.toString();
+            query = newArgs.join(' ');
+        } else if (data.isApplicationCommand()) query = data.getSlashCommand().options.get('user')?.value?.toString();
 
-        let result;
+        let user;
 
         try {
-            if (user.startsWith('usr_')) result = await VRChatAPI.client!.UsersApi.getUser(user);
+            if (query.startsWith('usr_')) user = await VRChatAPI.getCachedUserById(query);
             else {
-                let search_result = await VRChatAPI.client!.UsersApi.searchUsers(user, undefined, 100);
+                let search_result = await VRChatAPI.client!.UsersApi.searchUsers(query, undefined, 100);
                 if (search_result.data.length === 0)
                     return await sendHybridInteractionMessageResponse(data, {
                         embeds: [EMBEDS.NO_USER_FOUND(data)]
@@ -54,14 +54,14 @@ export default class VRChatUser {
 
                 let foundExact = false;
                 for (let i = 0; i < search_result.data.length; i++) {
-                    if (search_result.data[i].displayName.toLowerCase() === user.toLowerCase()) {
-                        result = await VRChatAPI.client!.UsersApi.getUser(search_result.data[i].id);
+                    if (search_result.data[i].displayName.toLowerCase() === query.toLowerCase()) {
+                        user = await VRChatAPI.getCachedUserById(search_result.data[i].id);
                         foundExact = true;
                         break;
                     }
                 }
 
-                if (!foundExact) result = await VRChatAPI.client!.UsersApi.getUser(search_result.data[0].id);
+                if (!foundExact) user = await VRChatAPI.getCachedUserById(search_result.data[0].id);
             }
         } catch (err: any) {
             // If 404
@@ -75,7 +75,7 @@ export default class VRChatUser {
                 });
         }
 
-        if (!result)
+        if (!user)
             return await sendHybridInteractionMessageResponse(data, {
                 embeds: [EMBEDS.NO_USER_FOUND(data)]
             });
@@ -86,54 +86,52 @@ export default class VRChatUser {
 
         const embed = makeInfoEmbed({
             icon: null,
-            title: `**${result.data.displayName}**`,
-            description: `**${
-                result.data.isFriend ? `${this.getState(result.data.status, result.data.state)}` : `⚪  Unknown`
-            }**\n\u200b`,
+            title: `**${user.displayName}**`,
+            description: `**${user.isFriend ? `${this.getState(user.status, user.state)}` : `⚪  Unknown`}**\n\u200b`,
             fields: [
                 {
-                    name: `${this.getTrustRankEmoji(result.data.tags)}  ${this.getTrustRank(
-                        result.data.tags
-                    )}${this.getExtraRanks(result.data.tags)}`,
+                    name: `${this.getTrustRankEmoji(user.tags)}  ${this.getTrustRank(user.tags)}${this.getExtraRanks(
+                        user.tags
+                    )}`,
                     value: `\u200b`,
                     inline: false
                 },
                 {
                     name: '✨  Status',
-                    value: `${result.data.statusDescription || 'None'}\n\u200b`,
+                    value: `${user.statusDescription || 'None'}\n\u200b`,
                     inline: true
                 },
                 {
                     name: '🌏  Language',
-                    value: `${this.listLanguages(result.data.tags)}\n\u200b`,
+                    value: `${this.listLanguages(user.tags)}\n\u200b`,
                     inline: true
                 },
                 {
                     name: '✨  Bio',
-                    value: `${result.data.bio}\n\u200b`
+                    value: `${user.bio}\n\u200b`
                 },
                 {
                     name: `❤  Account Information`,
-                    value: `Joined: <t:${Math.round(
-                        new Date(result.data.date_joined).getTime() / 1000
-                    )}:R>, <t:${Math.round(new Date(result.data.date_joined).getTime() / 1000)}:f>
-                            Avatar Cloning: ${result.data.allowAvatarCopying ? 'Enabled' : 'Disabled'}
-                            User ID: \`\`${result.data.id}\`\`\n`
+                    value: `Joined: <t:${Math.round(new Date(user.date_joined).getTime() / 1000)}:R>, <t:${Math.round(
+                        new Date(user.date_joined).getTime() / 1000
+                    )}:f>
+                            Avatar Cloning: ${user.allowAvatarCopying ? 'Enabled' : 'Disabled'}
+                            User ID: \`\`${user.id}\`\`\n`
                 }
             ],
             user: data.getUser()
         });
         embed.setAuthor({
             name: `VRChat Profile`,
-            url: `https://vrchat.com/home/user/${result.data.id}`,
+            url: `https://vrchat.com/home/user/${user.id}`,
             iconURL:
                 'https://www.theladders.com/s3proxy/company-photo.theladders.com/68949/5721f0dd-d662-4b5e-9c0b-236b8a41b0d3.png'
         });
 
         let userMainImage;
 
-        if (result.data.userIcon) userMainImage = result.data.userIcon;
-        else if (result.data.currentAvatarImageUrl) userMainImage = result.data.currentAvatarImageUrl;
+        if (user.userIcon) userMainImage = user.userIcon;
+        else if (user.currentAvatarImageUrl) userMainImage = user.currentAvatarImageUrl;
 
         if (userMainImage)
             embed.setThumbnail(
@@ -141,9 +139,9 @@ export default class VRChatUser {
                     'https://osu.ppy.sh/images/layout/avatar-guest.png'
             );
 
-        if (result.data.profilePicOverride)
+        if (user.profilePicOverride)
             embed.setImage(
-                ImagePorxy.signImageProxyURL(result.data.profilePicOverride, 'resize:fill:960:540:0') ||
+                ImagePorxy.signImageProxyURL(user.profilePicOverride, 'resize:fill:960:540:0') ||
                     'https://osu.ppy.sh/images/layout/avatar-guest.png'
             );
 
@@ -151,11 +149,11 @@ export default class VRChatUser {
             new ButtonBuilder()
                 .setEmoji('🔗')
                 .setLabel('  Open Profile')
-                .setURL(`https://vrchat.com/home/user/${result.data.id}`)
+                .setURL(`https://vrchat.com/home/user/${user.id}`)
                 .setStyle(ButtonStyle.Link)
         ]);
 
-        for (let link of result.data.bioLinks) {
+        for (let link of user.bioLinks) {
             this.parseBioLink(row, link);
         }
 
