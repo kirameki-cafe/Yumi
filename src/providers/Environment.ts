@@ -1,15 +1,19 @@
-import * as path from 'path';
-import * as dotenv from 'dotenv';
 import validator from 'validator';
 
 import Logger from '../libs/Logger';
 
-const requiredENV = ['NODE_ENV', 'DATABASE_URL', 'DISCORD_TOKEN', 'PRIVATE_BOT'];
+const requiredENV = [
+    'NODE_ENV',
+    'DATABASE_URL',
+    'DISCORD_TOKEN',
+    'PRIVATE_BOT',
+    'IMGPROXY_HOST',
+    'IMGPROXY_KEY',
+    'IMGPROXY_SALT'
+];
 
 class Environment {
     public init(): void {
-        dotenv.config({ path: path.resolve(__dirname, '../../.env') });
-
         for (let param of requiredENV) {
             if (this.isUndefinedOrEmpty(process.env[param])) throw new Error(`.env ${param} is undefined`);
         }
@@ -76,6 +80,14 @@ class Environment {
         const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
         const SPOTIFY_CLIENT_MARKET = process.env.SPOTIFY_CLIENT_MARKET;
 
+        const VRC_CONTACT_EMAIL = process.env.VRC_CONTACT_EMAIL;
+        const VRC_API_KEY = process.env.VRC_API_KEY;
+        const VRC_COOKIE = process.env.VRC_COOKIE;
+
+        const IMGPROXY_HOST = process.env.IMGPROXY_HOST;
+        const IMGPROXY_KEY = process.env.IMGPROXY_KEY;
+        const IMGPROXY_SALT = process.env.IMGPROXY_SALT;
+
         return {
             NODE_ENV,
 
@@ -93,7 +105,15 @@ class Environment {
             SPOTIFY_CLIENT_ID,
             SPOTIFY_CLIENT_SECRET,
             SPOTIFY_REFRESH_TOKEN,
-            SPOTIFY_CLIENT_MARKET
+            SPOTIFY_CLIENT_MARKET,
+
+            VRC_CONTACT_EMAIL,
+            VRC_API_KEY,
+            VRC_COOKIE,
+
+            IMGPROXY_HOST,
+            IMGPROXY_KEY,
+            IMGPROXY_SALT
         };
     }
 
