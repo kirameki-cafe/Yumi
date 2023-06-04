@@ -8,7 +8,7 @@ import {
     TextBasedChannel,
     MessageComponentInteraction,
     User,
-    SelectMenuInteraction,
+    StringSelectMenuInteraction,
     InteractionType,
     BaseInteraction,
     GuildBasedChannel,
@@ -46,7 +46,7 @@ export default class DiscordModule {
     GuildCommandInteractionCreate(interaction: CommandInteraction): void | Promise<void | any> {}
     GuildModuleCommandInteractionCreate(interaction: CommandInteraction): void | Promise<void | any> {}
 
-    GuildSelectMenuInteractionCreate(interaction: SelectMenuInteraction): void | Promise<void | any> {}
+    GuildSelectMenuInteractionCreate(interaction: StringSelectMenuInteraction): void | Promise<void | any> {}
 
     GuildButtonInteractionCreate(interaction: ButtonInteraction): void | Promise<void | any> {}
 
@@ -73,8 +73,8 @@ export class HybridInteractionMessage {
         return this.data instanceof ButtonInteraction && this.data.isButton();
     }
 
-    public isSelectMenu(): boolean {
-        return this.data instanceof SelectMenuInteraction && this.data.isSelectMenu();
+    public isStringSelectMenu(): boolean {
+        return this.data instanceof StringSelectMenuInteraction && this.data.isStringSelectMenu();
     }
 
     public isMessage(): boolean {
@@ -117,11 +117,11 @@ export class HybridInteractionMessage {
         return this.data as CommandInteraction;
     }
 
-    public getSelectMenu(): SelectMenuInteraction {
-        if (this.isInteraction() && !(this.data as SelectMenuInteraction))
-            throw new Error('Unable to cast to SelectMenuInteraction');
+    public getStringSelectMenu(): StringSelectMenuInteraction {
+        if (this.isInteraction() && !(this.data as StringSelectMenuInteraction))
+            throw new Error('Unable to cast to StringSelectMenuInteraction');
 
-        return this.data as SelectMenuInteraction;
+        return this.data as StringSelectMenuInteraction;
     }
 
     public getMessageComponentInteraction(): MessageComponentInteraction {
