@@ -178,7 +178,7 @@ class Discord {
                             `Triggering 'GuildButtonInteractionCreate' event for module ${thisModule.constructor.name}`
                         );
                         thisModule.GuildButtonInteractionCreate(interaction);
-                    } else if (interaction.isSelectMenu()) {
+                    } else if (interaction.isStringSelectMenu()) {
                         Logger.verbose(
                             LOGGING_TAG,
                             `Triggering 'GuildSelectMenuInteractionCreate' event for module ${thisModule.constructor.name}`

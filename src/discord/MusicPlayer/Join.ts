@@ -119,7 +119,7 @@ export async function joinVoiceChannelProcedure(
     voiceChannel: VoiceChannel | StageChannel
 ) {
     const isSlashCommand = data.isApplicationCommand();
-    const isAcceptableInteraction = data.isSelectMenu() || data.isButton();
+    const isAcceptableInteraction = data.isStringSelectMenu() || data.isButton();
     const isMessage = data.isMessage();
     if (!isSlashCommand && !isAcceptableInteraction && !isMessage) return;
 

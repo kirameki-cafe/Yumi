@@ -3,7 +3,7 @@ import {
     CommandInteraction,
     ActionRowBuilder,
     ButtonInteraction,
-    SelectMenuBuilder,
+    StringSelectMenuBuilder,
     SelectMenuComponentOptionData
 } from 'discord.js';
 import { I18n } from 'i18n';
@@ -137,7 +137,7 @@ export default class Search extends DiscordModule {
 
         const menuOptions: SelectMenuComponentOptionData[] = [];
 
-        const messageSelectMenu = new SelectMenuBuilder();
+        const messageSelectMenu = new StringSelectMenuBuilder();
         /*
             Discord have 100 char custom id char limit
             So we need to shorten our json.
@@ -168,7 +168,7 @@ export default class Search extends DiscordModule {
 
         messageSelectMenu.addOptions(menuOptions);
 
-        const row = new ActionRowBuilder<SelectMenuBuilder>();
+        const row = new ActionRowBuilder<StringSelectMenuBuilder>();
         row.addComponents([messageSelectMenu]);
 
         return await sendHybridInteractionMessageResponse(data, {
