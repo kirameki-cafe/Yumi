@@ -176,7 +176,7 @@ export async function sendHybridInteractionMessageResponse(
 ): Promise<Message | BaseInteraction | undefined> {
     Logger.verbose(LOGGING_TAG, `Sending hybrid interaction message response, ${JSON.stringify(payload)})}`);
 
-    if (data.isApplicationCommand() || data.isButton() || data.isSelectMenu()) {
+    if (data.isApplicationCommand() || data.isButton() || data.isStringSelectMenu()) {
         const messageComponent = data.getMessageComponentInteraction();
 
         if (!messageComponent.replied) {

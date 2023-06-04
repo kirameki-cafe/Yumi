@@ -187,8 +187,8 @@ export default class Play extends DiscordModule {
                 instance.addTrackToQueue(song);
             }
 
-            if (hybridData.getSelectMenu().message instanceof Message)
-                await (hybridData.getSelectMenu().message as Message).edit({ components: [] });
+            if (hybridData.getStringSelectMenu().message instanceof Message)
+                await (hybridData.getStringSelectMenu().message as Message).edit({ components: [] });
 
             return await sendHybridInteractionMessageResponse(
                 hybridData,
