@@ -5,8 +5,8 @@ COPY . .
 RUN DEBIAN_FRONTEND=noninteractive
  
 RUN apt-get update -y
-RUN apt-get -y install curl gnupg git python2 make g++ iputils-ping ffmpeg
-RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash -
+RUN apt-get -y install curl gnupg git dh-python make g++ iputils-ping ffmpeg
+RUN curl -sL https://deb.nodesource.com/setup_18.x  | bash -
 RUN apt-get -y install nodejs
 RUN npm i -g yarn
 
@@ -17,8 +17,8 @@ FROM debian
 WORKDIR /home/node/app
 
 RUN apt-get update -y
-RUN apt-get -y install curl gnupg git python2 make g++ iputils-ping ffmpeg
-RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash -
+RUN apt-get -y install curl gnupg git dh-python make g++ iputils-ping ffmpeg
+RUN curl -sL https://deb.nodesource.com/setup_18.x  | bash -
 RUN apt-get -y install nodejs
 RUN npm i -g yarn
 
