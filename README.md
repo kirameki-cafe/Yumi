@@ -1,6 +1,6 @@
 # 🍭 Yumi
 
-Yumi「ゆみ」- Multipurpose Discord bot in development
+Yumi「ゆみ」・‎ ‎ Multi-purpose Discord bot
 
 ## ✨ Features
 
