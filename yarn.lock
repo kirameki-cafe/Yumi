@@ -753,10 +753,10 @@ country-code-emoji@^2.3.0:
   resolved "https://registry.yarnpkg.com/country-code-emoji/-/country-code-emoji-2.3.0.tgz#17de6ef57964467568a53ae9fb30044371a5055c"
   integrity sha512-MqmIWr3aucoU/3XZU44e0sz6izAlErqaUYp9/NFzdnzb9TrwwornyW3ws2da5TSnpTUr2qP2840oJW9oNKXCoQ==
 
-country-code-lookup@^0.0.23:
-  version "0.0.23"
-  resolved "https://registry.yarnpkg.com/country-code-lookup/-/country-code-lookup-0.0.23.tgz#a5fb8fd338878b9066a653f93a979602da303ad8"
-  integrity sha512-kxhIGcau9/X+tgPg9yO2q1OLu8jiYYsdwXuiXzHdsgNChd36xrJMlOba7ka9O1xShCVTiVQPQpq/tcuy4WiW+Q==
+country-code-lookup@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/country-code-lookup/-/country-code-lookup-0.1.0.tgz#aa5b2d3ecc92cd7aed706ee70b7e4ee2f1d3799d"
+  integrity sha512-IOI66HEG+8bXfWPy+sTzuN7161vmDZOHg1wgIPFf3WfD73FeLajnn6C+fnxOIa9RL1WRBDMXQQWW/FOaOYaQ3w==
 
 create-require@^1.1.0:
   version "1.1.1"
