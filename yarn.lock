@@ -319,10 +319,10 @@
   dependencies:
     undici-types "~5.26.4"
 
-"@types/os-utils@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@types/os-utils/-/os-utils-0.0.1.tgz#f1ec7830c60be563d6e9566a0ae3b23ea5497493"
-  integrity sha512-r5a1I4xr8e25GFiLdpHV+jHUawtbmtuCQHR1P3SH/Y1gmRy0KLjBVGe5uUkODU/6GntoGPhOu05jv+sBdAVpog==
+"@types/os-utils@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@types/os-utils/-/os-utils-0.0.4.tgz#d26863ed7de0a52fc0566131e2b61615ed00595e"
+  integrity sha512-TdQ/6GHzq8YMsDOXHfit8sDD1VjLnqC61sI7ICocwREw/68V5C/bjex+/Jya3XRD3FgGyj6fhTqhbVrXeh8UJg==
 
 "@types/ping@^0.4.1":
   version "0.4.1"
