@@ -11,20 +11,20 @@ generator client {
 }
 
 model Guild {
-  id                String          @id
-  prefix            String          @default(">")
-  locale           String          @default("en")
-  isEnabled         Boolean         @default(true)
+  id        String  @id
+  prefix    String  @default(">")
+  locale    String  @default("en")
+  isEnabled Boolean @default(true)
 
-  MembershipScreening_Enabled Boolean @default(false)
+  MembershipScreening_Enabled         Boolean @default(false)
   MembershipScreening_ApprovalChannel String?
-  MembershipScreening_GivenRole String?
+  MembershipScreening_GivenRole       String?
 
   ServiceAnnouncement_Enabled Boolean @default(false)
   ServiceAnnouncement_Channel String?
 }
 
 model User {
-  id                String          @id
-  locale           String          @default("en")
+  id     String @id
+  locale String @default("en")
 }
