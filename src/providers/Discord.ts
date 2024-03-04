@@ -30,6 +30,7 @@ import Discord_VRChatLogin from '../discord/Developer/VRChatLogin';
 import Discord_UserInfo from '../discord/UserInfo';
 import Discord_Stats from '../discord/Stats';
 import Discord_Support from '../discord/Support';
+import Discord_Purge from '../discord/Purge';
 
 import Discord_MusicPlayer_Play from '../discord/MusicPlayer/Play';
 import Discord_MusicPlayer_PlayMy from '../discord/MusicPlayer/PlayMy';
@@ -86,6 +87,7 @@ class Discord {
             new Discord_VRChatLogin(),
             new Discord_Settings(),
             new Discord_Support(),
+            new Discord_Purge(),
 
             new Discord_MusicPlayer_Play(),
             new Discord_MusicPlayer_PlayMy(),

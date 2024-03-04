@@ -45,6 +45,11 @@ export const GLOBAL_COMMANDS: Object[] = [
         ),
 
     new SlashCommandBuilder()
+        .setName('purge')
+        .setDescription('Purge messages')
+        .addStringOption((option) => option.setName('message').setDescription('Amount to purge').setRequired(true)),
+
+    new SlashCommandBuilder()
         .setName('osu')
         .setDescription('Interact with the game osu!')
         .addSubcommand((user) =>

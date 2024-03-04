@@ -22,6 +22,8 @@ model Guild {
 
   ServiceAnnouncement_Enabled Boolean @default(false)
   ServiceAnnouncement_Channel String?
+
+  Purge_Limit Int @default(200)
 }
 
 model User {
