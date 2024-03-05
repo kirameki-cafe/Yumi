@@ -154,7 +154,7 @@
     "settings": {
         "title": "Settings",
         "description": "Change how {{BOT_NAME}} behave on **{{{GUILD_NAME}}}**",
-        "valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
+        "valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel`` ``PurgeLimit``"
     },
     "settings_prefix": {
         "info": "Current prefix is {{{PREFIX}}}",
@@ -165,6 +165,14 @@
         "prefix_is_mention_description": "You can already call me by mentioning me. I got that covered, don't worry",
         "prefix_updated": "Prefix updated",
         "prefix_updated_description": "From now onwards, I shall be called by using ``{{{PREFIX}}}``"
+    },
+    "settings_purge_limit": {
+        "info": "Current purge limit is {{LIMIT}}",
+        "info_description": "Provide a new purge limit to change",
+        "purge_limit_too_big": "Purge limit too big, maximum is {{LIMIT}}",
+        "purge_limit_zero": "Purge limit can't be zero",
+        "purge_limit_nan": "Purge limit is not a number",
+        "purge_limit_updated": "Purge limit updated to {{LIMIT}}"
     },
     "settings_language": {
         "info": "Current language is {{LANGUAGE}}",

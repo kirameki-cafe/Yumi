@@ -15,6 +15,7 @@ import {
 import * as PrefixModule from './Prefix';
 import * as LanguageModule from './Language';
 import * as ServiceAnnouncementModule from './ServiceAnnouncement';
+import * as PurgeLimitModule from './PurgeLimit';
 
 export const COMMON_EMBEDS = {
     MEMBER_NO_PERMISSION: (data: HybridInteractionMessage, locale: I18n, permissions: PermissionResolvable[]) => {
@@ -111,6 +112,8 @@ export default class Settings extends DiscordModule {
                 return await PrefixModule.default(data, args, guild, locale);
             case 'language':
                 return await LanguageModule.default(data, args, guild, locale);
+            case 'purgelimit':
+                return await PurgeLimitModule.default(data, args, guild, locale);
             case 'enableserviceannouncement':
                 return await ServiceAnnouncementModule.setEnableServiceAnnouncement(data, args, guild, locale);
             case 'serviceannouncementchannel':

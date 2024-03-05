@@ -47,7 +47,7 @@ export const GLOBAL_COMMANDS: Object[] = [
     new SlashCommandBuilder()
         .setName('purge')
         .setDescription('Purge messages')
-        .addStringOption((option) => option.setName('message').setDescription('Amount to purge').setRequired(true)),
+        .addStringOption((option) => option.setName('amount').setDescription('Amount to purge').setRequired(true)),
 
     new SlashCommandBuilder()
         .setName('osu')
