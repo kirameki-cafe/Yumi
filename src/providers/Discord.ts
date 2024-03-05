@@ -10,7 +10,8 @@ import {
     TextBasedChannelMixin,
     ChannelType,
     BaseGuildVoiceChannel,
-    InteractionType
+    InteractionType,
+    ThreadChannel
 } from 'discord.js';
 
 import Logger from '../libs/Logger';
@@ -30,6 +31,7 @@ import Discord_VRChatLogin from '../discord/Developer/VRChatLogin';
 import Discord_UserInfo from '../discord/UserInfo';
 import Discord_Stats from '../discord/Stats';
 import Discord_Support from '../discord/Support';
+import Discord_Purge from '../discord/Purge';
 
 import Discord_MusicPlayer_Play from '../discord/MusicPlayer/Play';
 import Discord_MusicPlayer_PlayMy from '../discord/MusicPlayer/PlayMy';
@@ -86,6 +88,7 @@ class Discord {
             new Discord_VRChatLogin(),
             new Discord_Settings(),
             new Discord_Support(),
+            new Discord_Purge(),
 
             new Discord_MusicPlayer_Play(),
             new Discord_MusicPlayer_PlayMy(),
@@ -215,7 +218,13 @@ class Discord {
 
         // Handling guild commands
         this.client.on('messageCreate', async (message: Message) => {
-            if (!(message.channel instanceof BaseGuildTextChannel || message.channel instanceof BaseGuildVoiceChannel))
+            if (
+                !(
+                    message.channel instanceof BaseGuildTextChannel ||
+                    message.channel instanceof BaseGuildVoiceChannel ||
+                    message.channel instanceof ThreadChannel
+                )
+            )
                 return;
             if (message.author.bot) return;
             if (typeof message.guild?.id === 'undefined') return;
@@ -322,7 +331,13 @@ class Discord {
         // Handling mentions
         this.client.on('messageCreate', async (message: Message) => {
             // TODO: Handle DMs commands soon
-            if (!(message.channel instanceof BaseGuildTextChannel || message.channel instanceof BaseGuildVoiceChannel))
+            if (
+                !(
+                    message.channel instanceof BaseGuildTextChannel ||
+                    message.channel instanceof BaseGuildVoiceChannel ||
+                    message.channel instanceof ThreadChannel
+                )
+            )
                 return;
             if (message.author.bot) return;
 

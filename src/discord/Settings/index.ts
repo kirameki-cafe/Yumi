@@ -15,6 +15,8 @@ import {
 import * as PrefixModule from './Prefix';
 import * as LanguageModule from './Language';
 import * as ServiceAnnouncementModule from './ServiceAnnouncement';
+import * as EarlyAccessModule from './EarlyAccess';
+import * as PurgeLimitModule from './PurgeLimit';
 
 export const COMMON_EMBEDS = {
     MEMBER_NO_PERMISSION: (data: HybridInteractionMessage, locale: I18n, permissions: PermissionResolvable[]) => {
@@ -46,6 +48,14 @@ export const COMMON_EMBEDS = {
             icon: data.isMessage() ? undefined : '⌛',
             title: locale.__('common.processing'),
             description: locale.__('common.processing_description'),
+            user: data.getUser()
+        });
+    },
+    EARLY_ACCESS_WARNING: (data: HybridInteractionMessage, locale: I18n) => {
+        return makeInfoEmbed({
+            icon: '🧪',
+            title: locale.__('common.early_access_features'),
+            description: locale.__('common.early_access_features_description'),
             user: data.getUser()
         });
     }
@@ -111,10 +121,14 @@ export default class Settings extends DiscordModule {
                 return await PrefixModule.default(data, args, guild, locale);
             case 'language':
                 return await LanguageModule.default(data, args, guild, locale);
+            case 'purgelimit':
+                return await PurgeLimitModule.default(data, args, guild, locale);
             case 'enableserviceannouncement':
                 return await ServiceAnnouncementModule.setEnableServiceAnnouncement(data, args, guild, locale);
             case 'serviceannouncementchannel':
                 return await ServiceAnnouncementModule.setServiceAnnouncementChannel(data, args, guild, locale);
+            case 'earlyaccess':
+                return await EarlyAccessModule.setEnableEarlyAccess(data, args, guild, locale);
         }
     }
 }

@@ -6,7 +6,13 @@
         "bot_no_permissions": "ฉันไม่มีสิทธิ์เข้าถึง (O_O;)",
         "bot_no_permissions_description": "ฉันต้องการสิทธิ์เข้าถึง ``{{PERMISSIONS}}``",
         "processing": "รอแปปนึงน้า",
-        "processing_description": "ฉันกำลังดำเนินการให้อยู่ (งᓀ‸ᓂ)ง"
+        "processing_description": "ฉันกำลังดำเนินการให้อยู่ (งᓀ‸ᓂ)ง",
+        "early_access_features": "คุณลักษณะการเข้าถึงล่วงหน้า",
+        "early_access_features_description": "สวัสดี! ฟีเจอร์ใหม่ที่เรามีนี้ยังอยู่ในช่วงการเข้าถึงก่อนใคร เรากำลังทำงานอย่างหนักเพื่อทดสอบและทำให้ดียิ่งขึ้น แต่ขอเตือนไว้ก่อน การเข้าถึงก่อนใครหมายความว่าอาจมีสิ่งที่ไม่คาดคิดเกิดขึ้นได้ เช่น ปัญหาด้านความปลอดภัย หรือคุณลักษณะที่ยังอยู่ระหว่างการพัฒนา\n\nหากคุณสนใจ ผู้ดูแลกิลด์สามารถเข้าร่วมทดลองใช้งานได้โดยเลือกใช้ผ่านการตั้งค่า"
+    },
+    "early_access_warning": {
+        "title": "แจ้งเตือน Early Access",
+        "description": "ลองสัมผัสคุณลักษณะใหม่ๆ ก่อนใครได้กับ Early Access นะคะ! บางอย่างอาจจะยังไม่สมบูรณ์ที่สุดนะ แต่คำติชมจากคุณจะช่วยทำให้มันน่านับถือมากขึ้นเลยนะคะ ติดต่อเราผ่านคำสั่ง support ถ้าคุณพบอะไรเจ๊งจะบอกเรานะคะ\n\nแล้วนะคะ, คุณสามารถปิดใช้คุณลักษณะ Early Access ได้ทุกเมื่อในเมนูตั้งค่าค่ะ"
     },
     "stats": {
         "title": "สถิติ",
@@ -48,6 +54,22 @@
         "success": "เรียบร้อย~ ฉันโพสต์ข้อความพร้อมเนื้อหาของคุณแล้วนะ",
         "error": "เกิดข้อผิดพลาดขณะพยายามโพสต์ข้อความพร้อมเนื้อหาของคุณ!"
     },
+    "purge": {
+        "title": "ล้าง",
+        "info": "ลบจำนวนข้อความที่กำหนด",
+        "valid_args": "``(จำนวนข้อความ)``",
+        "nothing_purged": "ไม่มีข้อความที่จะลบ",
+        "nan_error_title": "อาร์กิวเมนต์ไม่ถูกต้อง",
+        "nan_error_description": "อาร์กิวเมนต์ไม่ใช่ตัวเลข",
+        "error_over_limit": "จำนวนข้อความที่ต้องการลบเกินขีด จำกัด มีได้สูงสุด {{MAX}}",
+        "purging_progress": "กำลังทำการล้าง ({{CURRENT}}/{{TOTAL}})",
+        "purge_progress": "ล้าง {{COUNT}}/{{TOTAL}} ข้อความ",
+        "purging_step_bulk_delete": "กำลังลบข้อความโดยกลุ่ม... (ลบทั้งหมด {{CURRENT}})",
+        "purging_step_bulk_delete_done": "ลบทั้งหมด {{COUNT}} ข้อความ",
+        "purging_step_normal_delete": "กำลังลบข้อความ... (ลบทั้งหมด {{CURRENT}})",
+        "purging_step_normal_delete_done": "ลบทั้งหมด {{COUNT}} ข้อความ",
+        "error": "เกิดข้อผิดพลาดขณะทำการล้างข้อความ"
+    }, 
     "invite": {
         "title": "เชิญชวน",
         "info": "[เชิญ {{BOT_NAME}} เข้าสู่เซิร์ฟเวอร์ของคุณ!]({{{LINK}}})",
@@ -138,7 +160,7 @@
     "settings": {
         "title": "การตั้งค่า",
         "description": "เปลี่ยนพฤติกรรมของ {{BOT_NAME}} บน **{{{GUILD_NAME}}}**",
-        "valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
+        "valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel`` ``PurgeLimit``"
     },
     "settings_prefix": {
         "info": "คำนำหน้าปัจจุบันคือ {{{PREFIX}}}",
@@ -149,6 +171,14 @@
         "prefix_is_mention_description": "คุณสามารถเรียกฉันด้วยการ @กล่าวถึง ฉันได้อยู่แล้วไม่ต้องห่วง",
         "prefix_updated": "อัปเดตคำนำหน้าแล้ว",
         "prefix_updated_description": "จากนี้ไป คุณสามารถเรียกฉันโดยใช้ ``{{{PREFIX}}}`` นะ"
+    },
+    "settings_purge_limit": {
+        "info": "ขณะนี้ขีดจำกัดการล้างคือ {{LIMIT}}",
+        "info_description": "ระบุขีดจำกัดการล้างใหม่เพื่อเปลี่ยนแปลง",
+        "purge_limit_too_big": "ขีดจำกัดการล้างใหญ่เกินไป สูงสุดคือ {{LIMIT}}",
+        "purge_limit_zero": "ไม่สามารถตั้งค่าขีดจำกัดการล้างเป็นศูนย์ได้",
+        "purge_limit_nan": "ขีดจำกัดการล้างไม่ใช่ตัวเลข",
+        "purge_limit_updated": "ปรับปรุงขีดจำกัดการล้างเป็น {{LIMIT}} แล้ว"
     },
     "settings_language": {
         "info": "ภาษาปัจจุบันตอนนี้คือ {{LANGUAGE}}",
