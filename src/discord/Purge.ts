@@ -296,7 +296,7 @@ export default class Purge extends DiscordModule {
                     messages = messages.filter((msg) => msg.deletable);
 
                     if (messages.size === 0) {
-                        let embed = EMBEDS.PURGING_DONE_EARLY(data, locale, totalBulkDeletedMessages, amountToDelete);
+                        let embed = EMBEDS.PURGING_DONE_EARLY(data, locale, totalBulkDeletedMessages, totalMessagesToDelete);
                         if (data.isMessage()) {
                             return await statusMessage.getMessage().edit({ embeds: [embed] });
                         } else if (data.isApplicationCommand()) {
