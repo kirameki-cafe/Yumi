@@ -48,6 +48,22 @@
         "success": "เรียบร้อย~ ฉันโพสต์ข้อความพร้อมเนื้อหาของคุณแล้วนะ",
         "error": "เกิดข้อผิดพลาดขณะพยายามโพสต์ข้อความพร้อมเนื้อหาของคุณ!"
     },
+    "purge": {
+        "title": "ล้าง",
+        "info": "ลบจำนวนข้อความที่กำหนด",
+        "valid_args": "``(จำนวนข้อความ)``",
+        "nothing_purged": "ไม่มีข้อความที่จะลบ",
+        "nan_error_title": "อาร์กิวเมนต์ไม่ถูกต้อง",
+        "nan_error_description": "อาร์กิวเมนต์ไม่ใช่ตัวเลข",
+        "error_over_limit": "จำนวนข้อความที่ต้องการลบเกินขีด จำกัด มีได้สูงสุด {{MAX}}",
+        "purging_progress": "กำลังทำการล้าง ({{CURRENT}}/{{TOTAL}})",
+        "purge_progress": "ล้าง {{COUNT}}/{{TOTAL}} ข้อความ",
+        "purging_step_bulk_delete": "กำลังลบข้อความโดยกลุ่ม... (ลบทั้งหมด {{CURRENT}})",
+        "purging_step_bulk_delete_done": "ลบทั้งหมด {{COUNT}} ข้อความ",
+        "purging_step_normal_delete": "กำลังลบข้อความ... (ลบทั้งหมด {{CURRENT}})",
+        "purging_step_normal_delete_done": "ลบทั้งหมด {{COUNT}} ข้อความ",
+        "error": "เกิดข้อผิดพลาดขณะทำการล้างข้อความ"
+    }, 
     "invite": {
         "title": "เชิญชวน",
         "info": "[เชิญ {{BOT_NAME}} เข้าสู่เซิร์ฟเวอร์ของคุณ!]({{{LINK}}})",

@@ -48,6 +48,22 @@
         "success": "メッセージの送信に成功しました",
         "error": "メッセージを送信できない"
     },
+    "purge": {
+        "title": "削除",
+        "info": "特定のメッセージ数を削除します",
+        "valid_args": "``(メッセージ数)``",
+        "nothing_purged": "削除するメッセージはありません",
+        "nan_error_title": "無効な引数",
+        "nan_error_description": "引数が数値ではありません",
+        "error_over_limit": "削除するメッセージ数が上限を超えています。最大は {{MAX}} です",
+        "purging_progress": "削除中 ({{CURRENT}}/{{TOTAL}})",
+        "purge_progress": "{{COUNT}}/{{TOTAL}} メッセージ削除済み",
+        "purging_step_bulk_delete": "メッセージを一括で削除中... ({{CURRENT}} 削除済み)",
+        "purging_step_bulk_delete_done": "一括で {{COUNT}} メッセージ削除済み",
+        "purging_step_normal_delete": "メッセージを削除中... ({{CURRENT}} 削除済み)",
+        "purging_step_normal_delete_done": "{{COUNT}} メッセージ削除済み",
+        "error": "メッセージ削除中にエラーが発生しました"
+    },
     "invite": {
         "title": "招待状リンク",
         "info": "[あなたのサーバに{{BOT_NAME}}を招待してください]({{{LINK}}})",
