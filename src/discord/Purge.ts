@@ -26,6 +26,8 @@ import {
     checkMemberPermissionsInChannel,
     checkMemberPermissionsInGuild
 } from '../utils/DiscordPermission';
+import Cache from '../providers/Cache';
+import { COMMON_EMBEDS } from './Settings';
 
 const EMBEDS = {
     PURGE_INFO: (data: HybridInteractionMessage, locale: I18n) => {
@@ -155,7 +157,16 @@ export default class Purge extends DiscordModule {
         const channel = data.getGuildChannel() as GuildTextBasedChannel;
         if (!channel) return;
 
+        const cachedGuild = await Cache.getCachedGuild(guild.id);
+        if (!cachedGuild) return;
+
         const locale = await Locale.getGuildLocale(guild.id);
+
+        // TODO: Remove this feature when ready from early access
+        if (!cachedGuild.EarlyAccess_Enabled)
+            return await sendHybridInteractionMessageResponse(data, {
+                embeds: [COMMON_EMBEDS.EARLY_ACCESS_WARNING(data, locale)]
+            });
 
         let query;
 
