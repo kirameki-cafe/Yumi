@@ -172,7 +172,7 @@ export default class Purge extends DiscordModule {
             query = args.join(' ');
         } else if (data.isApplicationCommand()) {
             const interaction = data.getSlashCommand();
-            query = interaction.options.get('message', true).value?.toString();
+            query = interaction.options.get('amount', true).value?.toString();
         }
 
         const purgeMessages = async (query: any, data: HybridInteractionMessage) => {

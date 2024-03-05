@@ -154,7 +154,7 @@
     "settings": {
         "title": "設定",
         "description": "**{{{GUILD_NAME}}}**サーバでの{{BOT_NAME}}の動作変更",
-        "valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel``"
+        "valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel`` ``PurgeLimit``"
     },
     "settings_prefix": {
         "info": "現在の接頭辞は「{{{PREFIX}}}」です。",
@@ -165,6 +165,14 @@
         "prefix_is_mention_description": "それはもう、私を@メンションすることで可能です。心配しないでください",
         "prefix_updated": "プレフィックスを更新",
         "prefix_updated_description": "これ以降、私は 「``{{{PREFIX}}}``」 を使って呼び出されることになります。"
+    },
+    "settings_purge_limit": {
+        "info": "現在の削除上限は {{LIMIT}} です",
+        "info_description": "変更する新しい削除上限を指定してください",
+        "purge_limit_too_big": "削除上限が大きすぎます。最大は {{LIMIT}} です",
+        "purge_limit_zero": "削除上限はゼロにできません",
+        "purge_limit_nan": "削除上限が数値ではありません",
+        "purge_limit_updated": "削除上限が {{LIMIT}} に更新されました"
     },
     "settings_language": {
         "info": "現在の言語は{{LANGUAGE}}です",
