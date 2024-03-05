@@ -331,7 +331,8 @@ export default class Purge extends DiscordModule {
                     `Bulk deleted ${totalBulkDeletedMessages} messages. Total deleted: ${totalBulkDeletedMessages}/${totalMessagesToDelete}`
                 );
 
-                if (totalMessageDeleted !== totalMessagesToDelete) {
+                let totalMessageNormalDeleted = 0;
+                if (totalMessageDeleted < totalMessagesToDelete) {
                     const remainingMessages = totalMessagesToDelete - totalMessageDeleted;
                     const fetchLimit = 100;
                     const fetchIterations = Math.ceil(remainingMessages / fetchLimit);
@@ -351,6 +352,7 @@ export default class Purge extends DiscordModule {
                         for (const msg of fetchedMessages.values()) {
                             await msg.delete().catch(() => {});
                             totalMessageDeleted += 1;
+                            totalMessageNormalDeleted += 1;
                             messageCounter += 1;
 
                             if (messageCounter === 1 || messageCounter % 5 === 0) {
@@ -358,7 +360,7 @@ export default class Purge extends DiscordModule {
                                     data,
                                     locale,
                                     totalBulkDeletedMessages,
-                                    totalMessageDeleted,
+                                    totalMessageNormalDeleted,
                                     totalMessagesToDelete
                                 );
 
