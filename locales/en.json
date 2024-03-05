@@ -48,6 +48,22 @@
         "success": "Done~, I posted a message with your content!",
         "error": "An error occurred while trying to post the message with your content!"
     },
+    "purge": {
+		"title": "Purge",
+		"info": "Delete a certain amount of messages",
+		"valid_args": "``(Number of messages)``",
+		"nothing_purged": "Nothing to purge",
+		"nan_error_title": "Invalid argument",
+		"nan_error_description": "The argument is not a number",
+		"error_over_limit": "The number of messages to delete is over the limit, the maximum is {{MAX}}",
+		"purging_progress": "Purging in progress ({{CURRENT}}/{{TOTAL}})",
+		"purge_progress": "Purged {{COUNT}}/{{TOTAL}} messages",
+		"purging_step_bulk_delete": "Bulk deleting messages... ({{CURRENT}} deleted)",
+		"purging_step_bulk_delete_done": "Bulk deleted {{COUNT}} messages",
+		"purging_step_normal_delete": "Deleting messages... ({{CURRENT}} deleted)",
+		"purging_step_normal_delete_done": "Deleted {{COUNT}} messages",
+		"error": "An error occurred while purging messages"
+	},
     "invite": {
         "title": "Invite",
         "info": "[Invite {{BOT_NAME}} to your server!]({{{LINK}}})",
