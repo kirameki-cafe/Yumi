@@ -39,7 +39,7 @@ const EMBEDS = {
                 },
                 {
                     name: `🔐 ${locale.__('help.admin')}`,
-                    value: `settings, say, membershipscreening (ms)`,
+                    value: `settings, purge, say, membershipscreening (ms)`,
                     inline: true
                 },
                 {
