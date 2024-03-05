@@ -293,6 +293,8 @@ export default class Purge extends DiscordModule {
                         before: statusMessage.getMessage().id
                     });
 
+                    messages = messages.filter((msg) => msg.deletable);
+
                     if (messages.size === 0) {
                         let embed = EMBEDS.PURGING_DONE_EARLY(data, locale, totalBulkDeletedMessages, amountToDelete);
                         if (data.isMessage()) {
@@ -342,11 +344,12 @@ export default class Purge extends DiscordModule {
                         });
 
                         fetchedMessages = fetchedMessages.filter((msg) => msg.id !== statusMessage!.getMessage().id);
+                        fetchedMessages = fetchedMessages.filter((msg) => msg.deletable);
 
                         let messageCounter = 0; // Counter for tracking every 5 messages
 
                         for (const msg of fetchedMessages.values()) {
-                            await msg.delete();
+                            await msg.delete().catch(() => {});
                             totalMessageDeleted += 1;
                             messageCounter += 1;
 
