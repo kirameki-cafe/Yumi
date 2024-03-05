@@ -388,7 +388,7 @@ export default class Purge extends DiscordModule {
                         locale,
                         totalBulkDeletedMessages,
                         totalMessageDeleted - totalBulkDeletedMessages,
-                        amountToDelete
+                        totalBulkDeletedMessages
                     );
                     if (data.isMessage()) {
                         return await statusMessage.getMessage().edit({ embeds: [embed] });
@@ -398,7 +398,7 @@ export default class Purge extends DiscordModule {
                 } else {
                     Logger.debug('[DiscordPurge]', `Total deleted: ${totalMessageDeleted}/${totalMessagesToDelete}`);
 
-                    let embed = EMBEDS.PURGING_DONE_EARLY(data, locale, totalBulkDeletedMessages, amountToDelete);
+                    let embed = EMBEDS.PURGING_DONE_EARLY(data, locale, totalBulkDeletedMessages, totalBulkDeletedMessages);
                     if (data.isMessage()) {
                         return await statusMessage.getMessage().edit({ embeds: [embed] });
                     } else if (data.isApplicationCommand()) {
