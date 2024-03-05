@@ -152,9 +152,8 @@ export async function sendMessage(
         else message = await channel.send(options);
     } catch (error) {
         if (typeof user === 'undefined') {
-            return Logger.error(
-                `Cannot find available destinations to send the message CID: ${channel.id} C_ERR: ${error}`
-            );
+            Logger.error(`Cannot find available destinations to send the message CID: ${channel.id} C_ERR: ${error}`);
+            return;
         }
         try {
             message = await user.send(options);

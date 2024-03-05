@@ -258,6 +258,8 @@ export const setServiceAnnouncementChannel = async (
         data: { ServiceAnnouncement_Channel: channel.id }
     });
 
+    await Cache.updateGuildCache(guild.id);
+
     if (data.isMessage())
         return await (placeholder as Message).edit({
             embeds: [EMBEDS.SERVICE_ANNOUNCEMENT_CONFIGURED_CHANNEL(data, locale, TargetChannel)]
