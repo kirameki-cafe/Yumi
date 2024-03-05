@@ -10,7 +10,8 @@ import {
     TextBasedChannelMixin,
     ChannelType,
     BaseGuildVoiceChannel,
-    InteractionType
+    InteractionType,
+    ThreadChannel
 } from 'discord.js';
 
 import Logger from '../libs/Logger';
@@ -217,7 +218,13 @@ class Discord {
 
         // Handling guild commands
         this.client.on('messageCreate', async (message: Message) => {
-            if (!(message.channel instanceof BaseGuildTextChannel || message.channel instanceof BaseGuildVoiceChannel))
+            if (
+                !(
+                    message.channel instanceof BaseGuildTextChannel ||
+                    message.channel instanceof BaseGuildVoiceChannel ||
+                    message.channel instanceof ThreadChannel
+                )
+            )
                 return;
             if (message.author.bot) return;
             if (typeof message.guild?.id === 'undefined') return;
@@ -324,7 +331,13 @@ class Discord {
         // Handling mentions
         this.client.on('messageCreate', async (message: Message) => {
             // TODO: Handle DMs commands soon
-            if (!(message.channel instanceof BaseGuildTextChannel || message.channel instanceof BaseGuildVoiceChannel))
+            if (
+                !(
+                    message.channel instanceof BaseGuildTextChannel ||
+                    message.channel instanceof BaseGuildVoiceChannel ||
+                    message.channel instanceof ThreadChannel
+                )
+            )
                 return;
             if (message.author.bot) return;
 
