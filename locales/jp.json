@@ -160,7 +160,7 @@
     "settings": {
         "title": "設定",
         "description": "**{{{GUILD_NAME}}}**サーバでの{{BOT_NAME}}の動作変更",
-        "valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel`` ``PurgeLimit``"
+        "valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel`` ``EarlyAccess`` ``PurgeLimit``"
     },
     "settings_prefix": {
         "info": "現在の接頭辞は「{{{PREFIX}}}」です。",

@@ -160,7 +160,7 @@
     "settings": {
         "title": "การตั้งค่า",
         "description": "เปลี่ยนพฤติกรรมของ {{BOT_NAME}} บน **{{{GUILD_NAME}}}**",
-        "valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel`` ``PurgeLimit``"
+        "valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel`` ``EarlyAccess`` ``PurgeLimit``"
     },
     "settings_prefix": {
         "info": "คำนำหน้าปัจจุบันคือ {{{PREFIX}}}",

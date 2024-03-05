@@ -160,7 +160,7 @@
     "settings": {
         "title": "Settings",
         "description": "Change how {{BOT_NAME}} behave on **{{{GUILD_NAME}}}**",
-        "valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel`` ``PurgeLimit``"
+        "valid_args": "``Prefix`` ``Language`` ``EnableServiceAnnouncement`` ``ServiceAnnouncementChannel`` ``EarlyAccess`` ``PurgeLimit``"
     },
     "settings_prefix": {
         "info": "Current prefix is {{{PREFIX}}}",
