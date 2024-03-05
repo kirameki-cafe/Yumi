@@ -24,6 +24,8 @@ model Guild {
   ServiceAnnouncement_Channel String?
 
   Purge_Limit Int @default(300)
+
+  EarlyAccess_Enabled Boolean @default(false)
 }
 
 model User {

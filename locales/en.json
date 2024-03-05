@@ -6,7 +6,13 @@
         "bot_no_permissions": "I don't have permission (O_O;)",
         "bot_no_permissions_description": "I need ``{{PERMISSIONS}}`` permissions",
         "processing": "Please wait a moment~",
-        "processing_description": "Getting it done right now! (งᓀ‸ᓂ)ง"
+        "processing_description": "Getting it done right now! (งᓀ‸ᓂ)ง",
+        "early_access_features": "Early access features",
+        "early_access_features_description": "Hey there! So, this new feature we've got is still in its early access phase. We're working hard to test and make it even better. But, just a heads up, early access means there might be some surprises like unexpected stuff, security things, or features that are still a work in progress.\n\nIf you're up for it, guild administrators can jump in and try it out by opting in through the settings"
+    },
+    "early_access_warning": {
+        "title": "Early access warning",
+        "description": "Experience the newest features first with early access! Things might not be perfect yet, but your feedback helps us make it amazing. Contact us with the support command if you find anything\n\n You can disable early access features anytime in the settings"
     },
     "stats": {
         "title": "Stats",
