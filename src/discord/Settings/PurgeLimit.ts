@@ -58,6 +58,13 @@ export default async (data: HybridInteractionMessage, args: any, guild: Guild, l
 
     const GuildCache = await Cache.getCachedGuild(guild.id);
     if (!GuildCache) return;
+
+    // TODO: Remove this feature when ready from early access
+    if (!GuildCache.EarlyAccess_Enabled)
+        return await sendHybridInteractionMessageResponse(data, {
+            embeds: [COMMON_EMBEDS.EARLY_ACCESS_WARNING(data, locale)]
+        });
+
     const limit = GuildCache.Purge_Limit;
 
     if (
