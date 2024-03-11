@@ -12,7 +12,7 @@
     "color-thief-node": "^1.0.4",
     "cors": "^2.8.5",
     "country-code-emoji": "^2.3.0",
-    "country-code-lookup": "^0.1.1",
+    "country-code-lookup": "^0.1.2",
     "discord-api-types": "^0.37.71",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
