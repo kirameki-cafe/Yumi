@@ -7,7 +7,7 @@ import {
     Message,
     TextChannel,
     BaseGuildTextChannel,
-    TextBasedChannelMixin,
+    TextBasedChannel,
     ChannelType,
     BaseGuildVoiceChannel,
     InteractionType,

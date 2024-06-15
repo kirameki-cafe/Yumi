@@ -194,7 +194,9 @@ export default class UserInfo extends DiscordModule {
             if (typeof data.getMessage().mentions.users.first() !== 'undefined')
                 query = data.getMessage().mentions.users.first()?.id;
             else query = args[0];
-        } else if (data.isApplicationCommand()) query = data.getSlashCommand().options.getUser('user')?.id;
+            // TODO: Fix typing
+            // @ts-ignore
+        } else if (data.isApplicationCommand()) query = data.getSlashCommand().options.get.getUser('user')?.id;
 
         // Find the user want to look up
         let TargetMember = (await guild.members.fetch()).get(query);
