@@ -339,15 +339,15 @@ export class DiscordMusicPlayerInstance {
                 ]);
                 const streamFile = fs.createReadStream(`./temp/${track.id}.mp3`);
 
-                const stream = await playdl.stream(track.url);
-                stream.stream = streamFile;
+                //const stream = await playdl.stream(track.url);
+                const stream = streamFile;
 
-                Logger.verbose(
-                    LOGGING_TAG,
-                    `New stream created, type: ${stream.type}, url: ${track.url}, Guild: ${this.voiceChannel.guild.id}, VoiceChannel: ${this.voiceChannel.id}`
-                );
+                // Logger.verbose(
+                //     LOGGING_TAG,
+                //     `New stream created, type: ${stream.type}, url: ${track.url}, Guild: ${this.voiceChannel.guild.id}, VoiceChannel: ${this.voiceChannel.id}`
+                // );
 
-                resource = createAudioResource(stream.stream, {
+                resource = createAudioResource(stream, {
                     //inputType: stream.type
                 });
                 this.actualPlaybackURL = track.url;
@@ -366,15 +366,15 @@ export class DiscordMusicPlayerInstance {
                 ]);
                 const streamFile = fs.createReadStream(`./temp/${search.id}.mp3`);
 
-                const stream = await playdl.stream(search.url);
-                stream.stream = streamFile;
+                //const stream = await playdl.stream(search.url);
+                const stream = streamFile;
 
-                Logger.verbose(
-                    LOGGING_TAG,
-                    `New stream created, type: ${stream.type}, url: ${track.url}, Guild: ${this.voiceChannel.guild.id}, VoiceChannel: ${this.voiceChannel.id}`
-                );
+                // Logger.verbose(
+                //     LOGGING_TAG,
+                //     `New stream created, type: ${stream.type}, url: ${track.url}, Guild: ${this.voiceChannel.guild.id}, VoiceChannel: ${this.voiceChannel.id}`
+                // );
 
-                resource = createAudioResource(stream.stream, {
+                resource = createAudioResource(stream, {
                     //inputType: stream.type
                 });
                 this.actualPlaybackURL = search.url;
@@ -385,7 +385,6 @@ export class DiscordMusicPlayerInstance {
 
             let timeout = 0;
             while (!resource.started && timeout < 10000) {
-                console.log('Waiting for resource to start');
                 await new Promise((resolve) => setTimeout(resolve, 100));
                 timeout += 100;
 
