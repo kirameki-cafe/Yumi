@@ -17,7 +17,7 @@ FROM debian
 WORKDIR /home/node/app
 
 RUN apt-get update -y
-RUN apt-get -y install software-properties-common curl gnupg git dh-python make g++ iputils-ping ffmpeg
+RUN apt-get -y install software-properties-common curl gnupg git dh-python make g++ iputils-ping ffmpeg python3-launchpadlib
 RUN add-apt-repository ppa:tomtomtom/yt-dlp -y
 RUN apt-get update -y
 RUN apt-get -y install yt-dlp
