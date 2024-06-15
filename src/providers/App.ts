@@ -9,7 +9,7 @@ import Express from './Express';
 import Logger from '../libs/Logger';
 import Locale from './Locale';
 class App {
-    public readonly versionNumber = `0.12`;
+    public readonly versionNumber = `0.13`;
     public readonly version = `${this.versionNumber}${
         Environment.get().NODE_ENV === 'development' ? ' / Development Build' : ''
     }`;
