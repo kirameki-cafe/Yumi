@@ -231,7 +231,7 @@ export class DiscordMusicPlayerInstance {
                     if (previousTrack) this.previousTrack = previousTrack;
 
                     if (this.queue.track.length > 0) {
-                        this.playTrack(this.queue.track[0]);
+                        await this.playTrack(this.queue.track[0]);
                     }
                 }
             }
@@ -375,13 +375,23 @@ export class DiscordMusicPlayerInstance {
                 );
 
                 resource = createAudioResource(stream.stream, {
-                    inputType: stream.type
+                    //inputType: stream.type
                 });
                 this.actualPlaybackURL = search.url;
             }
 
             this.player.play(resource);
             this.voiceConnection.subscribe(this.player);
+
+            let timeout = 0;
+            while (!resource.started && timeout < 10000) {
+                console.log('Waiting for resource to start');
+                await new Promise((resolve) => setTimeout(resolve, 100));
+                timeout += 100;
+
+                if (timeout >= 10000)
+                    this.events.emit('error', new PlayerErrorEvent(this, new Error('Resource took too long to start')));
+            }
         } catch (error: any) {
             this.events.emit('error', new PlayerErrorEvent(this, error));
             this.skipTrack();
