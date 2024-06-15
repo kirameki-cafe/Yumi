@@ -2256,6 +2256,11 @@ yn@3.1.1:
   resolved "https://registry.yarnpkg.com/yn/-/yn-3.1.1.tgz#1e87401a09d767c1d5eab26a6e4c185182d2eb50"
   integrity sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==
 
+yt-dlp-wrap@^2.3.12:
+  version "2.3.12"
+  resolved "https://registry.yarnpkg.com/yt-dlp-wrap/-/yt-dlp-wrap-2.3.12.tgz#35601d4e4fad12c35a6c25041a6d6404cf5066d5"
+  integrity sha512-P8fJ+6M1YjukyJENCTviNLiZ8mokxprR54ho3DsSKPWDcac489OjRiStGEARJr6un6ETS6goTn4CWl/b/rM3aA==
+
 zlib-sync@^0.1.9:
   version "0.1.9"
   resolved "https://registry.yarnpkg.com/zlib-sync/-/zlib-sync-0.1.9.tgz#7075cc257e4551f5d9fc74e24cf2c11e39c7a0d1"

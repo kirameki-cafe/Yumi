@@ -15,7 +15,7 @@ import { I18n } from 'i18n';
 import { joinVoiceChannelProcedure } from './Join';
 
 import DiscordProvider from '../../providers/Discord';
-import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayer';
+import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayerTempFix';
 import Locale from '../../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
@@ -90,6 +90,12 @@ const EMBEDS = {
         return makeErrorEmbed({
             title: locale.__('musicplayer_play.error'),
             description: errorMessage,
+            user: data.getUser()
+        });
+    },
+    TOO_LONG: (data: HybridInteractionMessage, locale: I18n) => {
+        return makeErrorEmbed({
+            title: locale.__('musicplayer_play.too_long'),
             user: data.getUser()
         });
     }
@@ -454,6 +460,12 @@ export default class Play extends DiscordModule {
                 return;
             }
             instance.addTrackToQueue(result[0]);
+
+            // Max 1 hour
+            if (result[0].durationInSec > 3600)
+                return await sendHybridInteractionMessageResponse(data, {
+                    embeds: [EMBEDS.TOO_LONG(data, locale)]
+                });
 
             if (result.length > 1) {
                 // TODO: Find a better logic than this

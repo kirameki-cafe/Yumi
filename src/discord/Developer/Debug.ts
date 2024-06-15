@@ -11,7 +11,7 @@ import {
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
 import { makeInfoEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from '../../utils/DiscordMessage';
 
-import DiscordMusicPlayer from '../../providers/DiscordMusicPlayer';
+import DiscordMusicPlayer from '../../providers/DiscordMusicPlayerTempFix';
 import Users from '../../services/Users';
 import Cache from '../../providers/Cache';
 

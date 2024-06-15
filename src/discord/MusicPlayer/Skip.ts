@@ -3,7 +3,7 @@ import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModu
 import { Message, CommandInteraction } from 'discord.js';
 import { makeSuccessEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from '../../utils/DiscordMessage';
 
-import DiscordMusicPlayer from '../../providers/DiscordMusicPlayer';
+import DiscordMusicPlayer from '../../providers/DiscordMusicPlayerTempFix';
 import { I18n } from 'i18n';
 import Locale from '../../services/Locale';
 

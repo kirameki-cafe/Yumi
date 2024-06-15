@@ -5,7 +5,7 @@ import DiscordMusicPlayer, {
     DiscordMusicPlayerInstance,
     DiscordMusicPlayerLoopMode,
     TrackUtils
-} from '../../providers/DiscordMusicPlayer';
+} from '../../providers/DiscordMusicPlayerTempFix';
 import Locale from '../../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
