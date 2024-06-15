@@ -8,6 +8,13 @@ class Configuration {
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir);
         }
+
+        // TODO: Temp folder
+        const tempdir = path.join(process.cwd(), 'temp/');
+        if (!fs.existsSync(tempdir)) {
+            fs.mkdirSync(tempdir);
+        }
+
         this.copyExampleIfNotExists('Ping.json');
         this.copyExampleIfNotExists('ServiceAnnouncement.json');
 

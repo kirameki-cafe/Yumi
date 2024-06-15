@@ -10,7 +10,7 @@ import { I18n } from 'i18n';
 
 import { joinVoiceChannelProcedure } from './Join';
 
-import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayer';
+import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayerTempFix';
 import Locale from '../../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';

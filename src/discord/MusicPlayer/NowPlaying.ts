@@ -3,7 +3,7 @@ import { I18n } from 'i18n';
 import { SpotifyTrack, YouTubeVideo } from 'play-dl';
 
 import DiscordProvider from '../../providers/Discord';
-import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayer';
+import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayerTempFix';
 import Locale from '../../services/Locale';
 
 import { makeErrorEmbed, makeInfoEmbed, sendHybridInteractionMessageResponse } from '../../utils/DiscordMessage';

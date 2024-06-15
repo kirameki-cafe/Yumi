@@ -1,7 +1,7 @@
 import { I18n } from 'i18n';
 import { Message, CommandInteraction, ActivityType, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
-import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayer';
+import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayerTempFix';
 import Locale from '../../services/Locale';
 
 import { makeSuccessEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from '../../utils/DiscordMessage';
@@ -41,6 +41,12 @@ const EMBEDS = {
             embed.setImage(TrackUtils.getHighestResolutionThumbnail(thumbnails).url);
 
         return embed;
+    },
+    TOO_LONG: (data: HybridInteractionMessage, locale: I18n) => {
+        return makeErrorEmbed({
+            title: locale.__('musicplayer_playmy.too_long'),
+            user: data.getUser()
+        });
     }
 };
 
@@ -108,6 +114,12 @@ export default class PlayMy extends DiscordModule {
                 const result = await DiscordMusicPlayer.searchYouTubeByQuery(query);
                 if (!result) continue;
                 instance.addTrackToQueue(result[0]);
+
+                // Max 1 hour
+                if (result[0].durationInSec > 3600)
+                    return await sendHybridInteractionMessageResponse(data, {
+                        embeds: [EMBEDS.TOO_LONG(data, locale)]
+                    });
 
                 let row;
                 if (result.length > 1) {

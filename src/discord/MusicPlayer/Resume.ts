@@ -1,7 +1,7 @@
 import { Message, CommandInteraction, Interaction } from 'discord.js';
 import { I18n } from 'i18n';
 
-import DiscordMusicPlayer from '../../providers/DiscordMusicPlayer';
+import DiscordMusicPlayer from '../../providers/DiscordMusicPlayerTempFix';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
 import {

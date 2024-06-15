@@ -29,7 +29,7 @@ import DiscordMusicPlayer, {
     DiscordMusicPlayerInstance,
     DiscordMusicPlayerLoopMode,
     TrackUtils
-} from '../../providers/DiscordMusicPlayer';
+} from '../../providers/DiscordMusicPlayerTempFix';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
 import Locale from '../../services/Locale';

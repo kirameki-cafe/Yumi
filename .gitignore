@@ -2,6 +2,7 @@
 
 /build
 /configs
+/temp
 
 # compiled output
 /dist
