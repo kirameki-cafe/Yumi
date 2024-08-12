@@ -28,7 +28,7 @@
     "utf-8-validate": "^6.0.4",
     "validator": "^13.12.0",
     "vrchat": "^1.17.6",
-    "winston": "^3.13.0",
+    "winston": "^3.14.1",
     "yt-dlp-wrap": "^2.3.12",
     "zlib-sync": "^0.1.9"
   },
