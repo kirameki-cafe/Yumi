@@ -5,7 +5,7 @@ import DiscordMusicPlayer, {
     DiscordMusicPlayerInstance,
     DiscordMusicPlayerLoopMode,
     TrackUtils
-} from '../../providers/DiscordMusicPlayerTempFix';
+} from '../../providers/DiscordMusicPlayer';
 import Locale from '../../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
@@ -18,59 +18,59 @@ import {
 
 const EMBEDS = {
     QUEUE: (data: HybridInteractionMessage, locale: I18n, instance: DiscordMusicPlayerInstance) => {
-        const queue = instance.queue;
+        const queue = instance.nekoPlayer.getQueue();
+        const current = instance.nekoPlayer.getCurrentAudioInformation();
 
-        if (!queue.track[0])
+        if (!current)
             return makeInfoEmbed({
                 title: locale.__('musicplayer_queue.title'),
                 description: locale.__('musicplayer_queue.empty'),
                 user: data.getUser()
             });
-        else {
-            const nowPlayingText = `${
-                instance.getLoopMode() === DiscordMusicPlayerLoopMode.Current
-                    ? ` ${locale.__('musicplayer_queue.looping_current')}`
-                    : ''
-            }: [${TrackUtils.getTitle(queue.track[0])}](${queue.track[0].url})`;
 
-            let description;
-            if (queue.track.length == 1) {
-                let queueString = `1. [${TrackUtils.getTitle(queue.track[0])}](${queue.track[0].url})`;
-                description = `${locale.__('musicplayer_queue.now_playing')}${nowPlayingText}\n
-                There are ${queue.track.length} song in the queue!\n${queueString}`;
-            } else if (queue.track.length >= 10) {
-                const upcomingText = `[${TrackUtils.getTitle(queue.track[1])}](${queue.track[1].url})`;
-                const first10 = queue.track.slice(0, 10);
-                let queueString = first10
-                    .map((track, index) => `${index + 1}. [${TrackUtils.getTitle(track)}](${track.url})`)
-                    .join('\n');
-                description = `${locale.__('musicplayer_queue.now_playing')}${nowPlayingText}
+        const nowPlayingText = `${
+            instance.getLoopMode() === DiscordMusicPlayerLoopMode.Current
+                ? ` ${locale.__('musicplayer_queue.looping_current')}`
+                : ''
+        }: [${current.metadata.title}](${current.metadata.url})`;
+
+        let description;
+        if (queue.length == 0) {
+            let queueString = `1. [${current.metadata.title}](${current.metadata.url})`;
+            description = `${locale.__('musicplayer_queue.now_playing')}${nowPlayingText}\n
+            ${locale.__('musicplayer_queue.empty')}`;
+        } else if (queue.length >= 10) {
+            const upcomingText = `[${queue[0].metadata.title}](${queue[0].metadata.url})`;
+            const first10 = queue.slice(0, 10);
+            let queueString = first10
+                .map((track, index) => `${index + 1}. [${track.metadata.title}](${track.metadata.url})`)
+                .join('\n');
+            description = `${locale.__('musicplayer_queue.now_playing')}${nowPlayingText}
                 ${locale.__('musicplayer_queue.upcoming_song')} ${upcomingText}\n
-                ${locale.__('musicplayer_queue.song_x_in_queue', { COUNT: queue.track.length.toString() })}
-                ${queueString}\n${queue.track.length > 10 ? `...${queue.track.length - 10} more songs` : ''}`;
-            } else {
-                const upcomingText = `[${TrackUtils.getTitle(queue.track[1])}](${queue.track[1].url})`;
-                const queueString = queue.track
-                    .map((track, index) => `${index + 1}. [${TrackUtils.getTitle(track)}](${track.url})`)
-                    .join('\n');
-                description = `${locale.__('musicplayer_queue.now_playing')}${nowPlayingText}
+                ${locale.__('musicplayer_queue.song_x_in_queue', { COUNT: queue.length.toString() })}
+                ${queueString}\n${queue.length > 10 ? `...${queue.length - 10} more songs` : ''}`;
+        } else {
+            const upcomingText = `[${queue[0].metadata.title}](${queue[0].metadata.url})`;
+            const queueString = queue
+                .map((track, index) => `${index + 1}. [${track.metadata.title}](${track.metadata.url})`)
+                .join('\n');
+            description = `${locale.__('musicplayer_queue.now_playing')}${nowPlayingText}
                 ${locale.__('musicplayer_queue.upcoming_song')} ${upcomingText}\n
-                ${locale.__('musicplayer_queue.song_x_in_queue', { COUNT: queue.track.length.toString() })}
+                ${locale.__('musicplayer_queue.song_x_in_queue', { COUNT: queue.length.toString() })}
                 ${queueString}`;
-            }
-
-            return makeInfoEmbed({
-                title: locale.__('musicplayer_queue.title'),
-                description: description,
-                fields: [
-                    {
-                        name: locale.__('common.available_args'),
-                        value: locale.__('musicplayer_queue.valid_args')
-                    }
-                ],
-                user: data.getUser()
-            });
         }
+
+        return makeInfoEmbed({
+            title: locale.__('musicplayer_queue.title'),
+            description: description,
+            fields: [
+                {
+                    name: locale.__('common.available_args'),
+                    value: locale.__('musicplayer_queue.valid_args')
+                }
+            ],
+            user: data.getUser()
+        });
     },
     QUEUE_CLEARED: (data: HybridInteractionMessage, locale: I18n) => {
         return makeSuccessEmbed({

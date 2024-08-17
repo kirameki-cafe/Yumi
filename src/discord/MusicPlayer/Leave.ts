@@ -1,7 +1,7 @@
 import { I18n } from 'i18n';
 import { Message, CommandInteraction } from 'discord.js';
 
-import DiscordMusicPlayer from '../../providers/DiscordMusicPlayerTempFix';
+import DiscordMusicPlayer from '../../providers/DiscordMusicPlayer';
 import Locale from '../../services/Locale';
 
 import { makeSuccessEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from '../../utils/DiscordMessage';

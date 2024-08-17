@@ -21,11 +21,13 @@ import {
     DiscordGatewayAdapterCreator
 } from '@discordjs/voice';
 import playdl, { Spotify, SpotifyPlaylist, SpotifyTrack, YouTubeVideo } from 'play-dl';
-import { EventEmitter } from 'stream';
-
+import NekoMelody, { Player } from '../../NekoMelody/src/index';
+import { YtDlpProvider } from '../../NekoMelody/src/providers';
 import DiscordProvider from './Discord';
 import Environment from './Environment';
 import Logger from '../libs/Logger';
+import EventEmitter from 'events';
+import { AudioInformation } from '../../NekoMelody/src/providers/base';
 
 const LOGGING_TAG = '[DiscordMusicPlayer]';
 
@@ -187,7 +189,8 @@ export enum DiscordMusicPlayerLoopMode {
 
 export class DiscordMusicPlayerInstance {
     public queue: Queue;
-    public player: AudioPlayer;
+    public discordPlayer: AudioPlayer;
+    public nekoPlayer: Player;
     public textChannel?: BaseGuildTextChannel | BaseGuildVoiceChannel;
     public voiceChannel: VoiceChannel | StageChannel;
     public voiceConnection?: VoiceConnection;
@@ -196,51 +199,71 @@ export class DiscordMusicPlayerInstance {
     public paused: boolean = false;
     public loopMode: DiscordMusicPlayerLoopMode = DiscordMusicPlayerLoopMode.None;
 
-    public actualPlaybackURL?: string;
-
     public readonly events: EventEmitter;
+
+    private providers = [new YtDlpProvider()];
 
     constructor({ voiceChannel }: { voiceChannel: VoiceChannel | StageChannel }) {
         this.queue = new Queue();
-        this.player = createAudioPlayer({
+        this.discordPlayer = createAudioPlayer({
             behaviors: {
                 noSubscriber: NoSubscriberBehavior.Pause,
                 maxMissedFrames: 1000
             }
         });
+        this.nekoPlayer = NekoMelody.createPlayer(this.providers);
         this.voiceChannel = voiceChannel;
         this.events = new EventEmitter();
 
-        this.player.on(AudioPlayerStatus.Idle, async (oldStage, newStage) => {
-            //The player stopped
-            if (newStage.status === AudioPlayerStatus.Idle && oldStage.status !== AudioPlayerStatus.Idle) {
-                // Loop mode is set to current song
-                if (this.loopMode === DiscordMusicPlayerLoopMode.Current) {
-                    if (this.queue.track.length !== 0) {
-                        this.previousTrack = this.queue.track[0];
-                        this.playTrack(this.queue.track[0]);
-                    }
-                    return;
-                }
+        // this.player.on(AudioPlayerStatus.Idle, async (oldStage, newStage) => {
+        //     //The player stopped
+        //     if (newStage.status === AudioPlayerStatus.Idle && oldStage.status !== AudioPlayerStatus.Idle) {
+        //         // Loop mode is set to current song
+        //         if (this.loopMode === DiscordMusicPlayerLoopMode.Current) {
+        //             if (this.queue.track.length !== 0) {
+        //                 this.previousTrack = this.queue.track[0];
+        //                 this.playTrack(this.queue.track[0]);
+        //             }
+        //             return;
+        //         }
 
-                // There are more songs in the queue, remove finished song and play the next one
-                if (this.queue.track.length !== 0) {
-                    let previousTrack = this.queue.track.shift();
-                    if (previousTrack) this.previousTrack = previousTrack;
+        //         // There are more songs in the queue, remove finished song and play the next one
+        //         if (this.queue.track.length !== 0) {
+        //             let previousTrack = this.queue.track.shift();
+        //             if (previousTrack) this.previousTrack = previousTrack;
 
-                    if (this.queue.track.length > 0) {
-                        this.playTrack(this.queue.track[0]);
-                    }
-                }
-            }
-        });
+        //             if (this.queue.track.length > 0) {
+        //                 this.playTrack(this.queue.track[0]);
+        //             }
+        //         }
+        //     }
+        // });
 
-        this.player.on(AudioPlayerStatus.Playing, (oldState: any, newState: any) => {
+        // this.player.on(AudioPlayerStatus.Playing, (oldState: any, newState: any) => {
+        //     this.events.emit('playing', new PlayerPlayingEvent(this));
+        // });
+
+        // this.player.on('error', (error: Error) => {
+        //     this.events.emit('error', new PlayerErrorEvent(this, error));
+        // });
+
+        this.nekoPlayer.on('play', (information: AudioInformation) => {
+            if (!this.nekoPlayer.stream) throw new Error('No input stream');
+
+            const resource = createAudioResource(this.nekoPlayer.stream, {
+                //inlineVolume: true,
+            });
+
+            this.discordPlayer.play(resource);
+            this.nekoPlayer.startCurrentStream();
             this.events.emit('playing', new PlayerPlayingEvent(this));
-        });
 
-        this.player.on('error', (error: Error) => {
-            this.events.emit('error', new PlayerErrorEvent(this, error));
+            this.discordPlayer.on('stateChange', (oldState, newState) => {
+                console.log('State change', oldState.status, newState.status);
+                if (oldState.status === 'playing' && newState.status === 'idle') {
+                    this.nekoPlayer.endCurrentStream();
+                }
+            });
         });
     }
 
@@ -260,6 +283,8 @@ export class DiscordMusicPlayerInstance {
             guildId: this.voiceChannel.guild.id,
             adapterCreator: this.voiceChannel.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator
         });
+
+        this.voiceConnection.subscribe(this.discordPlayer);
 
         this.voiceConnection.on(
             VoiceConnectionStatus.Ready,
@@ -290,7 +315,7 @@ export class DiscordMusicPlayerInstance {
     }
 
     public async leaveVoiceChannel() {
-        if (this.player) this.player.pause();
+        if (this.discordPlayer) this.discordPlayer.pause();
 
         const guild = DiscordProvider.client.guilds.cache.get(this.voiceChannel.guild.id);
         if (!guild) return;
@@ -299,81 +324,28 @@ export class DiscordMusicPlayerInstance {
     }
 
     public async pausePlayer() {
-        if (this.paused || !this.player) return;
-        if (!this.player.pause(true)) throw new Error('Unable to pause player');
+        if (this.paused || !this.discordPlayer) return;
+        if (!this.discordPlayer.pause(true)) throw new Error('Unable to pause player');
         this.paused = true;
     }
 
     public async resumePlayer() {
-        if (!this.paused || !this.player) return;
-        if (!this.player.unpause()) throw new Error('Unable to resume player');
+        if (!this.paused || !this.discordPlayer) return;
+        if (!this.discordPlayer.unpause()) throw new Error('Unable to resume player');
         this.paused = false;
     }
 
-    public addTrackToQueue(track: ValidTracks) {
-        if (this.queue.track.length === 0) {
-            this.queue.track.push(track);
-            this.playTrack(this.queue.track[0]);
-            return;
-        }
-
-        this.queue.track.push(track);
-    }
-
-    public async playTrack(track: ValidTracks) {
-        if (!this.voiceConnection) throw new Error('No voice connection');
-
-        try {
-            let resource;
-            if (track instanceof YouTubeVideo) {
-                const stream = await playdl.stream(track.url);
-
-                Logger.verbose(
-                    LOGGING_TAG,
-                    `New stream created, type: ${stream.type}, url: ${track.url}, Guild: ${this.voiceChannel.guild.id}, VoiceChannel: ${this.voiceChannel.id}`
-                );
-
-                resource = createAudioResource(stream.stream, {
-                    inputType: stream.type
-                });
-                this.actualPlaybackURL = track.url;
-            } else {
-                const search = await DiscordMusicPlayer_Instance.searchYouTubeBySpotifyLink(track);
-                if (!search) throw new Error('Unable to find Spotify track on YouTube');
-
-                const stream = await playdl.stream(search.url);
-
-                Logger.verbose(
-                    LOGGING_TAG,
-                    `New stream created, type: ${stream.type}, url: ${track.url}, Guild: ${this.voiceChannel.guild.id}, VoiceChannel: ${this.voiceChannel.id}`
-                );
-
-                resource = createAudioResource(stream.stream, {
-                    inputType: stream.type
-                });
-                this.actualPlaybackURL = search.url;
-            }
-
-            this.player.play(resource);
-            this.voiceConnection.subscribe(this.player);
-        } catch (error: any) {
-            this.events.emit('error', new PlayerErrorEvent(this, error));
-            this.skipTrack();
-        }
+    public async addTrackToQueue(track: ValidTracks) {
+        return await this.nekoPlayer.enqueue(track.url);
     }
 
     public async skipTrack() {
         if (!this.voiceConnection) throw new Error('No voice connection');
 
-        if (this.queue.track.length > 1) {
-            this.previousTrack = this.queue.track[0];
-            this.queue.track.shift();
-            this.playTrack(this.queue.track[0]);
-        } else {
-            this.previousTrack = this.queue.track[0];
-            this.queue.track.shift();
-            this.player.stop();
-        }
+        if (this.nekoPlayer.getQueue().length === 0) return;
+
+        await this.nekoPlayer.skip();
+        if (this.paused) this.paused = false;
     }
 
     public clearQueue() {
@@ -413,8 +385,8 @@ export class DiscordMusicPlayerInstance {
         return this.previousTrack;
     }
 
-    public getActualPlaybackURL() {
-        return this.actualPlaybackURL;
+    public getQueue() {
+        return this.nekoPlayer.getQueue();
     }
 
     public isReady() {
@@ -439,16 +411,13 @@ export class DiscordMusicPlayerInstance {
         await this.leaveVoiceChannel();
 
         if (this.voiceConnection) {
-            this.voiceConnection.removeAllListeners();
             if (this.voiceConnection.state.status !== 'destroyed') this.voiceConnection.destroy();
         }
 
-        if (this.player) {
-            this.player.removeAllListeners();
-            this.player.stop(true);
+        if (this.discordPlayer) {
+            this.discordPlayer.stop(true);
         }
 
-        this.queue.track = [];
         this.textChannel = undefined;
         this.voiceConnection = undefined;
     }
@@ -456,8 +425,8 @@ export class DiscordMusicPlayerInstance {
     public async _fake_error_on_player() {
         const stream = 'https://fakestream:42069/fake/stream/fake/audio/fake.mp3';
         const resource = createAudioResource(stream);
-        this.player.play(resource);
-        this.player.emit('error', new AudioPlayerError(new Error('Music player was manually crashed'), null!));
+        this.discordPlayer.play(resource);
+        //this.player.emit('error', new AudioPlayerError(new Error('Music player was manually crashed'), null!));
     }
 }
 
@@ -500,19 +469,6 @@ class DiscordMusicPlayer {
         return searched;
     }
 
-    public async searchYouTubeBySpotifyLink(spotifyLink: SpotifyLink) {
-        const track = await this.searchSpotifyBySpotifyLink(spotifyLink);
-        if (!track) return;
-
-        let artistNames = '';
-        for (let artist of track.artists) artistNames += artist.name + ' ';
-
-        const ytSearchResult = await this.searchYouTubeByQuery(`${artistNames} ${track.name}`);
-        if (!ytSearchResult) return null;
-
-        return ytSearchResult[0];
-    }
-
     public async searchSpotifyBySpotifyLink(spotifyLink: SpotifyLink) {
         if (playdl.is_expired()) {
             Logger.debug(LOGGING_TAG, 'Spotify token expired, refreshing...');
@@ -536,87 +492,6 @@ class DiscordMusicPlayer {
         if (!searched) return null;
         const track = searched as unknown as SpotifyTrack;
         return track;
-    }
-
-    public async searchYouTubeByYouTubeLink(youtubeLink: YouTubeLink) {
-        // Search the url
-        const searched: YouTubeVideo[] = await playdl.search('https://www.youtube.com/watch?v=' + youtubeLink.videoId, {
-            source: { youtube: 'video' }
-        });
-
-        Logger.verbose(
-            LOGGING_TAG,
-            `Search YouTube by link (Pass 1): ${youtubeLink.videoId}, Total result: ${
-                searched.length
-            }, ${JSON.stringify(searched)}`
-        );
-
-        for (let video of searched) {
-            if (video.id === youtubeLink.videoId) return video;
-        }
-
-        // Serch the video Id
-        const searched2: YouTubeVideo[] = await playdl.search(youtubeLink.videoId, {
-            source: { youtube: 'video' }
-        });
-
-        Logger.verbose(
-            LOGGING_TAG,
-            `Seach YouTube by video ID (Pass 2): ${youtubeLink.videoId}, Total result: ${
-                searched2.length
-            }, ${JSON.stringify(searched2)}`
-        );
-
-        for (let video of searched2) {
-            if (video.id === youtubeLink.videoId) return video;
-        }
-
-        // Last resort, search the title
-        const videoInfo = await playdl.video_basic_info('https://www.youtube.com/watch?v=' + youtubeLink.videoId);
-        if (videoInfo?.video_details?.title) {
-            const searched: YouTubeVideo[] = await playdl.search(videoInfo.video_details.title, {
-                source: { youtube: 'video' }
-            });
-
-            Logger.verbose(
-                LOGGING_TAG,
-                `Search YouTube by title (Pass 3): ${videoInfo.video_details.title}, Total result: ${
-                    searched.length
-                }, ${JSON.stringify(searched)}`
-            );
-
-            for (let video of searched) {
-                if (video.id === youtubeLink.videoId) return video;
-            }
-        }
-
-        let yt_info = await playdl.video_info('https://www.youtube.com/watch?v=' + youtubeLink.videoId);
-
-        if (yt_info) {
-            return new YouTubeVideo({
-                id: yt_info.video_details.id,
-                url: yt_info.video_details.url,
-                type: yt_info.video_details.type,
-                title: yt_info.video_details.title,
-                description: yt_info.video_details.description,
-                durationRaw: yt_info.video_details.durationRaw,
-                durationInSec: yt_info.video_details.durationInSec,
-                uploadedAt: yt_info.video_details.uploadedAt,
-                upcoming: yt_info.video_details.upcoming,
-                views: yt_info.video_details.views,
-                thumbnails: yt_info.video_details.thumbnails,
-                channel: yt_info.video_details.channel,
-                likes: yt_info.video_details.likes,
-                live: yt_info.video_details.live,
-                liveAt: yt_info.video_details.liveAt,
-                private: yt_info.video_details.private,
-                tags: yt_info.video_details.tags,
-                discretionAdvised: yt_info.video_details.discretionAdvised,
-                music: yt_info.video_details.music
-            });
-        }
-
-        return null;
     }
 
     public async getYouTubeSongsInPlayList(youtubeLink: string) {

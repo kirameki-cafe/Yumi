@@ -1,12 +1,14 @@
 import { I18n } from 'i18n';
 import { Message, CommandInteraction, ActivityType, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
-import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayerTempFix';
+import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayer';
 import Locale from '../../services/Locale';
 
 import { makeSuccessEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from '../../utils/DiscordMessage';
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
 import { joinVoiceChannelProcedure } from './Join';
+import { AudioInformation } from '../../../NekoMelody/src/providers/base';
+import { COMMON_EMBEDS } from '../Settings';
 
 const EMBEDS = {
     NOT_DETECTED: (data: HybridInteractionMessage, locale: I18n) => {
@@ -27,9 +29,9 @@ const EMBEDS = {
             user: data.getUser()
         });
     },
-    ADDED_QUEUE: async (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
-        const title = TrackUtils.getTitle(track);
-        const thumbnails = await TrackUtils.getThumbnails(track);
+    ADDED_QUEUE: async (data: HybridInteractionMessage, locale: I18n, track: AudioInformation) => {
+        const title = track.metadata.title;
+        const thumbnail = track.metadata.thumbnail;
 
         let embed = makeSuccessEmbed({
             title: locale.__('musicplayer_play.queue_added_song'),
@@ -37,8 +39,7 @@ const EMBEDS = {
             user: data.getUser()
         });
 
-        if (TrackUtils.getHighestResolutionThumbnail(thumbnails))
-            embed.setImage(TrackUtils.getHighestResolutionThumbnail(thumbnails).url);
+        if (thumbnail) embed.setImage(thumbnail);
 
         return embed;
     },
@@ -101,6 +102,14 @@ export default class PlayMy extends DiscordModule {
         if (!member.presence) return;
         if (!member.presence.activities) return;
 
+        let placeholder: HybridInteractionMessage | undefined;
+
+        let _placeholder = await sendHybridInteractionMessageResponse(data, {
+            embeds: [COMMON_EMBEDS.PROCESSING(data, locale)]
+        });
+        if (_placeholder) placeholder = new HybridInteractionMessage(_placeholder);
+        if (!placeholder) return;
+
         let query;
         let found = false;
         for (const activity of member.presence.activities) {
@@ -113,13 +122,9 @@ export default class PlayMy extends DiscordModule {
 
                 const result = await DiscordMusicPlayer.searchYouTubeByQuery(query);
                 if (!result) continue;
-                instance.addTrackToQueue(result[0]);
 
-                // Max 1 hour
-                if (result[0].durationInSec > 3600)
-                    return await sendHybridInteractionMessageResponse(data, {
-                        embeds: [EMBEDS.TOO_LONG(data, locale)]
-                    });
+                const finalResult = await instance.nekoPlayer.enqueue(result[0].url);
+                if (!finalResult) continue;
 
                 let row;
                 if (result.length > 1) {
@@ -149,19 +154,19 @@ export default class PlayMy extends DiscordModule {
                 }
 
                 if (!row)
-                    await sendHybridInteractionMessageResponse(data, {
-                        embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result[0])]
-                    });
+                    return placeholder
+                        .getMessage()
+                        .edit({ embeds: [await EMBEDS.ADDED_QUEUE(data, locale, finalResult)] });
                 else
-                    await sendHybridInteractionMessageResponse(data, {
-                        embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result[0])],
+                    return placeholder.getMessage().edit({
+                        embeds: [await EMBEDS.ADDED_QUEUE(data, locale, finalResult)],
                         components: [row]
                     });
             }
         }
 
-        if (!found) await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NOT_DETECTED(data, locale)] });
-
+        if (!found)
+            return await sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.NOT_DETECTED(data, locale)] });
         return;
     }
 }

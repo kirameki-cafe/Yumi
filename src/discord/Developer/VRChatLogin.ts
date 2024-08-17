@@ -16,9 +16,7 @@ import {
     makeSuccessEmbed
 } from '../../utils/DiscordMessage';
 
-import DiscordMusicPlayer from '../../providers/DiscordMusicPlayerTempFix';
 import Users from '../../services/Users';
-import Cache from '../../providers/Cache';
 import VRChatAPI from '../../providers/VRChatAPI';
 
 const EMBEDS = {

@@ -3,7 +3,7 @@ import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModu
 import { Message, CommandInteraction } from 'discord.js';
 import { makeSuccessEmbed, makeErrorEmbed, sendHybridInteractionMessageResponse } from '../../utils/DiscordMessage';
 
-import DiscordMusicPlayer from '../../providers/DiscordMusicPlayerTempFix';
+import DiscordMusicPlayer from '../../providers/DiscordMusicPlayer';
 import { I18n } from 'i18n';
 import Locale from '../../services/Locale';
 
@@ -81,14 +81,14 @@ export default class Skip extends DiscordModule {
                 true
             );
 
-        if (instance.queue.track.length === 0)
+        if (!instance.nekoPlayer.getCurrentAudioInformation())
             return await sendHybridInteractionMessageResponse(data, {
                 embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)]
             });
 
         instance.skipTrack();
 
-        if (instance.queue.track.length === 0)
+        if (!instance.nekoPlayer.getCurrentAudioInformation())
             return await sendHybridInteractionMessageResponse(data, {
                 embeds: [EMBEDS.SKIPPED_LASTSONG(data, locale)]
             });
