@@ -51,4 +51,12 @@ COPY --from=build /home/node/app/locales ./locales/
 COPY --from=build /home/node/app/dist .
 COPY --from=build /home/node/app/NekoMelody/dist ./NekoMelody/dist
 
+COPY --from=build /home/node/app/NekoMelody/package.json ./NekoMelody/package.json
+COPY --from=build /home/node/app/NekoMelody/pnpm-lock.yaml ./NekoMelody/pnpm-lock.yaml
+
+WORKDIR /home/node/app/NekoMelody
+RUN pnpm install
+
+WORKDIR /home/node/app
+
 CMD [ "node", "src/index.js"]
