@@ -6,7 +6,7 @@ RUN DEBIAN_FRONTEND=noninteractive
  
 RUN apt-get update -y
 RUN apt-get -y install curl gnupg git dh-python make g++ iputils-ping ffmpeg
-RUN curl -sL https://deb.nodesource.com/setup_18.x  | bash -
+RUN curl -sL https://deb.nodesource.com/setup_21.x  | bash -
 RUN apt-get -y install nodejs
 RUN npm i -g yarn
 
@@ -26,7 +26,7 @@ RUN apt-get -y install software-properties-common curl gnupg git dh-python make 
 RUN add-apt-repository ppa:tomtomtom/yt-dlp -y
 RUN apt-get update -y
 RUN apt-get -y install yt-dlp
-RUN curl -sL https://deb.nodesource.com/setup_18.x  | bash -
+RUN curl -sL https://deb.nodesource.com/setup_21.x  | bash -
 RUN apt-get -y install nodejs
 RUN npm i -g yarn
 
