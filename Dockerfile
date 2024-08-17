@@ -11,6 +11,11 @@ RUN apt-get -y install nodejs
 RUN npm i -g yarn
 
 RUN yarn
+
+WORKDIR /home/node/app/NekoMelody
+RUN yarn
+
+WORKDIR /home/node/app
 RUN yarn build
 
 FROM debian
