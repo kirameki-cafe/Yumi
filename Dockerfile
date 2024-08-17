@@ -9,6 +9,7 @@ WORKDIR /home/node/app
 COPY . .
 RUN DEBIAN_FRONTEND=noninteractive
  
+RUN git pull --recurse-submodules
 RUN apt-get update -y
 RUN apt-get -y install curl gnupg git dh-python make g++ libasound2-dev iputils-ping ffmpeg
 RUN curl -sL https://deb.nodesource.com/setup_21.x  | bash -
