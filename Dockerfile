@@ -20,6 +20,7 @@ RUN pnpm install
 
 WORKDIR /home/node/app/NekoMelody
 RUN pnpm install
+RUN pnpm run build
 
 WORKDIR /home/node/app
 RUN pnpm run build
@@ -48,5 +49,6 @@ RUN pnpm prisma generate
 COPY --from=build /home/node/app/locales ./locales/
 
 COPY --from=build /home/node/app/dist .
+COPY --from=build /home/node/app/NekoMelody/dist ./NekoMelody/dist
 
 CMD [ "node", "index.js"]
