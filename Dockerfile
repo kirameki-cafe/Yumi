@@ -38,12 +38,12 @@ RUN apt-get -y install nodejs
 RUN corepack enable
 
 COPY --from=build /home/node/app/package.json .
-COPY --from=build /home/node/app/yarn.lock .
+COPY --from=build /home/node/app/pnpm-lock.lock .
 
 RUN pnpm install
 
 COPY --from=build /home/node/app/prisma ./prisma/
-RUN yarn prisma generate
+RUN pnpm run prisma generate
 
 COPY --from=build /home/node/app/locales ./locales/
 
