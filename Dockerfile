@@ -43,7 +43,7 @@ COPY --from=build /home/node/app/pnpm-lock.yaml .
 RUN pnpm install
 
 COPY --from=build /home/node/app/prisma ./prisma/
-RUN pnpm run prisma generate
+RUN pnpm prisma generate
 
 COPY --from=build /home/node/app/locales ./locales/
 
