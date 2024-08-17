@@ -1,7 +1,7 @@
 import { Message, CommandInteraction, Interaction } from 'discord.js';
 import { I18n } from 'i18n';
 
-import DiscordMusicPlayer from '../../providers/DiscordMusicPlayerTempFix';
+import DiscordMusicPlayer from '../../providers/DiscordMusicPlayer';
 import Locale from '../../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
@@ -87,7 +87,7 @@ export default class Pause extends DiscordModule {
                 true
             );
 
-        if (instance.queue.track.length === 0)
+        if (!instance.nekoPlayer.getCurrentAudioInformation())
             return await sendHybridInteractionMessageResponse(data, {
                 embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)]
             });

@@ -15,7 +15,7 @@ import { I18n } from 'i18n';
 import { joinVoiceChannelProcedure } from './Join';
 
 import DiscordProvider from '../../providers/Discord';
-import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayerTempFix';
+import DiscordMusicPlayer, { TrackUtils, ValidTracks } from '../../providers/DiscordMusicPlayer';
 import Locale from '../../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
@@ -26,6 +26,8 @@ import {
     makeInfoEmbed
 } from '../../utils/DiscordMessage';
 import { checkBotPermissionsInChannel } from '../../utils/DiscordPermission';
+import { AudioInformation } from '../../../NekoMelody/src/providers/base';
+import { COMMON_EMBEDS } from '../Settings';
 
 const EMBEDS = {
     PLAY_INFO: (data: HybridInteractionMessage, locale: I18n) => {
@@ -41,18 +43,14 @@ const EMBEDS = {
             user: data.getUser()
         });
     },
-    ADDED_QUEUE: async (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
-        const title = TrackUtils.getTitle(track);
-        const thumbnails = await TrackUtils.getThumbnails(track);
-
+    ADDED_QUEUE: async (data: HybridInteractionMessage, locale: I18n, track: AudioInformation) => {
         let embed = makeSuccessEmbed({
             title: locale.__('musicplayer_play.queue_added_song'),
-            description: title,
+            description: track.metadata.title ?? 'No title',
             user: data.getUser()
         });
 
-        if (TrackUtils.getHighestResolutionThumbnail(thumbnails))
-            embed.setImage(TrackUtils.getHighestResolutionThumbnail(thumbnails).url);
+        if (track.metadata.thumbnail) embed.setImage(track.metadata.thumbnail);
 
         return embed;
     },
@@ -265,9 +263,7 @@ export default class Play extends DiscordModule {
 
             if (!instance) return;
 
-            let result = await DiscordMusicPlayer.searchYouTubeByYouTubeLink(
-                DiscordMusicPlayer.parseYouTubeLink(interaction.values[0])
-            ).catch((err) => {
+            let result = await instance.nekoPlayer.enqueue(interaction.values[0]).catch((err) => {
                 sendHybridInteractionMessageResponse(
                     hybridData,
                     { embeds: [EMBEDS.LOOKUP_ERROR(hybridData, locale, err)] },
@@ -277,7 +273,6 @@ export default class Play extends DiscordModule {
             });
             if (!result) return;
 
-            instance.addTrackToQueue(result);
             return await sendHybridInteractionMessageResponse(
                 hybridData,
                 { embeds: [await EMBEDS.ADDED_QUEUE(new HybridInteractionMessage(interaction), locale, result)] },
@@ -335,6 +330,14 @@ export default class Play extends DiscordModule {
 
         if (!instance) return;
 
+        let placeholder: HybridInteractionMessage | undefined;
+
+        let _placeholder = await sendHybridInteractionMessageResponse(data, {
+            embeds: [COMMON_EMBEDS.PROCESSING(data, locale)]
+        });
+        if (_placeholder) placeholder = new HybridInteractionMessage(_placeholder);
+        if (!placeholder) return;
+
         if (DiscordMusicPlayer.isYouTubeLink(query)) {
             let linkData = DiscordMusicPlayer.parseYouTubeLink(query);
 
@@ -345,17 +348,15 @@ export default class Play extends DiscordModule {
                 for (let song of songs) {
                     instance.addTrackToQueue(song);
                 }
-                return await sendHybridInteractionMessageResponse(
-                    data,
-                    { embeds: [EMBEDS.ADDED_SONGS_QUEUE(data, locale, songs)] },
-                    true
-                );
+                return placeholder.getMessage().edit({ embeds: [EMBEDS.ADDED_SONGS_QUEUE(data, locale, songs)] });
             }
 
-            let result = await DiscordMusicPlayer.searchYouTubeByYouTubeLink(linkData).catch((err) => {
-                sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.LOOKUP_ERROR(data, locale, err)] }, true);
-                return null;
-            });
+            let result = await instance.nekoPlayer
+                .enqueue(`https://www.youtube.com/watch?v=${linkData.videoId}`)
+                .catch((err) => {
+                    placeholder.getMessage().edit({ embeds: [EMBEDS.LOOKUP_ERROR(data, locale, err)] });
+                    return null;
+                });
 
             if (!result) return;
 
@@ -370,8 +371,6 @@ export default class Play extends DiscordModule {
             ) {
                 data.getMessage().suppressEmbeds(true);
             }
-
-            instance.addTrackToQueue(result);
 
             if (linkData.list) {
                 const row = new ActionRowBuilder<ButtonBuilder>().addComponents([
@@ -388,24 +387,16 @@ export default class Play extends DiscordModule {
                         .setStyle(ButtonStyle.Primary)
                 ]);
 
-                return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result)],
-                    components: [row]
-                });
-            } else
-                return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result)]
-                });
+                return placeholder
+                    .getMessage()
+                    .edit({ embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result)], components: [row] });
+            } else return placeholder.getMessage().edit({ embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result)] });
         } else if (DiscordMusicPlayer.isSpotifyLink(query)) {
             let linkData = DiscordMusicPlayer.parseSpotifyLink(query);
 
             if (linkData.type === 'playlist' || linkData.type === 'album') {
                 let playlist = await DiscordMusicPlayer.getSpotifySongsInPlayList(query).catch((err) => {
-                    sendHybridInteractionMessageResponse(
-                        data,
-                        { embeds: [EMBEDS.LOOKUP_ERROR(data, locale, err)] },
-                        true
-                    );
+                    placeholder.getMessage().edit({ embeds: [EMBEDS.LOOKUP_ERROR(data, locale, err)] });
                     return null;
                 });
 
@@ -416,15 +407,11 @@ export default class Play extends DiscordModule {
                     instance.addTrackToQueue(song);
                 }
 
-                return await sendHybridInteractionMessageResponse(
-                    data,
-                    { embeds: [EMBEDS.ADDED_SONGS_QUEUE(data, locale, songs)] },
-                    true
-                );
+                return placeholder.getMessage().edit({ embeds: [EMBEDS.ADDED_SONGS_QUEUE(data, locale, songs)] });
             }
 
             let result = await DiscordMusicPlayer.searchSpotifyBySpotifyLink(linkData).catch((err) => {
-                sendHybridInteractionMessageResponse(data, { embeds: [EMBEDS.LOOKUP_ERROR(data, locale, err)] }, true);
+                placeholder.getMessage().edit({ embeds: [EMBEDS.LOOKUP_ERROR(data, locale, err)] });
                 return null;
             });
 
@@ -442,30 +429,29 @@ export default class Play extends DiscordModule {
                 data.getMessage().suppressEmbeds(true);
             }
 
-            instance.addTrackToQueue(result);
+            const youTubeQuery = `${result.name} ${result.artists.map((artist) => artist.name).join(' ')}`;
 
-            return await sendHybridInteractionMessageResponse(data, {
-                embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result)]
-            });
+            const youTubeResult = await DiscordMusicPlayer.searchYouTubeByQuery(youTubeQuery);
+
+            if (!youTubeResult) {
+                placeholder
+                    .getMessage()
+                    .edit({ embeds: [EMBEDS.LOOKUP_ERROR(data, locale, new Error('Cannot find that song'))] });
+                return;
+            }
+
+            const finalResult = await instance.addTrackToQueue(youTubeResult[0]);
+
+            return placeholder.getMessage().edit({ embeds: [await EMBEDS.ADDED_QUEUE(data, locale, finalResult)] });
         } else {
             let result = await DiscordMusicPlayer.searchYouTubeByQuery(query);
 
             if (!result) {
-                // TODO: Send not found embed
-                await sendHybridInteractionMessageResponse(
-                    data,
-                    { embeds: [EMBEDS.LOOKUP_ERROR(data, locale, new Error('Cannot find that song'))] },
-                    true
-                );
+                placeholder
+                    .getMessage()
+                    .edit({ embeds: [EMBEDS.LOOKUP_ERROR(data, locale, new Error('Cannot find that song'))] });
                 return;
             }
-            instance.addTrackToQueue(result[0]);
-
-            // Max 1 hour
-            if (result[0].durationInSec > 3600)
-                return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [EMBEDS.TOO_LONG(data, locale)]
-                });
 
             if (result.length > 1) {
                 // TODO: Find a better logic than this
@@ -492,15 +478,15 @@ export default class Play extends DiscordModule {
                         .setStyle(ButtonStyle.Primary)
                 ]);
 
-                return await sendHybridInteractionMessageResponse(data, {
-                    embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result[0])],
-                    components: [row]
-                });
+                const finalResult = await instance.nekoPlayer.enqueue(result[0].url);
+                return placeholder
+                    .getMessage()
+                    .edit({ embeds: [await EMBEDS.ADDED_QUEUE(data, locale, finalResult)], components: [row] });
             }
 
-            return await sendHybridInteractionMessageResponse(data, {
-                embeds: [await EMBEDS.ADDED_QUEUE(data, locale, result[0])]
-            });
+            const finalResult = await instance.nekoPlayer.enqueue(result[0].url);
+
+            return placeholder.getMessage().edit({ embeds: [await EMBEDS.ADDED_QUEUE(data, locale, finalResult)] });
         }
     }
 

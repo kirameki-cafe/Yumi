@@ -1,7 +1,7 @@
 import { I18n } from 'i18n';
 import { Message, CommandInteraction } from 'discord.js';
 
-import DiscordMusicPlayer, { DiscordMusicPlayerLoopMode } from '../../providers/DiscordMusicPlayerTempFix';
+import DiscordMusicPlayer, { DiscordMusicPlayerLoopMode } from '../../providers/DiscordMusicPlayer';
 import Locale from '../../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
@@ -105,7 +105,7 @@ export default class Loop extends DiscordModule {
                 true
             );
 
-        if (instance.queue.track.length === 0)
+        if (!instance.nekoPlayer.getCurrentAudioInformation())
             return await sendHybridInteractionMessageResponse(data, {
                 embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)]
             });

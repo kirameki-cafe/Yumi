@@ -29,12 +29,13 @@ import DiscordMusicPlayer, {
     DiscordMusicPlayerInstance,
     DiscordMusicPlayerLoopMode,
     TrackUtils
-} from '../../providers/DiscordMusicPlayerTempFix';
+} from '../../providers/DiscordMusicPlayer';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
 import Locale from '../../services/Locale';
 import { SpotifyTrack, YouTubeVideo } from 'play-dl';
 import { checkBotPermissionsInChannel } from '../../utils/DiscordPermission';
+import { AudioInformation } from '../../../NekoMelody/src/providers/base';
 
 const EMBEDS = {
     VOICECHANNEL_JOINED: (data: HybridInteractionMessage, locale: I18n) => {
@@ -79,9 +80,9 @@ const EMBEDS = {
             user: data.getUser()
         });
     },
-    NOW_PLAYING: async (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
-        const title = TrackUtils.getTitle(track);
-        const thumbnails = await TrackUtils.getThumbnails(track);
+    NOW_PLAYING: async (data: HybridInteractionMessage, locale: I18n, track: AudioInformation) => {
+        const title = track.metadata.title;
+        const thumbnails = track.metadata.thumbnail;
 
         const embed = makeInfoEmbed({
             title: locale.__('musicplayer.now_playing'),
@@ -90,14 +91,13 @@ const EMBEDS = {
             user: DiscordProvider.client.user
         });
 
-        if (TrackUtils.getHighestResolutionThumbnail(thumbnails))
-            embed.setImage(TrackUtils.getHighestResolutionThumbnail(thumbnails).url);
+        if (track.metadata.thumbnail) embed.setImage(track.metadata.thumbnail);
 
         return embed;
     },
-    NOW_REPEATING: async (data: HybridInteractionMessage, locale: I18n, track: ValidTracks) => {
-        const title = TrackUtils.getTitle(track);
-        const thumbnails = await TrackUtils.getThumbnails(track);
+    NOW_REPEATING: async (data: HybridInteractionMessage, locale: I18n, track: AudioInformation) => {
+        const title = track.metadata.title;
+        const thumbnails = track.metadata.thumbnail;
 
         const embed = makeInfoEmbed({
             title: locale.__('musicplayer.now_playing_repeating'),
@@ -106,8 +106,7 @@ const EMBEDS = {
             user: DiscordProvider.client.user
         });
 
-        if (TrackUtils.getHighestResolutionThumbnail(thumbnails))
-            embed.setImage(TrackUtils.getHighestResolutionThumbnail(thumbnails).url);
+        if (track.metadata.thumbnail) embed.setImage(track.metadata.thumbnail);
 
         return embed;
     }
@@ -230,51 +229,43 @@ export async function joinVoiceChannelProcedure(
 
     // Register Event Listeners
     instance.events.on('playing', async (event: PlayerPlayingEvent) => {
+        const current = event.instance.nekoPlayer.getCurrentAudioInformation();
+        if (!current) return;
+
         const locale = await Locale.getGuildLocale(guild.id);
-        if (!event.instance.queue || !event.instance.queue.track || event.instance.queue.track.length === 0) return;
         previousTrack = event.instance.getPreviousTrack();
 
-        if (event.instance.queue.track[0] !== previousTrack) isLoopMessageSent = false;
-        else if (event.instance.queue.track[0] === previousTrack && isLoopMessageSent) return;
+        //if (current !== previousTrack) isLoopMessageSent = false;
+        //else if (current === previousTrack && isLoopMessageSent) return;
 
         const row = new ActionRowBuilder<ButtonBuilder>();
-        if (event.instance.queue.track[0] instanceof SpotifyTrack)
-            row.addComponents([
-                new ButtonBuilder()
-                    .setEmoji('🟢')
-                    .setLabel(' Open in Spotify')
-                    .setURL(encodeURI(`https://open.spotify.com/track/${event.instance.queue.track[0].id}`))
-                    .setStyle(ButtonStyle.Link)
-            ]);
-        if (
-            event.instance.queue.track[0] instanceof YouTubeVideo ||
-            event.instance.queue.track[0] instanceof SpotifyTrack
-        ) {
-            const actualPlaybackURL = event.instance.getActualPlaybackURL();
-            if (event.instance.queue.track[0] instanceof SpotifyTrack && !actualPlaybackURL) return;
-            row.addComponents([
-                new ButtonBuilder()
-                    .setEmoji('🔴')
-                    .setLabel(' Open in YouTube')
-                    .setURL(
-                        event.instance.queue.track[0] instanceof YouTubeVideo
-                            ? encodeURI(`https://www.youtube.com/watch?v=${event.instance.queue.track[0].id}`)
-                            : encodeURI(event.instance.getActualPlaybackURL()!)
-                    )
-                    .setStyle(ButtonStyle.Link)
-            ]);
-        }
+        // if (event.instance.queue.track[0] instanceof SpotifyTrack)
+        //     row.addComponents([
+        //         new ButtonBuilder()
+        //             .setEmoji('🟢')
+        //             .setLabel(' Open in Spotify')
+        //             .setURL(encodeURI(`https://open.spotify.com/track/${event.instance.queue.track[0].id}`))
+        //             .setStyle(ButtonStyle.Link)
+        //     ]);
+
+        row.addComponents([
+            new ButtonBuilder()
+                .setEmoji('🔴')
+                .setLabel(' Open in YouTube')
+                .setURL(current.metadata.url)
+                .setStyle(ButtonStyle.Link)
+        ]);
 
         if (event.instance.textChannel) {
             if (event.instance.getLoopMode() === DiscordMusicPlayerLoopMode.Current) {
                 isLoopMessageSent = true;
                 await sendMessage(event.instance.textChannel, undefined, {
-                    embeds: [await EMBEDS.NOW_REPEATING(data, locale, event.instance.queue.track[0])],
+                    embeds: [await EMBEDS.NOW_REPEATING(data, locale, current)],
                     components: [row]
                 });
             } else {
                 await sendMessage(event.instance.textChannel, undefined, {
-                    embeds: [await EMBEDS.NOW_PLAYING(data, locale, event.instance.queue.track[0])],
+                    embeds: [await EMBEDS.NOW_PLAYING(data, locale, current)],
                     components: [row]
                 });
             }
