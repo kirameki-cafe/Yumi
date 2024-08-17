@@ -19,6 +19,7 @@ RUN corepack enable
 RUN pnpm install
 
 WORKDIR /home/node/app/NekoMelody
+RUN ls
 RUN pnpm install
 RUN pnpm run build
 
