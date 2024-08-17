@@ -10,7 +10,7 @@ COPY . .
 RUN DEBIAN_FRONTEND=noninteractive
  
 RUN apt-get update -y
-RUN apt-get -y install curl gnupg git dh-python make g++ libasound2-dev iputils-ping ffmpeg
+RUN apt-get -y install curl gnupg git dh-python make g++ libasound2-dev ciputils-ping ffmpeg
 RUN curl -sL https://deb.nodesource.com/setup_21.x  | bash -
 RUN apt-get -y install nodejs
 
@@ -38,7 +38,7 @@ RUN apt-get -y install nodejs
 RUN corepack enable
 
 COPY --from=build /home/node/app/package.json .
-COPY --from=build /home/node/app/pnpm-lock.lock .
+COPY --from=build /home/node/app/pnpm-lock.yaml .
 
 RUN pnpm install
 
