@@ -1,4 +1,9 @@
 FROM debian AS build
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV CI=true
+
 WORKDIR /home/node/app
 
 COPY . .
@@ -8,15 +13,16 @@ RUN apt-get update -y
 RUN apt-get -y install curl gnupg git dh-python make g++ iputils-ping ffmpeg
 RUN curl -sL https://deb.nodesource.com/setup_21.x  | bash -
 RUN apt-get -y install nodejs
-RUN npm i -g yarn
 
-RUN yarn
+RUN corepack enable
+
+RUN pnpm install
 
 WORKDIR /home/node/app/NekoMelody
-RUN yarn
+RUN pnpm install
 
 WORKDIR /home/node/app
-RUN yarn build
+RUN pnpm run build
 
 FROM debian
 WORKDIR /home/node/app
@@ -28,12 +34,13 @@ RUN apt-get update -y
 RUN apt-get -y install yt-dlp
 RUN curl -sL https://deb.nodesource.com/setup_21.x  | bash -
 RUN apt-get -y install nodejs
-RUN npm i -g yarn
+
+RUN corepack enable
 
 COPY --from=build /home/node/app/package.json .
 COPY --from=build /home/node/app/yarn.lock .
 
-RUN yarn
+RUN pnpm install
 
 COPY --from=build /home/node/app/prisma ./prisma/
 RUN yarn prisma generate
