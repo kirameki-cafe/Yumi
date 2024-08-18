@@ -59,6 +59,9 @@ RUN pnpm install
 
 WORKDIR /home/node/app
 
+# Create a user named node
+RUN useradd -m node && chown -R node:node /home/node/app
+
 USER node
 
 CMD [ "node", "src/index.js"]
