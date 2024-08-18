@@ -86,7 +86,7 @@ export default class Skip extends DiscordModule {
                 embeds: [EMBEDS.NO_MUSIC_PLAYING(data, locale)]
             });
 
-        instance.skipTrack();
+        instance.skip();
 
         if (!instance.nekoPlayer.getCurrentAudioInformation())
             return await sendHybridInteractionMessageResponse(data, {
