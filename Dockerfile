@@ -58,11 +58,14 @@ COPY --from=build /home/node/app/NekoMelody/pnpm-lock.yaml ./NekoMelody/pnpm-loc
 WORKDIR /home/node/app/NekoMelody
 RUN pnpm install
 
-WORKDIR /home/node/app
-
-RUN pnpx puppeteer browsers install chrome
-RUN useradd -m node && chown -R node:node /home/node/app
-
+RUN useradd -m node
 USER node
+RUN chown -R node:node /home/node
+
+
+WORKDIR /home/node/app
+RUN pnpx puppeteer browsers install chrome
+
+
 
 CMD [ "node", "src/index.js"]
