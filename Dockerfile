@@ -20,7 +20,7 @@ RUN pnpm install
 
 WORKDIR /home/node/app/NekoMelody
 RUN pnpm install
-RUN pnpx playwright install
+RUN pnpx playwright install --with-deps chromium
 RUN pnpm run build
 
 WORKDIR /home/node/app
@@ -56,7 +56,7 @@ COPY --from=build /home/node/app/NekoMelody/pnpm-lock.yaml ./NekoMelody/pnpm-loc
 
 WORKDIR /home/node/app/NekoMelody
 RUN pnpm install
-RUN pnpx playwright install
+RUN pnpx playwright install --with-deps chromium
 
 RUN useradd -m node
 RUN chown -R node:node /home/node
