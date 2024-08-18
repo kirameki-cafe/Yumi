@@ -33,8 +33,8 @@ RUN apt-get update -y
 RUN apt-get -y install software-properties-common curl gnupg git dh-python make g++ libasound2-dev iputils-ping ffmpeg python3-launchpadlib libnss3
 RUN curl -sL https://deb.nodesource.com/setup_21.x  | bash -
 RUN apt-get -y install nodejs
-RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o ~/.local/bin/yt-dlp
-RUN chmod a+rx ~/.local/bin/yt-dlp
+RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /bin/yt-dlp
+RUN chmod a+rx /bin/yt-dlp
 
 RUN corepack enable
 
