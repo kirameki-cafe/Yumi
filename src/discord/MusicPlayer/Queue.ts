@@ -1,11 +1,7 @@
 import { Message, CommandInteraction } from 'discord.js';
 import { I18n } from 'i18n';
 
-import DiscordMusicPlayer, {
-    DiscordMusicPlayerInstance,
-    DiscordMusicPlayerLoopMode,
-    TrackUtils
-} from '../../providers/DiscordMusicPlayer';
+import DiscordMusicPlayer, { DiscordMusicPlayerInstance, TrackUtils } from '../../providers/DiscordMusicPlayer';
 import Locale from '../../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
@@ -15,6 +11,7 @@ import {
     makeSuccessEmbed,
     makeInfoEmbed
 } from '../../utils/DiscordMessage';
+import { LoopMode } from '../../../NekoMelody/src/player';
 
 const EMBEDS = {
     QUEUE: (data: HybridInteractionMessage, locale: I18n, instance: DiscordMusicPlayerInstance) => {
@@ -29,7 +26,7 @@ const EMBEDS = {
             });
 
         const nowPlayingText = `${
-            instance.getLoopMode() === DiscordMusicPlayerLoopMode.Current
+            instance.nekoPlayer.getLoopMode() === LoopMode.Current
                 ? ` ${locale.__('musicplayer_queue.looping_current')}`
                 : ''
         }: [${current.metadata.title}](${current.metadata.url})`;

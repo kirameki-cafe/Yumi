@@ -182,11 +182,6 @@ export class VoiceDisconnectedEvent {
     }
 }
 
-export enum DiscordMusicPlayerLoopMode {
-    None = 'none',
-    Current = 'current'
-}
-
 export class DiscordMusicPlayerInstance {
     public queue: Queue;
     public discordPlayer: AudioPlayer;
@@ -197,7 +192,6 @@ export class DiscordMusicPlayerInstance {
     public previousTrack?: ValidTracks;
 
     public paused: boolean = false;
-    public loopMode: DiscordMusicPlayerLoopMode = DiscordMusicPlayerLoopMode.None;
 
     public readonly events: EventEmitter;
 
@@ -371,14 +365,6 @@ export class DiscordMusicPlayerInstance {
 
         if (!this.queue.track || this.queue.track.length === 0) return;
         this.queue.track = shuffleFixedFirst(this.queue.track);
-    }
-
-    public setLoopMode(mode: DiscordMusicPlayerLoopMode) {
-        this.loopMode = mode;
-    }
-
-    public getLoopMode() {
-        return this.loopMode;
     }
 
     public getPreviousTrack(): ValidTracks | undefined {

@@ -27,7 +27,6 @@ import DiscordMusicPlayer, {
     VoiceDisconnectedEvent,
     ValidTracks,
     DiscordMusicPlayerInstance,
-    DiscordMusicPlayerLoopMode,
     TrackUtils
 } from '../../providers/DiscordMusicPlayer';
 
@@ -36,6 +35,7 @@ import Locale from '../../services/Locale';
 import { SpotifyTrack, YouTubeVideo } from 'play-dl';
 import { checkBotPermissionsInChannel } from '../../utils/DiscordPermission';
 import { AudioInformation } from '../../../NekoMelody/src/providers/base';
+import { LoopMode } from '../../../NekoMelody/src/player';
 
 const EMBEDS = {
     VOICECHANNEL_JOINED: (data: HybridInteractionMessage, locale: I18n) => {
@@ -257,7 +257,7 @@ export async function joinVoiceChannelProcedure(
         ]);
 
         if (event.instance.textChannel) {
-            if (event.instance.getLoopMode() === DiscordMusicPlayerLoopMode.Current) {
+            if (event.instance.nekoPlayer.getLoopMode() === LoopMode.Current) {
                 isLoopMessageSent = true;
                 await sendMessage(event.instance.textChannel, undefined, {
                     embeds: [await EMBEDS.NOW_REPEATING(data, locale, current)],

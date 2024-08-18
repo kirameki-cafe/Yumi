@@ -1,7 +1,8 @@
 import { I18n } from 'i18n';
 import { Message, CommandInteraction } from 'discord.js';
 
-import DiscordMusicPlayer, { DiscordMusicPlayerLoopMode } from '../../providers/DiscordMusicPlayer';
+import DiscordMusicPlayer from '../../providers/DiscordMusicPlayer';
+import { LoopMode } from '../../../NekoMelody/src/index';
 import Locale from '../../services/Locale';
 
 import DiscordModule, { HybridInteractionMessage } from '../../utils/DiscordModule';
@@ -18,7 +19,7 @@ const EMBEDS = {
             user: data.getUser()
         });
     },
-    LOOP_STATUS: (data: HybridInteractionMessage, locale: I18n, loopMode: DiscordMusicPlayerLoopMode) => {
+    LOOP_STATUS: (data: HybridInteractionMessage, locale: I18n, loopMode: LoopMode) => {
         let embed = makeInfoEmbed({
             title: locale.__('musicplayer_loop.info', {
                 MODE: loopMode
@@ -28,7 +29,7 @@ const EMBEDS = {
         });
         return embed;
     },
-    LOOP_SET: (data: HybridInteractionMessage, locale: I18n, loopMode: DiscordMusicPlayerLoopMode) => {
+    LOOP_SET: (data: HybridInteractionMessage, locale: I18n, loopMode: LoopMode) => {
         let embed = makeSuccessEmbed({
             title: locale.__('musicplayer_loop.loop_set', {
                 MODE: loopMode
@@ -112,18 +113,15 @@ export default class Loop extends DiscordModule {
 
         if (!query)
             return await sendHybridInteractionMessageResponse(data, {
-                embeds: [EMBEDS.LOOP_STATUS(data, locale, instance.getLoopMode())]
+                embeds: [EMBEDS.LOOP_STATUS(data, locale, instance.nekoPlayer.getLoopMode())]
             });
 
-        let enumKey =
-            Object.keys(DiscordMusicPlayerLoopMode)[
-                Object.values(DiscordMusicPlayerLoopMode).indexOf(query.toLowerCase())
-            ];
+        let enumKey = Object.keys(LoopMode)[Object.values(LoopMode).indexOf(query.toLowerCase())];
 
         if (enumKey) {
-            instance.setLoopMode(DiscordMusicPlayerLoopMode[enumKey as keyof typeof DiscordMusicPlayerLoopMode]);
+            instance.nekoPlayer.setLoopMode(LoopMode[enumKey as keyof typeof LoopMode]);
             return await sendHybridInteractionMessageResponse(data, {
-                embeds: [EMBEDS.LOOP_SET(data, locale, instance.getLoopMode())]
+                embeds: [EMBEDS.LOOP_SET(data, locale, instance.nekoPlayer.getLoopMode())]
             });
         }
 
