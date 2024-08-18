@@ -189,7 +189,7 @@ export class DiscordMusicPlayerInstance {
     public textChannel?: BaseGuildTextChannel | BaseGuildVoiceChannel;
     public voiceChannel: VoiceChannel | StageChannel;
     public voiceConnection?: VoiceConnection;
-    public previousTrack?: ValidTracks;
+    public previousTrack?: AudioInformation;
 
     public paused: boolean = false;
 
@@ -208,38 +208,6 @@ export class DiscordMusicPlayerInstance {
         this.nekoPlayer = NekoMelody.createPlayer(this.providers);
         this.voiceChannel = voiceChannel;
         this.events = new EventEmitter();
-
-        // this.player.on(AudioPlayerStatus.Idle, async (oldStage, newStage) => {
-        //     //The player stopped
-        //     if (newStage.status === AudioPlayerStatus.Idle && oldStage.status !== AudioPlayerStatus.Idle) {
-        //         // Loop mode is set to current song
-        //         if (this.loopMode === DiscordMusicPlayerLoopMode.Current) {
-        //             if (this.queue.track.length !== 0) {
-        //                 this.previousTrack = this.queue.track[0];
-        //                 this.playTrack(this.queue.track[0]);
-        //             }
-        //             return;
-        //         }
-
-        //         // There are more songs in the queue, remove finished song and play the next one
-        //         if (this.queue.track.length !== 0) {
-        //             let previousTrack = this.queue.track.shift();
-        //             if (previousTrack) this.previousTrack = previousTrack;
-
-        //             if (this.queue.track.length > 0) {
-        //                 this.playTrack(this.queue.track[0]);
-        //             }
-        //         }
-        //     }
-        // });
-
-        // this.player.on(AudioPlayerStatus.Playing, (oldState: any, newState: any) => {
-        //     this.events.emit('playing', new PlayerPlayingEvent(this));
-        // });
-
-        // this.player.on('error', (error: Error) => {
-        //     this.events.emit('error', new PlayerErrorEvent(this, error));
-        // });
 
         this.nekoPlayer.on('play', (information: AudioInformation) => {
             if (!this.nekoPlayer.stream) throw new Error('No input stream');
@@ -329,17 +297,14 @@ export class DiscordMusicPlayerInstance {
         this.paused = false;
     }
 
-    public async addTrackToQueue(track: ValidTracks) {
-        return await this.nekoPlayer.enqueue(track.url);
+    public async skip() {
+        if (!this.voiceConnection) throw new Error('No voice connection');
+        this.discordPlayer.pause(true);
+        this.nekoPlayer.skip();
     }
 
-    public async skipTrack() {
-        if (!this.voiceConnection) throw new Error('No voice connection');
-
-        if (this.nekoPlayer.getQueue().length === 0) return;
-
-        await this.nekoPlayer.skip();
-        if (this.paused) this.paused = false;
+    public async addTrackToQueue(track: ValidTracks) {
+        return await this.nekoPlayer.enqueue(track.url);
     }
 
     public clearQueue() {
@@ -367,7 +332,7 @@ export class DiscordMusicPlayerInstance {
         this.queue.track = shuffleFixedFirst(this.queue.track);
     }
 
-    public getPreviousTrack(): ValidTracks | undefined {
+    public getPreviousTrack(): AudioInformation | undefined {
         return this.previousTrack;
     }
 

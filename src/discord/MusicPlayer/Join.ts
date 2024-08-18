@@ -224,7 +224,7 @@ export async function joinVoiceChannelProcedure(
 
     if (!instance) return;
 
-    let previousTrack: ValidTracks | undefined;
+    let previousTrack: AudioInformation | null;
     let isLoopMessageSent = false;
 
     // Register Event Listeners
@@ -233,10 +233,10 @@ export async function joinVoiceChannelProcedure(
         if (!current) return;
 
         const locale = await Locale.getGuildLocale(guild.id);
-        previousTrack = event.instance.getPreviousTrack();
+        previousTrack = event.instance.nekoPlayer.getPreviousAudioInformation();
 
-        //if (current !== previousTrack) isLoopMessageSent = false;
-        //else if (current === previousTrack && isLoopMessageSent) return;
+        if (current !== previousTrack) isLoopMessageSent = false;
+        else if (current === previousTrack && isLoopMessageSent) return;
 
         const row = new ActionRowBuilder<ButtonBuilder>();
         // if (event.instance.queue.track[0] instanceof SpotifyTrack)
