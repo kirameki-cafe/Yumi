@@ -59,8 +59,8 @@ WORKDIR /home/node/app/NekoMelody
 RUN pnpm install
 
 RUN useradd -m node
-USER node
 RUN chown -R node:node /home/node
+USER node
 
 
 WORKDIR /home/node/app
