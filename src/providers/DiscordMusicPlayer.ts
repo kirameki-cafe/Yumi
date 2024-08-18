@@ -257,13 +257,13 @@ export class DiscordMusicPlayerInstance {
             this.discordPlayer.play(resource);
             this.nekoPlayer.startCurrentStream();
             this.events.emit('playing', new PlayerPlayingEvent(this));
+        });
 
-            this.discordPlayer.on('stateChange', (oldState, newState) => {
-                console.log('State change', oldState.status, newState.status);
-                if (oldState.status === 'playing' && newState.status === 'idle') {
-                    this.nekoPlayer.endCurrentStream();
-                }
-            });
+        this.discordPlayer.on('stateChange', (oldState, newState) => {
+            console.log('State change', oldState.status, newState.status);
+            if (oldState.status === 'playing' && newState.status === 'idle') {
+                this.nekoPlayer.endCurrentStream();
+            }
         });
     }
 
