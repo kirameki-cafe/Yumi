@@ -65,4 +65,7 @@ RUN useradd -m node
 RUN chown -R node:node /home/node
 USER node
 
+WORKDIR /home/node/app
+RUN pnpx playwright install chromium
+
 CMD [ "node", "src/index.js"]
