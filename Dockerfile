@@ -20,6 +20,7 @@ RUN pnpm install
 
 WORKDIR /home/node/app/NekoMelody
 RUN pnpm install
+RUN pnpm exec playwright install
 RUN pnpm run build
 
 WORKDIR /home/node/app
@@ -42,7 +43,6 @@ COPY --from=build /home/node/app/package.json .
 COPY --from=build /home/node/app/pnpm-lock.yaml .
 
 RUN pnpm install
-RUN pnpm exec playwright install
 
 COPY --from=build /home/node/app/prisma ./prisma/
 RUN pnpm prisma generate
@@ -51,21 +51,17 @@ COPY --from=build /home/node/app/locales ./locales/
 
 COPY --from=build /home/node/app/dist .
 COPY --from=build /home/node/app/NekoMelody/dist ./NekoMelody/dist
-
 COPY --from=build /home/node/app/NekoMelody/package.json ./NekoMelody/package.json
 COPY --from=build /home/node/app/NekoMelody/pnpm-lock.yaml ./NekoMelody/pnpm-lock.yaml
 
 WORKDIR /home/node/app/NekoMelody
 RUN pnpm install
+RUN pnpm exec playwright install
 
 RUN useradd -m node
 RUN chown -R node:node /home/node
 USER node
 
-
 WORKDIR /home/node/app
-RUN pnpm exec playwright install
-
-
 
 CMD [ "node", "src/index.js"]
