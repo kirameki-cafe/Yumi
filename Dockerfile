@@ -42,6 +42,7 @@ COPY --from=build /home/node/app/package.json .
 COPY --from=build /home/node/app/pnpm-lock.yaml .
 
 RUN pnpm install
+RUN pnpx puppeteer browsers install chrome
 
 COPY --from=build /home/node/app/prisma ./prisma/
 RUN pnpm prisma generate
@@ -56,10 +57,10 @@ COPY --from=build /home/node/app/NekoMelody/pnpm-lock.yaml ./NekoMelody/pnpm-loc
 
 WORKDIR /home/node/app/NekoMelody
 RUN pnpm install
-RUN pnpx puppeteer browsers install chrome
 
 WORKDIR /home/node/app
 
+RUN pnpx puppeteer browsers install chrome
 RUN useradd -m node && chown -R node:node /home/node/app
 
 USER node
