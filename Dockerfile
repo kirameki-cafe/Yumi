@@ -56,10 +56,10 @@ COPY --from=build /home/node/app/NekoMelody/pnpm-lock.yaml ./NekoMelody/pnpm-loc
 
 WORKDIR /home/node/app/NekoMelody
 RUN pnpm install
+RUN pnpx puppeteer browsers install chrome
 
 WORKDIR /home/node/app
 
-# Create a user named node
 RUN useradd -m node && chown -R node:node /home/node/app
 
 USER node
