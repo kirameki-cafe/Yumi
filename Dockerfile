@@ -59,4 +59,6 @@ RUN pnpm install
 
 WORKDIR /home/node/app
 
+USER node
+
 CMD [ "node", "src/index.js"]
