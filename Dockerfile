@@ -42,7 +42,7 @@ COPY --from=build /home/node/app/package.json .
 COPY --from=build /home/node/app/pnpm-lock.yaml .
 
 RUN pnpm install
-RUN pnpx puppeteer browsers install chrome
+RUN pnpm exec playwright install
 
 COPY --from=build /home/node/app/prisma ./prisma/
 RUN pnpm prisma generate
@@ -64,7 +64,7 @@ USER node
 
 
 WORKDIR /home/node/app
-RUN pnpx puppeteer browsers install chrome
+RUN pnpm exec playwright install
 
 
 
