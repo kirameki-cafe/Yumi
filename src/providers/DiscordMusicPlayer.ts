@@ -300,7 +300,7 @@ export class DiscordMusicPlayerInstance {
     public async skip() {
         if (!this.voiceConnection) throw new Error('No voice connection');
         this.discordPlayer.pause(true);
-        this.nekoPlayer.skip();
+        await this.nekoPlayer.skip();
     }
 
     public async addTrackToQueue(track: ValidTracks) {
