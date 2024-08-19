@@ -379,8 +379,8 @@ export default class Play extends DiscordModule {
                         .setCustomId(
                             JSON.stringify({
                                 m: 'MP_P',
-                                a: 'arp', // Add remaining playlist
-                                d: `${voiceChannel.id}$${linkData.videoId}$${linkData.list}`
+                                a: 'arp' // Add remaining playlist
+                                //d: `${voiceChannel.id}$${linkData.videoId}$${linkData.list}`.slice(0, 100)
                             })
                         )
                         .setLabel('  Add the remaining songs in the playlist')
